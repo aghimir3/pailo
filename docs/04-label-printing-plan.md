@@ -19,6 +19,62 @@ Why PDF first:
 
 DOCX can still be supported later as import/export, but the production workflow should not depend on manually editing DOCX files.
 
+## MVP Priority: Sticker 42 Production Labels
+
+The first MVP label workflow must reproduce the physical layout of `../Sticker 42.doc` because that file already works with Pailo's current sticker paper. Treat this Word file as the calibrated production reference, not as a file that users edit directly.
+
+Measured from `Sticker 42.doc` on 2026-05-02:
+
+- Page: A4 portrait, about 210.00 mm x 297.00 mm.
+- Sticker count per page: 24 labels.
+- Grid: 3 columns x 8 rows.
+- Label size: about 63.50 mm wide x 33.87 mm high.
+- Horizontal gap between label columns: about 2.54 mm.
+- Vertical gap: 0 mm between label rows.
+- Label left positions: about 7.20 mm, 73.24 mm, and 139.28 mm.
+- Label top positions: about 13.09 mm, then every 33.86 mm down the page.
+- Current editable content visible in the file: `Manufactured By`, manufacturer name, `Art. NO.`, `Colour`, `MRP`, `SIZE`, and `Made in Nepal`.
+
+The MVP should ship a locked `Sticker 42` template preset using these dimensions. Users should edit values and print quantities, but the template geometry should remain protected unless an admin intentionally creates a new approved template version.
+
+## MVP Label UX
+
+The high-value MVP experience should be simple and hard to misprint:
+
+1. User opens Labels and chooses the `Sticker 42` template.
+2. App shows one large editable sticker preview, not a cluttered 24-label editing canvas.
+3. User edits structured fields:
+	- Art No.
+	- Colour.
+	- Size.
+	- MRP.
+	- Manufactured By.
+	- Made in / origin text.
+	- Optional work order or batch reference when needed.
+4. User enters the number of labels to print.
+5. App shows a sheet preview using the real 24-slot A4 layout.
+6. App fills labels in row-major order: left to right across the top row, then the next row. If the user prints 3 labels, only the first row is filled. If the user prints 25 labels, the app creates a second page and fills the first slot on that page.
+7. User downloads or prints a PDF.
+8. App stores a print-job record with template version, field values, quantity, actor, work order or style, and timestamp.
+
+For work orders with multiple sizes, the app should let the user enter quantities per size and then generate labels in the selected order. The preview should make page breaks and partially filled pages obvious before printing.
+
+## MVP Print Accuracy Strategy
+
+Generate the final output as a backend-created PDF with millimeter-based coordinates from the approved template version. Do not rely on browser print scaling for production labels.
+
+Implementation direction:
+
+- Store the `Sticker 42` geometry in structured template data.
+- Use exact page, label, gap, and offset dimensions from the measured file.
+- Render the PDF server-side using a library that supports exact page sizes and millimeter positioning.
+- Use embedded or controlled fonts so text measurements are predictable.
+- Add an admin-only calibration setting for small printer offsets, such as `offset_x_mm` and `offset_y_mm`, without changing the approved template dimensions.
+- Include a test-print mode that prints label borders or faint guides on plain A4 paper for alignment checks.
+- Save every approved calibration as a template version.
+
+The UI can render a browser preview for confidence, but the PDF is the source of truth for printing.
+
 ## Label Template Types
 
 Pailo may need several template types:
@@ -130,6 +186,8 @@ Made in {{made_in}}
 6. User downloads or prints PDF.
 7. App records print history.
 
+For the MVP `Sticker 42` workflow, the default screen should be even more direct: edit one sticker, enter quantity, preview the 24-up sheet, then print PDF.
+
 ## Batch Printing Examples
 
 Example work order:
@@ -160,6 +218,12 @@ Suggested fields:
 - margin_left_mm
 - gap_x_mm
 - gap_y_mm
+- slots_per_page
+- columns
+- rows
+- fill_order
+- offset_x_mm
+- offset_y_mm
 - design_json
 - html_template
 - css_template
@@ -168,6 +232,8 @@ Suggested fields:
 ## DOCX Handling
 
 The existing `../Sticker 42.doc` can be used as a visual reference.
+
+For the MVP, it is more than a visual reference: it is the calibrated source for the first production template dimensions. The application should recreate this layout in structured template data and generate PDFs from that data.
 
 Possible DOCX support path:
 

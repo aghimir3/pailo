@@ -19,6 +19,7 @@ The goal is to build one operating system for the factory: product development, 
 - [11-aws-ecs-deployment-cost-plan.md](11-aws-ecs-deployment-cost-plan.md) - AWS ECS/Fargate deployment plan optimized for low traffic and low cost.
 - [12-api-integration-quality-plan.md](12-api-integration-quality-plan.md) - API contracts, generated clients, testing, CI/CD, observability, and release gates.
 - [13-implementation-execution-plan.md](13-implementation-execution-plan.md) - incremental execution plan for building the app from runnable foundation to production launch.
+- [14-mvp-scope.md](14-mvp-scope.md) - concrete MVP scope, workflows, acceptance criteria, out-of-scope items, and build order.
 
 ## Implementation Artifacts
 

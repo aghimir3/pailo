@@ -159,6 +159,15 @@ Flow:
 4. Backend maps Cognito subject/email/phone to local `users` and `employees`.
 5. Backend enforces role and permission checks for every endpoint.
 
+MVP signup policy:
+
+- Disable public self-signup. Factory users should be invited or created by an owner/admin.
+- The first owner/admin is not guessed from the AWS account or GitHub account. It is the email configured as `initial_owner_admin_email` during deployment.
+- After Cognito is created, invite that email through Cognito `admin-create-user` or an equivalent admin screen/automation.
+- On database bootstrap or first authenticated login, if no local owner/admin exists and the authenticated email matches `initial_owner_admin_email`, create the local `owner_admin` user and employee mapping.
+- Once the first owner/admin exists, additional users are invited from inside the app by an authorized owner/admin or office admin.
+- Users may use Gmail addresses as their email usernames, but the MVP should not depend on Google OAuth or `Continue with Google` for core login.
+
 Local roles:
 
 - owner_admin

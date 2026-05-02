@@ -93,7 +93,10 @@ aws_region  = "ap-south-1"
 environment = "prod"
 
 budget_alert_emails = ["your-email@example.com"]
+initial_owner_admin_email = "your-email@example.com"
 ```
+
+`initial_owner_admin_email` answers the first-login question. This is the email address the backend should bootstrap as the first `owner_admin` after the matching Cognito user is invited. Use your own email address for the first production setup.
 
 If `pailoshoes.com` is not already delegated to Route 53, use one of these safe paths:
 
@@ -120,6 +123,29 @@ Important outputs:
 - `ecr_repository_urls`: where CI pushes frontend and backend images.
 - `github_actions_role_arn`: IAM role GitHub Actions uses through OIDC.
 - `route53_name_servers`: name servers to copy to the registrar if Terraform created the hosted zone.
+
+## Step 3.5: Invite The First Owner/Admin User
+
+The app is invite-only. There is no public self-signup for the factory MVP.
+
+After Terraform creates the Cognito user pool, invite the first owner/admin email you set in `terraform.tfvars`:
+
+```powershell
+$userPoolId = terraform output -raw cognito_user_pool_id
+$adminEmail = "your-email@example.com"
+
+aws cognito-idp admin-create-user `
+   --profile pailo-admin `
+   --region ap-south-1 `
+   --user-pool-id $userPoolId `
+   --username $adminEmail `
+   --user-attributes Name=email,Value=$adminEmail Name=email_verified,Value=true `
+   --desired-delivery-mediums EMAIL
+```
+
+Cognito sends a temporary-password invitation. On first login, the owner/admin sets a permanent password. The backend should then map that email to the first local `owner_admin` user during database bootstrap or first authenticated login.
+
+You can use a Gmail address here. That means the user logs in with an email address and password managed by Cognito. It does not mean `Continue with Google`; Google OAuth is intentionally not part of the MVP core flow because factory-floor workflows must work on Huawei phones, Brave, and privacy-restricted browsers without Google services.
 
 ## Step 4: Configure GitHub Actions
 

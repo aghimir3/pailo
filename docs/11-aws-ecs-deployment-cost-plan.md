@@ -206,7 +206,9 @@ Use Amazon Cognito to avoid building password storage, password resets, MFA, and
 Plan:
 
 - Cognito User Pool.
-- Email or phone login depending on team preference.
+- Invite-only email login for the MVP. Phone login can be added later if the team needs it.
+- First owner/admin email configured during deployment as `initial_owner_admin_email` and invited through Cognito admin user creation.
+- Gmail addresses can be used as email usernames, but Google OAuth / `Continue with Google` is not part of the MVP core flow.
 - MFA optional for owner/admin.
 - Backend verifies JWT.
 - Local database stores app roles and employee mapping.
