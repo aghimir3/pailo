@@ -36,6 +36,7 @@ def test_mvp_schema_metadata_includes_core_tables() -> None:
         "inventory_movements",
         "work_orders",
         "tasks",
+        "task_comments",
         "task_status_updates",
         "quality_inspections",
         "label_templates",
@@ -44,3 +45,13 @@ def test_mvp_schema_metadata_includes_core_tables() -> None:
     }
 
     assert expected_tables.issubset(Base.metadata.tables)
+
+
+def test_task_schema_supports_user_assignment_and_comments() -> None:
+    task_columns = Base.metadata.tables["tasks"].columns
+    comment_columns = Base.metadata.tables["task_comments"].columns
+
+    assert "assigned_to_user_id" in task_columns
+    assert "author_user_id" in comment_columns
+    assert "client_message_id" in comment_columns
+    assert "edited_at" in comment_columns

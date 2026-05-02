@@ -341,6 +341,7 @@ class Task(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         Index(
             "ix_tasks_assigned_employee_status_due", "assigned_to_employee_id", "status", "due_at"
         ),
+        Index("ix_tasks_assigned_user_status_due", "assigned_to_user_id", "status", "due_at"),
         Index("ix_tasks_work_order_status", "work_order_id", "status"),
         Index("ix_tasks_board_status_priority", "board_id", "status", "priority"),
     )
@@ -353,6 +354,9 @@ class Task(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     priority: Mapped[str] = mapped_column(String(24), nullable=False, server_default="normal")
     assigned_to_employee_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("employees.id", ondelete="SET NULL")
+    )
+    assigned_to_user_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
     )
     assigned_team: Mapped[str | None] = mapped_column(String(120))
     work_order_id: Mapped[UUID | None] = mapped_column(
@@ -383,6 +387,29 @@ class Task(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     requires_review: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("false")
     )
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
+
+
+class TaskComment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "task_comments"
+    __table_args__ = (
+        CheckConstraint("length(btrim(comment_text)) > 0", name="task_comment_text_not_blank"),
+        UniqueConstraint(
+            "author_user_id",
+            "client_message_id",
+            name="uq_task_comments_author_client_message",
+        ),
+        Index("ix_task_comments_task_created", "task_id", "created_at"),
+        Index("ix_task_comments_author_created", "author_user_id", "created_at"),
+    )
+
+    task_id: Mapped[UUID] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False)
+    author_user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    comment_text: Mapped[str] = mapped_column(Text, nullable=False)
+    client_message_id: Mapped[str | None] = mapped_column(String(80))
+    edited_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
 
 
