@@ -12,6 +12,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import Link from "next/link";
 import { getDashboard } from "@pailo/api-client";
 
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -23,7 +24,7 @@ import { dashboardFallback } from "@/lib/sample-data";
 
 const navItems = [
   { label: "Today", icon: Factory, active: true },
-  { label: "Tasks", icon: ClipboardList },
+  { label: "MVP", icon: ClipboardList, href: "/mvp" },
   { label: "Scan", icon: ScanLine },
   { label: "Inventory", icon: Boxes },
   { label: "Labels", icon: Printer },
@@ -67,10 +68,10 @@ export default async function Home() {
 
         <nav className="nav-stack">
           {navItems.map((item) => (
-            <button className={item.active ? "nav-item active" : "nav-item"} key={item.label} type="button">
+            <Link className={item.active ? "nav-item active" : "nav-item"} href={item.href ?? "/"} key={item.label}>
               <item.icon aria-hidden="true" size={18} />
               <span>{item.label}</span>
-            </button>
+            </Link>
           ))}
         </nav>
 
@@ -94,9 +95,11 @@ export default async function Home() {
             <Button aria-label="Scan code" size="icon" title="Scan code" type="button" variant="glass">
               <ScanLine aria-hidden="true" size={18} />
             </Button>
-            <Button aria-label="Create new task" type="button">
-              <ClipboardList aria-hidden="true" size={18} />
-              New task
+            <Button aria-label="Open MVP console" asChild>
+              <Link href="/mvp">
+                <ClipboardList aria-hidden="true" size={18} />
+                MVP console
+              </Link>
             </Button>
           </div>
         </header>
@@ -277,10 +280,10 @@ export default async function Home() {
 
       <nav className="mobile-nav" aria-label="Mobile navigation">
         {navItems.slice(0, 5).map((item) => (
-          <button className={item.active ? "mobile-nav-item active" : "mobile-nav-item"} key={item.label} type="button">
+          <Link className={item.active ? "mobile-nav-item active" : "mobile-nav-item"} href={item.href ?? "/"} key={item.label}>
             <item.icon aria-hidden="true" size={19} />
             <span>{item.label}</span>
-          </button>
+          </Link>
         ))}
       </nav>
     </main>
