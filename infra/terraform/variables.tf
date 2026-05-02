@@ -221,7 +221,13 @@ variable "owner" {
 variable "postgres_engine_version" {
   type        = string
   description = "RDS PostgreSQL engine version. Use a version available in the target region."
-  default     = "17"
+  default     = "18"
+}
+
+variable "database_allow_major_version_upgrade" {
+  type        = bool
+  description = "Allow an intentional RDS PostgreSQL major version upgrade. Keep false for normal applies."
+  default     = false
 }
 
 variable "project_name" {

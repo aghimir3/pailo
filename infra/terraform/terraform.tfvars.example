@@ -15,3 +15,7 @@ initial_owner_admin_email = "owner@example.com"
 
 # Optional: set after CI pushes immutable image tags to ECR.
 # image_tag = "2026-05-02-001"
+
+# Optional: RDS PostgreSQL defaults to 18 when available in ap-south-1.
+# If AWS has not enabled 18 in the region yet, set the newest supported version.
+# postgres_engine_version = "17"

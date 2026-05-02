@@ -9,6 +9,7 @@ resource "aws_db_subnet_group" "main" {
 
 resource "aws_db_instance" "main" {
   allocated_storage            = var.database_allocated_storage_gb
+  allow_major_version_upgrade  = var.database_allow_major_version_upgrade
   auto_minor_version_upgrade   = true
   backup_retention_period      = var.database_backup_retention_days
   backup_window                = "18:00-19:00"
