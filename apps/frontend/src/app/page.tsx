@@ -1,9 +1,11 @@
 import {
   AlertTriangle,
   Boxes,
+  CalendarClock,
   CheckCircle2,
   ClipboardList,
   Factory,
+  MessageSquare,
   PackageCheck,
   Printer,
   ScanLine,
@@ -33,6 +35,12 @@ function taskTone(status: string) {
   if (status === "waiting_for_review") return "cyan";
   if (status === "ready") return "amber";
   return "green";
+}
+
+function priorityTone(priority: string) {
+  if (priority === "urgent" || priority === "high") return "red";
+  if (priority === "medium") return "amber";
+  return "neutral";
 }
 
 async function loadDashboard() {
@@ -186,22 +194,36 @@ export default async function Home() {
             <PanelHeader>
               <div>
                 <p className="eyebrow">My Tasks</p>
-                <h3>Ram&apos;s queue</h3>
+                <h3>Assigned to Ram</h3>
               </div>
               <ClipboardList aria-hidden="true" className="panel-icon" size={20} />
             </PanelHeader>
             <div className="task-list">
               {dashboard.my_tasks.map((task) => (
-                <section className="task-card" key={task.code}>
-                  <div>
-                    <Badge tone={taskTone(task.status)}>{task.status.replaceAll("_", " ")}</Badge>
+                <section className={task.blocker_reason ? "task-card task-card-alert" : "task-card"} key={task.code}>
+                  <div className="task-main">
+                    <div className="task-card-head">
+                      <Badge tone={taskTone(task.status)}>{task.status.replaceAll("_", " ")}</Badge>
+                      <Badge tone={priorityTone(task.priority)}>{task.priority}</Badge>
+                    </div>
                     <h4>{task.title}</h4>
-                    <p>{task.work_order} / {task.quantity}</p>
+                    <div className="task-meta-grid">
+                      <span><CalendarClock aria-hidden="true" size={15} />{task.due_time}</span>
+                      <span>{task.work_order ?? "General"}</span>
+                      <span>{task.quantity ?? "No quantity"}</span>
+                    </div>
+                    {task.blocker_reason ? <p className="task-blocker">{task.blocker_reason}</p> : null}
                   </div>
-                  <Button className="task-action" size="sm" type="button" variant="glass">
-                    <CheckCircle2 aria-hidden="true" size={16} />
-                    Update
-                  </Button>
+                  <div className="task-actions">
+                    <Button className="task-action" size="sm" type="button" variant="glass">
+                      <MessageSquare aria-hidden="true" size={16} />
+                      Comment
+                    </Button>
+                    <Button className="task-action" size="sm" type="button" variant="glass">
+                      <CheckCircle2 aria-hidden="true" size={16} />
+                      Update
+                    </Button>
+                  </div>
                 </section>
               ))}
             </div>
