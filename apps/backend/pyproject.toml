@@ -1,0 +1,33 @@
+[project]
+name = "pailo-backend"
+version = "0.1.0"
+description = "FastAPI backend for the Pailo factory operating system."
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi==0.136.1",
+  "pydantic==2.13.3",
+  "structlog==25.5.0",
+  "uvicorn[standard]==0.46.0"
+]
+
+[dependency-groups]
+dev = [
+  "httpx==0.28.1",
+  "mypy==1.20.2",
+  "pytest==9.0.3",
+  "ruff==0.15.12"
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
