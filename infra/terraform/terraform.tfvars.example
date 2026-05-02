@@ -1,0 +1,13 @@
+aws_region  = "ap-south-1"
+environment = "prod"
+
+budget_alert_emails = ["owner@example.com"]
+
+# Optional: set when the Route 53 hosted zone already exists.
+# route53_zone_id = "Z1234567890ABCDEFG"
+
+# Optional: set to a globally unique Cognito hosted UI domain prefix.
+# cognito_domain_prefix = "pailo-prod-auth"
+
+# Optional: set after CI pushes immutable image tags to ECR.
+# image_tag = "2026-05-02-001"

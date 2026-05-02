@@ -1,0 +1,9 @@
+terraform {
+  backend "s3" {
+    bucket         = "replace-with-pailo-terraform-state-bucket"
+    dynamodb_table = "replace-with-pailo-terraform-locks"
+    encrypt        = true
+    key            = "prod/terraform.tfstate"
+    region         = "ap-south-1"
+  }
+}
