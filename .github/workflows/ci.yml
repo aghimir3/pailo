@@ -1,0 +1,85 @@
+name: Pailo Monorepo Quality Gates
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    name: Frontend, Backend, And API Contract Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install pnpm dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.10.9"
+
+      - name: Generate API client
+        run: corepack pnpm generate:api
+
+      - name: Lint frontend
+        run: corepack pnpm lint
+
+      - name: Typecheck frontend
+        run: corepack pnpm typecheck
+
+      - name: Test backend
+        run: corepack pnpm test:backend
+
+      - name: Build frontend
+        run: corepack pnpm build:frontend
+
+  terraform:
+    name: Terraform Static Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.15.1
+
+      - name: Terraform fmt
+        run: terraform -chdir=infra/terraform fmt -check -recursive
+
+      - name: Terraform init
+        run: terraform -chdir=infra/terraform init -backend=false
+
+      - name: Terraform validate
+        run: terraform -chdir=infra/terraform validate
+
+      - name: Terraform bootstrap fmt
+        run: terraform -chdir=infra/terraform/bootstrap fmt -check
+
+      - name: Terraform bootstrap init
+        run: terraform -chdir=infra/terraform/bootstrap init -backend=false
+
+      - name: Terraform bootstrap validate
+        run: terraform -chdir=infra/terraform/bootstrap validate
