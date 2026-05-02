@@ -3,6 +3,10 @@ environment = "prod"
 
 budget_alert_emails = ["owner@example.com"]
 
+# Required before first real login: the email address that should become the
+# first owner/admin in the app after that Cognito user is invited.
+initial_owner_admin_email = "owner@example.com"
+
 # Optional: set when the Route 53 hosted zone already exists.
 # route53_zone_id = "Z1234567890ABCDEFG"
 

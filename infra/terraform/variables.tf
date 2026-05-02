@@ -164,6 +164,12 @@ variable "force_destroy_buckets" {
   default     = false
 }
 
+variable "initial_owner_admin_email" {
+  type        = string
+  description = "Email address for the first Pailo owner/admin user. The backend uses this to bootstrap the initial owner_admin role after the Cognito user is invited."
+  default     = ""
+}
+
 variable "frontend_container_cpu" {
   type        = number
   description = "CPU units reserved for the frontend container."

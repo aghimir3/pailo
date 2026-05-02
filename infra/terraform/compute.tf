@@ -71,6 +71,10 @@ resource "aws_ecs_task_definition" "app" {
           value = "https://${local.app_domain_name}"
         },
         {
+          name  = "INITIAL_OWNER_ADMIN_EMAIL"
+          value = var.initial_owner_admin_email
+        },
+        {
           name  = "DATABASE_HOST"
           value = aws_db_instance.main.address
         },
