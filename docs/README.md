@@ -20,6 +20,7 @@ The goal is to build one operating system for the factory: product development, 
 - [12-api-integration-quality-plan.md](12-api-integration-quality-plan.md) - API contracts, generated clients, testing, CI/CD, observability, and release gates.
 - [13-implementation-execution-plan.md](13-implementation-execution-plan.md) - incremental execution plan for building the app from runnable foundation to production launch.
 - [14-mvp-scope.md](14-mvp-scope.md) - concrete MVP scope, workflows, acceptance criteria, out-of-scope items, and build order.
+- [15-mvp-build-plan.md](15-mvp-build-plan.md) - execution-focused vertical slice plan for completing the MVP implementation.
 
 ## Implementation Artifacts
 
