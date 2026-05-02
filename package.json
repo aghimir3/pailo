@@ -9,7 +9,14 @@
     "build:frontend": "corepack pnpm --filter @pailo/frontend build",
     "typecheck": "corepack pnpm --filter @pailo/frontend typecheck",
     "lint": "corepack pnpm --filter @pailo/frontend lint",
+    "lint:backend": "uv run --project apps/backend ruff check .",
     "generate:api": "corepack pnpm --filter @pailo/api-client generate",
-    "test:backend": "uv run --project apps/backend pytest"
+    "db:start": "docker compose up -d --wait db",
+    "db:migrate": "uv run --project apps/backend alembic -c apps/backend/alembic.ini upgrade head",
+    "db:check": "uv run --project apps/backend alembic -c apps/backend/alembic.ini check",
+    "db:revision": "uv run --project apps/backend alembic -c apps/backend/alembic.ini revision --autogenerate",
+    "db:stop": "docker compose stop db",
+    "test:backend": "uv run --project apps/backend pytest",
+    "typecheck:backend": "uv run --project apps/backend mypy --config-file apps/backend/pyproject.toml apps/backend/app apps/backend/tests"
   }
 }

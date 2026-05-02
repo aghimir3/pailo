@@ -11,6 +11,8 @@ COPY apps/backend/pyproject.toml apps/backend/uv.lock ./
 RUN uv sync --frozen --no-dev
 
 COPY apps/backend/app ./app
+COPY apps/backend/alembic ./alembic
+COPY apps/backend/alembic.ini ./alembic.ini
 
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,1 @@
+"""Factory dashboard sample module."""
