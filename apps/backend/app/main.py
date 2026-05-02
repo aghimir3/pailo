@@ -1,7 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.router import api_router
+from app.modules.factory.service import FactoryServiceError
 
 
 def create_app() -> FastAPI:
@@ -22,6 +24,13 @@ def create_app() -> FastAPI:
     @app.get("/health", tags=["health"])
     async def health() -> dict[str, str]:
         return {"status": "ok", "service": "pailo-backend"}
+
+    @app.exception_handler(FactoryServiceError)
+    async def factory_service_error(
+        request: Request,
+        exc: FactoryServiceError,
+    ) -> JSONResponse:
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
     app.include_router(api_router, prefix="/api/v1")
     return app

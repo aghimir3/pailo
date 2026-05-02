@@ -1,11 +1,19 @@
+from uuid import UUID
+
 from fastapi import APIRouter
 
-from app.modules.factory.sample_data import work_orders
-from app.modules.factory.schemas import WorkOrderSummary
+from app.api.dependencies import DbSession
+from app.modules.factory import service
+from app.modules.factory.schemas import WorkOrderRecord
 
 router = APIRouter()
 
 
-@router.get("", response_model=list[WorkOrderSummary])
-async def list_work_orders() -> list[WorkOrderSummary]:
-    return work_orders()
+@router.get("", response_model=list[WorkOrderRecord])
+async def list_work_orders(session: DbSession) -> list[WorkOrderRecord]:
+    return await service.list_work_orders(session)
+
+
+@router.get("/{work_order_id}", response_model=WorkOrderRecord)
+async def get_work_order(work_order_id: UUID, session: DbSession) -> WorkOrderRecord:
+    return await service.get_work_order(session, work_order_id)

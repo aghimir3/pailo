@@ -55,6 +55,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/tasks.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export Tasks Csv */
+        get: operations["export_tasks_csv_api_v1_reports_tasks_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/low-stock.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export Low Stock Csv */
+        get: operations["export_low_stock_csv_api_v1_reports_low_stock_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/catalog/mvp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Mvp Catalog */
+        get: operations["get_mvp_catalog_api_v1_catalog_mvp_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tasks": {
         parameters: {
             query?: never;
@@ -65,7 +116,8 @@ export interface paths {
         /** List Tasks */
         get: operations["list_tasks_api_v1_tasks_get"];
         put?: never;
-        post?: never;
+        /** Create Task */
+        post: operations["create_task_api_v1_tasks_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -89,6 +141,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tasks/{task_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Task */
+        get: operations["get_task_api_v1_tasks__task_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Patch Task */
+        patch: operations["patch_task_api_v1_tasks__task_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/tasks/{task_id}/updates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Update Task Status */
+        post: operations["update_task_status_api_v1_tasks__task_id__updates_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{task_id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Task Comment */
+        post: operations["create_task_comment_api_v1_tasks__task_id__comments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{task_id}/comments/{comment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Task Comment */
+        patch: operations["update_task_comment_api_v1_tasks__task_id__comments__comment_id__patch"];
+        trace?: never;
+    };
     "/api/v1/work-orders": {
         parameters: {
             query?: never;
@@ -98,6 +219,23 @@ export interface paths {
         };
         /** List Work Orders */
         get: operations["list_work_orders_api_v1_work_orders_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/work-orders/{work_order_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Work Order */
+        get: operations["get_work_order_api_v1_work_orders__work_order_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -123,6 +261,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/inventory/materials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Materials */
+        get: operations["list_materials_api_v1_inventory_materials_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/quality/signals": {
         parameters: {
             query?: never;
@@ -134,6 +289,57 @@ export interface paths {
         get: operations["list_quality_signals_api_v1_quality_signals_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quality/inspections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Quality Inspections */
+        get: operations["list_quality_inspections_api_v1_quality_inspections_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/labels/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Label Templates */
+        get: operations["list_label_templates_api_v1_labels_templates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/labels/templates/{template_id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview Label Sheet */
+        post: operations["preview_label_sheet_api_v1_labels_templates__template_id__preview_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -165,6 +371,27 @@ export interface components {
             /** Owner Insights */
             owner_insights: components["schemas"]["OwnerInsight"][];
         };
+        /** EmployeeRef */
+        EmployeeRef: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Employee Code */
+            employee_code: string;
+            /** Full Name */
+            full_name: string;
+            /** Department */
+            department?: string | null;
+            /** Job Title */
+            job_title?: string | null;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
         /** InventoryAlert */
         InventoryAlert: {
             /** Material */
@@ -193,6 +420,169 @@ export interface components {
             /** Trend */
             trend: string;
         };
+        /** LabelPreviewRequest */
+        "LabelPreviewRequest-Input": {
+            /** Quantity */
+            quantity: number;
+            /** Art No */
+            art_no: string;
+            /** Colour */
+            colour: string;
+            /** Size */
+            size: string;
+            /** Mrp Npr */
+            mrp_npr: number | string;
+            /**
+             * Manufactured By
+             * @default Pailo Shoes
+             */
+            manufactured_by: string;
+            /**
+             * Origin Text
+             * @default Made in Nepal
+             */
+            origin_text: string;
+        };
+        /** LabelPreviewRequest */
+        "LabelPreviewRequest-Output": {
+            /** Quantity */
+            quantity: number;
+            /** Art No */
+            art_no: string;
+            /** Colour */
+            colour: string;
+            /** Size */
+            size: string;
+            /** Mrp Npr */
+            mrp_npr: string;
+            /**
+             * Manufactured By
+             * @default Pailo Shoes
+             */
+            manufactured_by: string;
+            /**
+             * Origin Text
+             * @default Made in Nepal
+             */
+            origin_text: string;
+        };
+        /** LabelPreviewResponse */
+        LabelPreviewResponse: {
+            template: components["schemas"]["LabelTemplateRecord"];
+            /** Page Count */
+            page_count: number;
+            /** Slots */
+            slots: components["schemas"]["LabelSlotRecord"][];
+            values: components["schemas"]["LabelPreviewRequest-Output"];
+        };
+        /** LabelSlotRecord */
+        LabelSlotRecord: {
+            /** Page */
+            page: number;
+            /** Slot */
+            slot: number;
+            /** Row */
+            row: number;
+            /** Column */
+            column: number;
+            /** X Mm */
+            x_mm: string;
+            /** Y Mm */
+            y_mm: string;
+            /** Width Mm */
+            width_mm: string;
+            /** Height Mm */
+            height_mm: string;
+        };
+        /** LabelTemplateRecord */
+        LabelTemplateRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Template Code */
+            template_code: string;
+            /** Name */
+            name: string;
+            /** Version */
+            version: number;
+            /** Status */
+            status: string;
+            /** Page Width Mm */
+            page_width_mm: string;
+            /** Page Height Mm */
+            page_height_mm: string;
+            /** Label Width Mm */
+            label_width_mm: string;
+            /** Label Height Mm */
+            label_height_mm: string;
+            /** Margin Top Mm */
+            margin_top_mm: string;
+            /** Margin Left Mm */
+            margin_left_mm: string;
+            /** Gap X Mm */
+            gap_x_mm: string;
+            /** Gap Y Mm */
+            gap_y_mm: string;
+            /** Slots Per Page */
+            slots_per_page: number;
+            /** Columns */
+            columns: number;
+            /** Rows */
+            rows: number;
+            /** Fill Order */
+            fill_order: string;
+            /** Design Json */
+            design_json: {
+                [key: string]: unknown;
+            };
+        };
+        /** MaterialStockRecord */
+        MaterialStockRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Material Code */
+            material_code: string;
+            /** Name */
+            name: string;
+            /** Category */
+            category: string;
+            /** Unit Of Measure */
+            unit_of_measure: string;
+            /** Supplier */
+            supplier?: string | null;
+            /** Current Quantity */
+            current_quantity: string;
+            /** Minimum Stock */
+            minimum_stock: string;
+            /** Average Cost Npr */
+            average_cost_npr?: string | null;
+            /** Location */
+            location?: string | null;
+            /** Risk */
+            risk: string;
+        };
+        /** MvpCatalogResponse */
+        MvpCatalogResponse: {
+            /** Users */
+            users: components["schemas"]["UserRef"][];
+            /** Employees */
+            employees: components["schemas"]["EmployeeRef"][];
+            /** Styles */
+            styles: components["schemas"]["ProductStyleRecord"][];
+            /** Suppliers */
+            suppliers: components["schemas"]["SupplierRecord"][];
+            /** Materials */
+            materials: components["schemas"]["MaterialStockRecord"][];
+            /** Work Orders */
+            work_orders: components["schemas"]["WorkOrderRecord"][];
+            /** Label Templates */
+            label_templates: components["schemas"]["LabelTemplateRecord"][];
+        };
         /** OwnerInsight */
         OwnerInsight: {
             /** Title */
@@ -204,6 +594,57 @@ export interface components {
             /** Tone */
             tone: string;
         };
+        /** ProductStyleRecord */
+        ProductStyleRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Style Code */
+            style_code: string;
+            /** Name */
+            name: string;
+            /** Category */
+            category: string;
+            /** Sample Status */
+            sample_status: string;
+            /** Target Cost Npr */
+            target_cost_npr?: string | null;
+            /** Target Mrp Npr */
+            target_mrp_npr?: string | null;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** QualityInspectionRecord */
+        QualityInspectionRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Inspection Code */
+            inspection_code: string;
+            /** Work Order Code */
+            work_order_code?: string | null;
+            /** Style Code */
+            style_code?: string | null;
+            /** Inspected By */
+            inspected_by?: string | null;
+            /**
+             * Inspected At
+             * Format: date-time
+             */
+            inspected_at: string;
+            /** Inspected Quantity */
+            inspected_quantity: number;
+            /** Defect Quantity */
+            defect_quantity: number;
+            /** Status */
+            status: string;
+            /** Notes */
+            notes?: string | null;
+        };
         /** QualitySignal */
         QualitySignal: {
             /** Label */
@@ -214,6 +655,206 @@ export interface components {
             detail: string;
             /** Tone */
             tone: string;
+        };
+        /** SupplierRecord */
+        SupplierRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Supplier Code */
+            supplier_code: string;
+            /** Name */
+            name: string;
+            /** Contact Person */
+            contact_person?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Material Categories */
+            material_categories: string[];
+            /** Usual Lead Time Days */
+            usual_lead_time_days?: number | null;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** TaskCommentCreateRequest */
+        TaskCommentCreateRequest: {
+            /** Comment Text */
+            comment_text: string;
+            /** Client Message Id */
+            client_message_id?: string | null;
+        };
+        /** TaskCommentRecord */
+        TaskCommentRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Task Id
+             * Format: uuid
+             */
+            task_id: string;
+            /**
+             * Author User Id
+             * Format: uuid
+             */
+            author_user_id: string;
+            /** Author Name */
+            author_name: string;
+            /** Comment Text */
+            comment_text: string;
+            /** Client Message Id */
+            client_message_id?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Edited At */
+            edited_at?: string | null;
+            /** Version */
+            version: number;
+        };
+        /** TaskCommentUpdateRequest */
+        TaskCommentUpdateRequest: {
+            /** Comment Text */
+            comment_text: string;
+            /** Version */
+            version: number;
+        };
+        /** TaskCreateRequest */
+        TaskCreateRequest: {
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Status
+             * @default ready
+             */
+            status: string;
+            /**
+             * Priority
+             * @default normal
+             */
+            priority: string;
+            /** Assigned To User Id */
+            assigned_to_user_id?: string | null;
+            /** Assigned To Employee Id */
+            assigned_to_employee_id?: string | null;
+            /** Assigned Team */
+            assigned_team?: string | null;
+            /** Work Order Id */
+            work_order_id?: string | null;
+            /** Product Style Id */
+            product_style_id?: string | null;
+            /** Due At */
+            due_at?: string | null;
+            /** Estimated Quantity */
+            estimated_quantity?: number | string | null;
+            /** Unit Of Measure */
+            unit_of_measure?: string | null;
+            /**
+             * Requires Review
+             * @default false
+             */
+            requires_review: boolean;
+        };
+        /** TaskPatchRequest */
+        TaskPatchRequest: {
+            /** Title */
+            title?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Priority */
+            priority?: string | null;
+            /** Assigned To User Id */
+            assigned_to_user_id?: string | null;
+            /** Assigned To Employee Id */
+            assigned_to_employee_id?: string | null;
+            /** Assigned Team */
+            assigned_team?: string | null;
+            /** Due At */
+            due_at?: string | null;
+            /** Estimated Quantity */
+            estimated_quantity?: number | string | null;
+            /** Unit Of Measure */
+            unit_of_measure?: string | null;
+            /** Requires Review */
+            requires_review?: boolean | null;
+            /** Version */
+            version: number;
+        };
+        /** TaskRecord */
+        TaskRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Task Code */
+            task_code: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /** Status */
+            status: string;
+            /** Priority */
+            priority: string;
+            assignee?: components["schemas"]["UserRef"] | null;
+            assigned_employee?: components["schemas"]["EmployeeRef"] | null;
+            /** Assigned Team */
+            assigned_team?: string | null;
+            /** Work Order Id */
+            work_order_id?: string | null;
+            /** Work Order Code */
+            work_order_code?: string | null;
+            /** Product Style Code */
+            product_style_code?: string | null;
+            /** Due At */
+            due_at?: string | null;
+            /** Estimated Quantity */
+            estimated_quantity?: string | null;
+            /** Completed Quantity */
+            completed_quantity: string;
+            /** Unit Of Measure */
+            unit_of_measure?: string | null;
+            /** Blocked Reason */
+            blocked_reason?: string | null;
+            /** Requires Review */
+            requires_review: boolean;
+            /** Started At */
+            started_at?: string | null;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Reviewed At */
+            reviewed_at?: string | null;
+            /** Version */
+            version: number;
+            /** Comments */
+            comments?: components["schemas"]["TaskCommentRecord"][];
+        };
+        /** TaskStatusUpdateRequest */
+        TaskStatusUpdateRequest: {
+            /** New Status */
+            new_status: string;
+            /** Completed Quantity */
+            completed_quantity?: number | string | null;
+            /** Update Note */
+            update_note?: string | null;
+            /** Blocker Reason */
+            blocker_reason?: string | null;
+            /** Version */
+            version: number;
         };
         /** TaskSummary */
         TaskSummary: {
@@ -244,6 +885,83 @@ export interface components {
             planned: number;
             /** Completed */
             completed: number;
+        };
+        /** UserRef */
+        UserRef: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Display Name */
+            display_name: string;
+            /** Email */
+            email?: string | null;
+            /** Role */
+            role: string;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
+        };
+        /** WorkOrderRecord */
+        WorkOrderRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Work Order Code */
+            work_order_code: string;
+            /** Style Code */
+            style_code: string;
+            /** Style Name */
+            style_name: string;
+            /** Status */
+            status: string;
+            /** Priority */
+            priority: string;
+            /** Planned Pairs */
+            planned_pairs: number;
+            /** Completed Pairs */
+            completed_pairs: number;
+            /** Current Stage */
+            current_stage?: string | null;
+            /** Due Date */
+            due_date?: string | null;
+            /** Cost Snapshot Npr */
+            cost_snapshot_npr?: string | null;
+            /** Version */
+            version: number;
+            /** Blocker */
+            blocker?: string | null;
+            /** Size Lines */
+            size_lines?: components["schemas"]["WorkOrderSizeLineRecord"][];
+        };
+        /** WorkOrderSizeLineRecord */
+        WorkOrderSizeLineRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Color */
+            color: string;
+            /** Size */
+            size: string;
+            /** Planned Pairs */
+            planned_pairs: number;
+            /** Completed Pairs */
+            completed_pairs: number;
         };
         /** WorkOrderSummary */
         WorkOrderSummary: {
@@ -337,6 +1055,62 @@ export interface operations {
             };
         };
     };
+    export_tasks_csv_api_v1_reports_tasks_csv_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    export_low_stock_csv_api_v1_reports_low_stock_csv_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_mvp_catalog_api_v1_catalog_mvp_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MvpCatalogResponse"];
+                };
+            };
+        };
+    };
     list_tasks_api_v1_tasks_get: {
         parameters: {
             query?: never;
@@ -352,7 +1126,43 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TaskSummary"][];
+                    "application/json": components["schemas"]["TaskRecord"][];
+                };
+            };
+        };
+    };
+    create_task_api_v1_tasks_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -360,7 +1170,10 @@ export interface operations {
     list_my_tasks_api_v1_tasks_my_tasks_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -372,7 +1185,200 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TaskSummary"][];
+                    "application/json": components["schemas"]["TaskRecord"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_task_api_v1_tasks__task_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_task_api_v1_tasks__task_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskPatchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_task_status_api_v1_tasks__task_id__updates_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskStatusUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_task_comment_api_v1_tasks__task_id__comments_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskCommentCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskCommentRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_task_comment_api_v1_tasks__task_id__comments__comment_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
+            path: {
+                task_id: string;
+                comment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskCommentUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskCommentRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -392,7 +1398,38 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["WorkOrderSummary"][];
+                    "application/json": components["schemas"]["WorkOrderRecord"][];
+                };
+            };
+        };
+    };
+    get_work_order_api_v1_work_orders__work_order_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                work_order_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkOrderRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -417,6 +1454,26 @@ export interface operations {
             };
         };
     };
+    list_materials_api_v1_inventory_materials_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MaterialStockRecord"][];
+                };
+            };
+        };
+    };
     list_quality_signals_api_v1_quality_signals_get: {
         parameters: {
             query?: never;
@@ -433,6 +1490,81 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QualitySignal"][];
+                };
+            };
+        };
+    };
+    list_quality_inspections_api_v1_quality_inspections_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QualityInspectionRecord"][];
+                };
+            };
+        };
+    };
+    list_label_templates_api_v1_labels_templates_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelTemplateRecord"][];
+                };
+            };
+        };
+    };
+    preview_label_sheet_api_v1_labels_templates__template_id__preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LabelPreviewRequest-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelPreviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

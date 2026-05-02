@@ -1,1 +1,2919 @@
-{"openapi":"3.1.0","info":{"title":"Pailo Factory API","description":"Factory operations API for tasks, work orders, inventory, QC, and owner insights.","version":"0.1.0"},"paths":{"/health":{"get":{"tags":["health"],"summary":"Health","operationId":"health_health_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object","title":"Response Health Health Get"}}}}}}},"/api/v1/health":{"get":{"tags":["health"],"summary":"Api Health","operationId":"api_health_api_v1_health_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object","title":"Response Api Health Api V1 Health Get"}}}}}}},"/api/v1/reports/dashboard":{"get":{"tags":["reports"],"summary":"Get Dashboard","operationId":"get_dashboard_api_v1_reports_dashboard_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DashboardResponse"}}}}}}},"/api/v1/tasks":{"get":{"tags":["tasks"],"summary":"List Tasks","operationId":"list_tasks_api_v1_tasks_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/TaskSummary"},"type":"array","title":"Response List Tasks Api V1 Tasks Get"}}}}}}},"/api/v1/tasks/my-tasks":{"get":{"tags":["tasks"],"summary":"List My Tasks","operationId":"list_my_tasks_api_v1_tasks_my_tasks_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/TaskSummary"},"type":"array","title":"Response List My Tasks Api V1 Tasks My Tasks Get"}}}}}}},"/api/v1/work-orders":{"get":{"tags":["work-orders"],"summary":"List Work Orders","operationId":"list_work_orders_api_v1_work_orders_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/WorkOrderSummary"},"type":"array","title":"Response List Work Orders Api V1 Work Orders Get"}}}}}}},"/api/v1/inventory/low-stock":{"get":{"tags":["inventory"],"summary":"List Low Stock","operationId":"list_low_stock_api_v1_inventory_low_stock_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/InventoryAlert"},"type":"array","title":"Response List Low Stock Api V1 Inventory Low Stock Get"}}}}}}},"/api/v1/quality/signals":{"get":{"tags":["quality"],"summary":"List Quality Signals","operationId":"list_quality_signals_api_v1_quality_signals_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/QualitySignal"},"type":"array","title":"Response List Quality Signals Api V1 Quality Signals Get"}}}}}}}},"components":{"schemas":{"DashboardResponse":{"properties":{"production_date":{"type":"string","title":"Production Date"},"target_cost_npr":{"type":"integer","title":"Target Cost Npr"},"kpis":{"items":{"$ref":"#/components/schemas/Kpi"},"type":"array","title":"Kpis"},"throughput":{"items":{"$ref":"#/components/schemas/ThroughputPoint"},"type":"array","title":"Throughput"},"work_orders":{"items":{"$ref":"#/components/schemas/WorkOrderSummary"},"type":"array","title":"Work Orders"},"my_tasks":{"items":{"$ref":"#/components/schemas/TaskSummary"},"type":"array","title":"My Tasks"},"inventory_alerts":{"items":{"$ref":"#/components/schemas/InventoryAlert"},"type":"array","title":"Inventory Alerts"},"quality_signals":{"items":{"$ref":"#/components/schemas/QualitySignal"},"type":"array","title":"Quality Signals"},"owner_insights":{"items":{"$ref":"#/components/schemas/OwnerInsight"},"type":"array","title":"Owner Insights"}},"type":"object","required":["production_date","target_cost_npr","kpis","throughput","work_orders","my_tasks","inventory_alerts","quality_signals","owner_insights"],"title":"DashboardResponse"},"InventoryAlert":{"properties":{"material":{"type":"string","title":"Material"},"code":{"type":"string","title":"Code"},"current":{"type":"string","title":"Current"},"minimum":{"type":"string","title":"Minimum"},"risk":{"type":"string","title":"Risk"},"supplier":{"type":"string","title":"Supplier"}},"type":"object","required":["material","code","current","minimum","risk","supplier"],"title":"InventoryAlert"},"Kpi":{"properties":{"label":{"type":"string","title":"Label"},"value":{"type":"string","title":"Value"},"detail":{"type":"string","title":"Detail"},"tone":{"type":"string","pattern":"^(neutral|green|amber|red|cyan)$","title":"Tone"},"trend":{"type":"string","title":"Trend"}},"type":"object","required":["label","value","detail","tone","trend"],"title":"Kpi"},"OwnerInsight":{"properties":{"title":{"type":"string","title":"Title"},"detail":{"type":"string","title":"Detail"},"action":{"type":"string","title":"Action"},"tone":{"type":"string","title":"Tone"}},"type":"object","required":["title","detail","action","tone"],"title":"OwnerInsight"},"QualitySignal":{"properties":{"label":{"type":"string","title":"Label"},"value":{"type":"string","title":"Value"},"detail":{"type":"string","title":"Detail"},"tone":{"type":"string","title":"Tone"}},"type":"object","required":["label","value","detail","tone"],"title":"QualitySignal"},"TaskSummary":{"properties":{"code":{"type":"string","title":"Code"},"title":{"type":"string","title":"Title"},"status":{"type":"string","title":"Status"},"priority":{"type":"string","title":"Priority"},"assignee":{"type":"string","title":"Assignee"},"due_time":{"type":"string","title":"Due Time"},"work_order":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Work Order"},"quantity":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Quantity"},"blocker_reason":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Blocker Reason"}},"type":"object","required":["code","title","status","priority","assignee","due_time"],"title":"TaskSummary"},"ThroughputPoint":{"properties":{"day":{"type":"string","title":"Day"},"planned":{"type":"integer","title":"Planned"},"completed":{"type":"integer","title":"Completed"}},"type":"object","required":["day","planned","completed"],"title":"ThroughputPoint"},"WorkOrderSummary":{"properties":{"code":{"type":"string","title":"Code"},"style":{"type":"string","title":"Style"},"color":{"type":"string","title":"Color"},"planned_pairs":{"type":"integer","title":"Planned Pairs"},"completed_pairs":{"type":"integer","title":"Completed Pairs"},"stage":{"type":"string","title":"Stage"},"blocker":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Blocker"},"due":{"type":"string","title":"Due"}},"type":"object","required":["code","style","color","planned_pairs","completed_pairs","stage","due"],"title":"WorkOrderSummary"}}}}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Pailo Factory API",
+    "description": "Factory operations API for tasks, work orders, inventory, QC, and owner insights.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Api Health",
+        "operationId": "api_health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Api Health Api V1 Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/dashboard": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Get Dashboard",
+        "operationId": "get_dashboard_api_v1_reports_dashboard_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/tasks.csv": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Export Tasks Csv",
+        "operationId": "export_tasks_csv_api_v1_reports_tasks_csv_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/v1/reports/low-stock.csv": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Export Low Stock Csv",
+        "operationId": "export_low_stock_csv_api_v1_reports_low_stock_csv_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/mvp": {
+      "get": {
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Get Mvp Catalog",
+        "operationId": "get_mvp_catalog_api_v1_catalog_mvp_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MvpCatalogResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks": {
+      "get": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "List Tasks",
+        "operationId": "list_tasks_api_v1_tasks_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskRecord"
+                  },
+                  "title": "Response List Tasks Api V1 Tasks Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Create Task",
+        "operationId": "create_task_api_v1_tasks_post",
+        "parameters": [
+          {
+            "name": "X-Pailo-User-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Id"
+            }
+          },
+          {
+            "name": "X-Pailo-User-Email",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Email"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/my-tasks": {
+      "get": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "List My Tasks",
+        "operationId": "list_my_tasks_api_v1_tasks_my_tasks_get",
+        "parameters": [
+          {
+            "name": "X-Pailo-User-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Id"
+            }
+          },
+          {
+            "name": "X-Pailo-User-Email",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Email"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskRecord"
+                  },
+                  "title": "Response List My Tasks Api V1 Tasks My Tasks Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}": {
+      "get": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Get Task",
+        "operationId": "get_task_api_v1_tasks__task_id__get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Patch Task",
+        "operationId": "patch_task_api_v1_tasks__task_id__patch",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "X-Pailo-User-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Id"
+            }
+          },
+          {
+            "name": "X-Pailo-User-Email",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Email"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskPatchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}/updates": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Update Task Status",
+        "operationId": "update_task_status_api_v1_tasks__task_id__updates_post",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "X-Pailo-User-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Id"
+            }
+          },
+          {
+            "name": "X-Pailo-User-Email",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Email"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskStatusUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}/comments": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Create Task Comment",
+        "operationId": "create_task_comment_api_v1_tasks__task_id__comments_post",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "X-Pailo-User-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Id"
+            }
+          },
+          {
+            "name": "X-Pailo-User-Email",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Email"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskCommentCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskCommentRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}/comments/{comment_id}": {
+      "patch": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Update Task Comment",
+        "operationId": "update_task_comment_api_v1_tasks__task_id__comments__comment_id__patch",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "comment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Comment Id"
+            }
+          },
+          {
+            "name": "X-Pailo-User-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Id"
+            }
+          },
+          {
+            "name": "X-Pailo-User-Email",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Email"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskCommentUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskCommentRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/work-orders": {
+      "get": {
+        "tags": [
+          "work-orders"
+        ],
+        "summary": "List Work Orders",
+        "operationId": "list_work_orders_api_v1_work_orders_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/WorkOrderRecord"
+                  },
+                  "type": "array",
+                  "title": "Response List Work Orders Api V1 Work Orders Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/work-orders/{work_order_id}": {
+      "get": {
+        "tags": [
+          "work-orders"
+        ],
+        "summary": "Get Work Order",
+        "operationId": "get_work_order_api_v1_work_orders__work_order_id__get",
+        "parameters": [
+          {
+            "name": "work_order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Work Order Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inventory/low-stock": {
+      "get": {
+        "tags": [
+          "inventory"
+        ],
+        "summary": "List Low Stock",
+        "operationId": "list_low_stock_api_v1_inventory_low_stock_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InventoryAlert"
+                  },
+                  "type": "array",
+                  "title": "Response List Low Stock Api V1 Inventory Low Stock Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inventory/materials": {
+      "get": {
+        "tags": [
+          "inventory"
+        ],
+        "summary": "List Materials",
+        "operationId": "list_materials_api_v1_inventory_materials_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MaterialStockRecord"
+                  },
+                  "type": "array",
+                  "title": "Response List Materials Api V1 Inventory Materials Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/quality/signals": {
+      "get": {
+        "tags": [
+          "quality"
+        ],
+        "summary": "List Quality Signals",
+        "operationId": "list_quality_signals_api_v1_quality_signals_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/QualitySignal"
+                  },
+                  "type": "array",
+                  "title": "Response List Quality Signals Api V1 Quality Signals Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/quality/inspections": {
+      "get": {
+        "tags": [
+          "quality"
+        ],
+        "summary": "List Quality Inspections",
+        "operationId": "list_quality_inspections_api_v1_quality_inspections_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/QualityInspectionRecord"
+                  },
+                  "type": "array",
+                  "title": "Response List Quality Inspections Api V1 Quality Inspections Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/labels/templates": {
+      "get": {
+        "tags": [
+          "labels"
+        ],
+        "summary": "List Label Templates",
+        "operationId": "list_label_templates_api_v1_labels_templates_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LabelTemplateRecord"
+                  },
+                  "type": "array",
+                  "title": "Response List Label Templates Api V1 Labels Templates Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/labels/templates/{template_id}/preview": {
+      "post": {
+        "tags": [
+          "labels"
+        ],
+        "summary": "Preview Label Sheet",
+        "operationId": "preview_label_sheet_api_v1_labels_templates__template_id__preview_post",
+        "parameters": [
+          {
+            "name": "template_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Template Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LabelPreviewRequest-Input"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabelPreviewResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DashboardResponse": {
+        "properties": {
+          "production_date": {
+            "type": "string",
+            "title": "Production Date"
+          },
+          "target_cost_npr": {
+            "type": "integer",
+            "title": "Target Cost Npr"
+          },
+          "kpis": {
+            "items": {
+              "$ref": "#/components/schemas/Kpi"
+            },
+            "type": "array",
+            "title": "Kpis"
+          },
+          "throughput": {
+            "items": {
+              "$ref": "#/components/schemas/ThroughputPoint"
+            },
+            "type": "array",
+            "title": "Throughput"
+          },
+          "work_orders": {
+            "items": {
+              "$ref": "#/components/schemas/WorkOrderSummary"
+            },
+            "type": "array",
+            "title": "Work Orders"
+          },
+          "my_tasks": {
+            "items": {
+              "$ref": "#/components/schemas/TaskSummary"
+            },
+            "type": "array",
+            "title": "My Tasks"
+          },
+          "inventory_alerts": {
+            "items": {
+              "$ref": "#/components/schemas/InventoryAlert"
+            },
+            "type": "array",
+            "title": "Inventory Alerts"
+          },
+          "quality_signals": {
+            "items": {
+              "$ref": "#/components/schemas/QualitySignal"
+            },
+            "type": "array",
+            "title": "Quality Signals"
+          },
+          "owner_insights": {
+            "items": {
+              "$ref": "#/components/schemas/OwnerInsight"
+            },
+            "type": "array",
+            "title": "Owner Insights"
+          }
+        },
+        "type": "object",
+        "required": [
+          "production_date",
+          "target_cost_npr",
+          "kpis",
+          "throughput",
+          "work_orders",
+          "my_tasks",
+          "inventory_alerts",
+          "quality_signals",
+          "owner_insights"
+        ],
+        "title": "DashboardResponse"
+      },
+      "EmployeeRef": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "employee_code": {
+            "type": "string",
+            "title": "Employee Code"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "department": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department"
+          },
+          "job_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "employee_code",
+          "full_name"
+        ],
+        "title": "EmployeeRef"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InventoryAlert": {
+        "properties": {
+          "material": {
+            "type": "string",
+            "title": "Material"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "current": {
+            "type": "string",
+            "title": "Current"
+          },
+          "minimum": {
+            "type": "string",
+            "title": "Minimum"
+          },
+          "risk": {
+            "type": "string",
+            "title": "Risk"
+          },
+          "supplier": {
+            "type": "string",
+            "title": "Supplier"
+          }
+        },
+        "type": "object",
+        "required": [
+          "material",
+          "code",
+          "current",
+          "minimum",
+          "risk",
+          "supplier"
+        ],
+        "title": "InventoryAlert"
+      },
+      "Kpi": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "tone": {
+            "type": "string",
+            "pattern": "^(neutral|green|amber|red|cyan)$",
+            "title": "Tone"
+          },
+          "trend": {
+            "type": "string",
+            "title": "Trend"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "value",
+          "detail",
+          "tone",
+          "trend"
+        ],
+        "title": "Kpi"
+      },
+      "LabelPreviewRequest-Input": {
+        "properties": {
+          "quantity": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 1.0,
+            "title": "Quantity"
+          },
+          "art_no": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Art No"
+          },
+          "colour": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Colour"
+          },
+          "size": {
+            "type": "string",
+            "maxLength": 24,
+            "minLength": 1,
+            "title": "Size"
+          },
+          "mrp_npr": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Mrp Npr"
+          },
+          "manufactured_by": {
+            "type": "string",
+            "maxLength": 160,
+            "title": "Manufactured By",
+            "default": "Pailo Shoes"
+          },
+          "origin_text": {
+            "type": "string",
+            "maxLength": 80,
+            "title": "Origin Text",
+            "default": "Made in Nepal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "quantity",
+          "art_no",
+          "colour",
+          "size",
+          "mrp_npr"
+        ],
+        "title": "LabelPreviewRequest"
+      },
+      "LabelPreviewRequest-Output": {
+        "properties": {
+          "quantity": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 1.0,
+            "title": "Quantity"
+          },
+          "art_no": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Art No"
+          },
+          "colour": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Colour"
+          },
+          "size": {
+            "type": "string",
+            "maxLength": 24,
+            "minLength": 1,
+            "title": "Size"
+          },
+          "mrp_npr": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Mrp Npr"
+          },
+          "manufactured_by": {
+            "type": "string",
+            "maxLength": 160,
+            "title": "Manufactured By",
+            "default": "Pailo Shoes"
+          },
+          "origin_text": {
+            "type": "string",
+            "maxLength": 80,
+            "title": "Origin Text",
+            "default": "Made in Nepal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "quantity",
+          "art_no",
+          "colour",
+          "size",
+          "mrp_npr"
+        ],
+        "title": "LabelPreviewRequest"
+      },
+      "LabelPreviewResponse": {
+        "properties": {
+          "template": {
+            "$ref": "#/components/schemas/LabelTemplateRecord"
+          },
+          "page_count": {
+            "type": "integer",
+            "title": "Page Count"
+          },
+          "slots": {
+            "items": {
+              "$ref": "#/components/schemas/LabelSlotRecord"
+            },
+            "type": "array",
+            "title": "Slots"
+          },
+          "values": {
+            "$ref": "#/components/schemas/LabelPreviewRequest-Output"
+          }
+        },
+        "type": "object",
+        "required": [
+          "template",
+          "page_count",
+          "slots",
+          "values"
+        ],
+        "title": "LabelPreviewResponse"
+      },
+      "LabelSlotRecord": {
+        "properties": {
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "slot": {
+            "type": "integer",
+            "title": "Slot"
+          },
+          "row": {
+            "type": "integer",
+            "title": "Row"
+          },
+          "column": {
+            "type": "integer",
+            "title": "Column"
+          },
+          "x_mm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "X Mm"
+          },
+          "y_mm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Y Mm"
+          },
+          "width_mm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Width Mm"
+          },
+          "height_mm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Height Mm"
+          }
+        },
+        "type": "object",
+        "required": [
+          "page",
+          "slot",
+          "row",
+          "column",
+          "x_mm",
+          "y_mm",
+          "width_mm",
+          "height_mm"
+        ],
+        "title": "LabelSlotRecord"
+      },
+      "LabelTemplateRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "template_code": {
+            "type": "string",
+            "title": "Template Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "page_width_mm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Page Width Mm"
+          },
+          "page_height_mm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Page Height Mm"
+          },
+          "label_width_mm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Label Width Mm"
+          },
+          "label_height_mm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Label Height Mm"
+          },
+          "margin_top_mm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Margin Top Mm"
+          },
+          "margin_left_mm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Margin Left Mm"
+          },
+          "gap_x_mm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Gap X Mm"
+          },
+          "gap_y_mm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Gap Y Mm"
+          },
+          "slots_per_page": {
+            "type": "integer",
+            "title": "Slots Per Page"
+          },
+          "columns": {
+            "type": "integer",
+            "title": "Columns"
+          },
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          },
+          "fill_order": {
+            "type": "string",
+            "title": "Fill Order"
+          },
+          "design_json": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Design Json"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "template_code",
+          "name",
+          "version",
+          "status",
+          "page_width_mm",
+          "page_height_mm",
+          "label_width_mm",
+          "label_height_mm",
+          "margin_top_mm",
+          "margin_left_mm",
+          "gap_x_mm",
+          "gap_y_mm",
+          "slots_per_page",
+          "columns",
+          "rows",
+          "fill_order",
+          "design_json"
+        ],
+        "title": "LabelTemplateRecord"
+      },
+      "MaterialStockRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "material_code": {
+            "type": "string",
+            "title": "Material Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "unit_of_measure": {
+            "type": "string",
+            "title": "Unit Of Measure"
+          },
+          "supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier"
+          },
+          "current_quantity": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Current Quantity"
+          },
+          "minimum_stock": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Minimum Stock"
+          },
+          "average_cost_npr": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Cost Npr"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "risk": {
+            "type": "string",
+            "title": "Risk"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "material_code",
+          "name",
+          "category",
+          "unit_of_measure",
+          "current_quantity",
+          "minimum_stock",
+          "risk"
+        ],
+        "title": "MaterialStockRecord"
+      },
+      "MvpCatalogResponse": {
+        "properties": {
+          "users": {
+            "items": {
+              "$ref": "#/components/schemas/UserRef"
+            },
+            "type": "array",
+            "title": "Users"
+          },
+          "employees": {
+            "items": {
+              "$ref": "#/components/schemas/EmployeeRef"
+            },
+            "type": "array",
+            "title": "Employees"
+          },
+          "styles": {
+            "items": {
+              "$ref": "#/components/schemas/ProductStyleRecord"
+            },
+            "type": "array",
+            "title": "Styles"
+          },
+          "suppliers": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierRecord"
+            },
+            "type": "array",
+            "title": "Suppliers"
+          },
+          "materials": {
+            "items": {
+              "$ref": "#/components/schemas/MaterialStockRecord"
+            },
+            "type": "array",
+            "title": "Materials"
+          },
+          "work_orders": {
+            "items": {
+              "$ref": "#/components/schemas/WorkOrderRecord"
+            },
+            "type": "array",
+            "title": "Work Orders"
+          },
+          "label_templates": {
+            "items": {
+              "$ref": "#/components/schemas/LabelTemplateRecord"
+            },
+            "type": "array",
+            "title": "Label Templates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "users",
+          "employees",
+          "styles",
+          "suppliers",
+          "materials",
+          "work_orders",
+          "label_templates"
+        ],
+        "title": "MvpCatalogResponse"
+      },
+      "OwnerInsight": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "tone": {
+            "type": "string",
+            "title": "Tone"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "detail",
+          "action",
+          "tone"
+        ],
+        "title": "OwnerInsight"
+      },
+      "ProductStyleRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "style_code": {
+            "type": "string",
+            "title": "Style Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "sample_status": {
+            "type": "string",
+            "title": "Sample Status"
+          },
+          "target_cost_npr": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Cost Npr"
+          },
+          "target_mrp_npr": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Mrp Npr"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "style_code",
+          "name",
+          "category",
+          "sample_status"
+        ],
+        "title": "ProductStyleRecord"
+      },
+      "QualityInspectionRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "inspection_code": {
+            "type": "string",
+            "title": "Inspection Code"
+          },
+          "work_order_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Order Code"
+          },
+          "style_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Style Code"
+          },
+          "inspected_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inspected By"
+          },
+          "inspected_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Inspected At"
+          },
+          "inspected_quantity": {
+            "type": "integer",
+            "title": "Inspected Quantity"
+          },
+          "defect_quantity": {
+            "type": "integer",
+            "title": "Defect Quantity"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "inspection_code",
+          "inspected_at",
+          "inspected_quantity",
+          "defect_quantity",
+          "status"
+        ],
+        "title": "QualityInspectionRecord"
+      },
+      "QualitySignal": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "tone": {
+            "type": "string",
+            "title": "Tone"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "value",
+          "detail",
+          "tone"
+        ],
+        "title": "QualitySignal"
+      },
+      "SupplierRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "supplier_code": {
+            "type": "string",
+            "title": "Supplier Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "contact_person": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Person"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "material_categories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Material Categories"
+          },
+          "usual_lead_time_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usual Lead Time Days"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "supplier_code",
+          "name",
+          "material_categories"
+        ],
+        "title": "SupplierRecord"
+      },
+      "TaskCommentCreateRequest": {
+        "properties": {
+          "comment_text": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Comment Text"
+          },
+          "client_message_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Message Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "comment_text"
+        ],
+        "title": "TaskCommentCreateRequest"
+      },
+      "TaskCommentRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Task Id"
+          },
+          "author_user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Author User Id"
+          },
+          "author_name": {
+            "type": "string",
+            "title": "Author Name"
+          },
+          "comment_text": {
+            "type": "string",
+            "title": "Comment Text"
+          },
+          "client_message_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Message Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "edited_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edited At"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "task_id",
+          "author_user_id",
+          "author_name",
+          "comment_text",
+          "created_at",
+          "updated_at",
+          "version"
+        ],
+        "title": "TaskCommentRecord"
+      },
+      "TaskCommentUpdateRequest": {
+        "properties": {
+          "comment_text": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Comment Text"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "comment_text",
+          "version"
+        ],
+        "title": "TaskCommentUpdateRequest"
+      },
+      "TaskCreateRequest": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 220,
+            "minLength": 2,
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "ready"
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority",
+            "default": "normal"
+          },
+          "assigned_to_user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned To User Id"
+          },
+          "assigned_to_employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned To Employee Id"
+          },
+          "assigned_team": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned Team"
+          },
+          "work_order_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Order Id"
+          },
+          "product_style_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Style Id"
+          },
+          "due_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due At"
+          },
+          "estimated_quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Quantity"
+          },
+          "unit_of_measure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Of Measure"
+          },
+          "requires_review": {
+            "type": "boolean",
+            "title": "Requires Review",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "title": "TaskCreateRequest"
+      },
+      "TaskPatchRequest": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 220,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority"
+          },
+          "assigned_to_user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned To User Id"
+          },
+          "assigned_to_employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned To Employee Id"
+          },
+          "assigned_team": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned Team"
+          },
+          "due_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due At"
+          },
+          "estimated_quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Quantity"
+          },
+          "unit_of_measure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Of Measure"
+          },
+          "requires_review": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requires Review"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version"
+        ],
+        "title": "TaskPatchRequest"
+      },
+      "TaskRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "task_code": {
+            "type": "string",
+            "title": "Task Code"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority"
+          },
+          "assignee": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UserRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assigned_employee": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EmployeeRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assigned_team": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned Team"
+          },
+          "work_order_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Order Id"
+          },
+          "work_order_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Order Code"
+          },
+          "product_style_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Style Code"
+          },
+          "due_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due At"
+          },
+          "estimated_quantity": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Quantity"
+          },
+          "completed_quantity": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Completed Quantity"
+          },
+          "unit_of_measure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Of Measure"
+          },
+          "blocked_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocked Reason"
+          },
+          "requires_review": {
+            "type": "boolean",
+            "title": "Requires Review"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "comments": {
+            "items": {
+              "$ref": "#/components/schemas/TaskCommentRecord"
+            },
+            "type": "array",
+            "title": "Comments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "task_code",
+          "title",
+          "status",
+          "priority",
+          "completed_quantity",
+          "requires_review",
+          "version"
+        ],
+        "title": "TaskRecord"
+      },
+      "TaskStatusUpdateRequest": {
+        "properties": {
+          "new_status": {
+            "type": "string",
+            "title": "New Status"
+          },
+          "completed_quantity": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed Quantity"
+          },
+          "update_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Update Note"
+          },
+          "blocker_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocker Reason"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "new_status",
+          "version"
+        ],
+        "title": "TaskStatusUpdateRequest"
+      },
+      "TaskSummary": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority"
+          },
+          "assignee": {
+            "type": "string",
+            "title": "Assignee"
+          },
+          "due_time": {
+            "type": "string",
+            "title": "Due Time"
+          },
+          "work_order": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Order"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "blocker_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocker Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "title",
+          "status",
+          "priority",
+          "assignee",
+          "due_time"
+        ],
+        "title": "TaskSummary"
+      },
+      "ThroughputPoint": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "title": "Day"
+          },
+          "planned": {
+            "type": "integer",
+            "title": "Planned"
+          },
+          "completed": {
+            "type": "integer",
+            "title": "Completed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "day",
+          "planned",
+          "completed"
+        ],
+        "title": "ThroughputPoint"
+      },
+      "UserRef": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "display_name",
+          "role"
+        ],
+        "title": "UserRef"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WorkOrderRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "work_order_code": {
+            "type": "string",
+            "title": "Work Order Code"
+          },
+          "style_code": {
+            "type": "string",
+            "title": "Style Code"
+          },
+          "style_name": {
+            "type": "string",
+            "title": "Style Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority"
+          },
+          "planned_pairs": {
+            "type": "integer",
+            "title": "Planned Pairs"
+          },
+          "completed_pairs": {
+            "type": "integer",
+            "title": "Completed Pairs"
+          },
+          "current_stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Stage"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "cost_snapshot_npr": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Snapshot Npr"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "blocker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocker"
+          },
+          "size_lines": {
+            "items": {
+              "$ref": "#/components/schemas/WorkOrderSizeLineRecord"
+            },
+            "type": "array",
+            "title": "Size Lines"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "work_order_code",
+          "style_code",
+          "style_name",
+          "status",
+          "priority",
+          "planned_pairs",
+          "completed_pairs",
+          "version"
+        ],
+        "title": "WorkOrderRecord"
+      },
+      "WorkOrderSizeLineRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "size": {
+            "type": "string",
+            "title": "Size"
+          },
+          "planned_pairs": {
+            "type": "integer",
+            "title": "Planned Pairs"
+          },
+          "completed_pairs": {
+            "type": "integer",
+            "title": "Completed Pairs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "color",
+          "size",
+          "planned_pairs",
+          "completed_pairs"
+        ],
+        "title": "WorkOrderSizeLineRecord"
+      },
+      "WorkOrderSummary": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "style": {
+            "type": "string",
+            "title": "Style"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "planned_pairs": {
+            "type": "integer",
+            "title": "Planned Pairs"
+          },
+          "completed_pairs": {
+            "type": "integer",
+            "title": "Completed Pairs"
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "blocker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocker"
+          },
+          "due": {
+            "type": "string",
+            "title": "Due"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "style",
+          "color",
+          "planned_pairs",
+          "completed_pairs",
+          "stage",
+          "due"
+        ],
+        "title": "WorkOrderSummary"
+      }
+    }
+  }
+}
