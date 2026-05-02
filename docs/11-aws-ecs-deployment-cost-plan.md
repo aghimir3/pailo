@@ -30,6 +30,8 @@ CloudWatch: logs and alarms
 ECR: container images
 ```
 
+The Terraform root for this launch architecture now lives in `infra/terraform` and defaults to `ap-south-1`.
+
 ## Why One ECS Service At Launch
 
 Normally frontend and backend can be separate ECS services. For Pailo's launch usage, that adds cost and operations without much benefit.
@@ -213,7 +215,8 @@ Plan:
 
 Budget-friendly launch:
 
-- Use SSM Parameter Store SecureString for most secrets.
+- Use RDS managed master credentials in Secrets Manager for the database password.
+- Use SSM Parameter Store for non-secret app configuration such as domain, S3 bucket, Cognito IDs, and database host/name.
 - Use IAM task roles for S3 and AWS API permissions.
 - Use environment variables only for non-secret configuration.
 
@@ -337,3 +340,19 @@ Watch:
 - S3 storage and requests.
 
 Create a monthly budget alert immediately.
+
+## Terraform Root
+
+The launch infrastructure is implemented in `infra/terraform` using current Terraform AWS provider guidance:
+
+- Default provider region: `ap-south-1`.
+- Provider versions pinned with `hashicorp/aws` `~> 6.0` and `hashicorp/random` `~> 3.8`.
+- Public ALB with HTTPS and ACM DNS validation when Route 53 DNS is enabled.
+- ECS Fargate `awsvpc` networking, one service, one task definition, two containers.
+- Public-subnet Fargate tasks with public IPs and security groups that only allow inbound traffic from the ALB.
+- Private-subnet RDS PostgreSQL with RDS-managed master password in Secrets Manager.
+- Private S3 bucket with Block Public Access, bucket-owner-enforced ownership, server-side encryption, versioning, and lifecycle rules.
+- Cognito user pool and web client for the internal app.
+- CloudWatch log groups with 14-day retention, launch alarms, SSM parameters, ECR repositories, and AWS Budget guardrail.
+
+Before production apply, configure remote Terraform state using an S3 backend and DynamoDB locking. The example backend file is `infra/terraform/backend.tf.example`; local state should only be used for early experimentation.

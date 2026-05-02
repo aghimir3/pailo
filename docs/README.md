@@ -18,6 +18,11 @@ The goal is to build one operating system for the factory: product development, 
 - [10-database-implementation-plan.md](10-database-implementation-plan.md) - PostgreSQL schema, indexing, migrations, backups, and factory data design.
 - [11-aws-ecs-deployment-cost-plan.md](11-aws-ecs-deployment-cost-plan.md) - AWS ECS/Fargate deployment plan optimized for low traffic and low cost.
 - [12-api-integration-quality-plan.md](12-api-integration-quality-plan.md) - API contracts, generated clients, testing, CI/CD, observability, and release gates.
+- [13-implementation-execution-plan.md](13-implementation-execution-plan.md) - incremental execution plan for building the app from runnable foundation to production launch.
+
+## Implementation Artifacts
+
+- [../infra/terraform](../infra/terraform) - Terraform root for the AWS launch stack in `ap-south-1`: VPC, ALB, ECS Fargate, ECR, RDS PostgreSQL, S3, Cognito, Route 53/ACM, CloudWatch, SSM, and AWS Budgets.
 
 ## Current Workspace Notes
 
@@ -38,6 +43,6 @@ Start with a web app that works well on mobile phones, tablets, and office compu
 - Backend: FastAPI modular monolith with OpenAPI-first APIs.
 - Database: PostgreSQL on Amazon RDS.
 - Files: Amazon S3 for shoe photos, employee documents, label assets, and generated PDFs.
-- Deployment: AWS ECS on Fargate, tuned for about 5 active users/day at launch while keeping the app snappy.
+- Deployment: Terraform-managed AWS ECS on Fargate in `ap-south-1`, tuned for about 5 active users/day at launch while keeping the app snappy.
 - Domain plan: use `app.pailoshoes.com` for the internal factory app at launch and reserve `pailoshoes.com` / `www.pailoshoes.com` for the future public brand site.
 - Scaling path: start cost-conscious, then split services and add more managed infrastructure only when factory usage justifies it.

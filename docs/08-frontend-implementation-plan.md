@@ -44,7 +44,7 @@ Use these package targets as of 2026-05-02:
 - `playwright@1.59.1`
 - `vitest@4.1.5`
 - `msw@2.14.2`
-- `eslint@10.3.0`
+- `eslint@9.39.4` for the current scaffold, because the Next.js lint plugin stack used by `eslint-config-next@16.2.4` does not yet support ESLint 10 cleanly in this workspace.
 - `prettier@3.8.3`
 
 ## Library Choices

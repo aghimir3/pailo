@@ -112,7 +112,7 @@ pailo/
       prettier/
       tsconfig/
   infra/
-    terraform/ or cdk/
+    terraform/        # AWS ECS/Fargate launch infrastructure
     ecs/
     scripts/
   docs/
@@ -125,6 +125,7 @@ Recommended tooling:
 - Docker Compose for local development.
 - GitHub Actions for CI/CD.
 - OpenAPI generated TypeScript client shared from backend to frontend.
+- Terraform for AWS infrastructure, with the launch root at `infra/terraform` and `ap-south-1` as the default region for Nepal latency.
 
 ## Target Stack
 
