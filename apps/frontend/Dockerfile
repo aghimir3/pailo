@@ -33,4 +33,4 @@ COPY --from=builder /app/packages/api-client ./packages/api-client
 
 WORKDIR /app/apps/frontend
 EXPOSE 3000
-CMD ["corepack", "pnpm", "start", "--hostname", "0.0.0.0"]
+CMD ["corepack", "pnpm", "exec", "next", "start", "--hostname", "0.0.0.0"]

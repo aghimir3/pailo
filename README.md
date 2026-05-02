@@ -21,6 +21,14 @@ corepack pnpm build:frontend
 uv run --project apps/backend pytest
 ```
 
+Docker run:
+
+```powershell
+docker compose up --build
+```
+
+Then open `http://localhost:3000`. The backend is available at `http://localhost:8000`.
+
 Infrastructure lives in [infra/terraform](infra/terraform). The default AWS region is `ap-south-1` for Nepal latency.
 
 ```powershell
