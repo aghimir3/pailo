@@ -14,18 +14,31 @@ This is a starting data model for the Pailo factory app. It should be refined af
 
 ### User
 
-For login and permissions.
+For app access, permissions, and mapping Cognito identities to local employee records. Cognito stores passwords, MFA, password reset state, and hosted-login identity data. The Pailo database should not store password hashes.
 
 Fields:
 
 - id
 - name
-- email_or_phone
-- password_hash
+- email
+- phone
+- cognito_sub
 - role_id
 - employee_id
+- invite_status
 - status
+- invited_at
+- invited_by_user_id
+- accepted_invite_at
 - last_login_at
+
+Notes:
+
+- `users` is for people who can log in to the app.
+- `employees` is for factory/HR records. An employee can exist without a user account.
+- A user usually links to one employee through `employee_id`.
+- The first owner/admin is bootstrapped from the deployment-configured `initial_owner_admin_email`.
+- New users are invite-only for the MVP.
 
 ### Role
 
@@ -39,7 +52,7 @@ Fields:
 
 Example roles:
 
-- admin
+- owner_admin
 - factory_manager
 - inventory_clerk
 - purchasing

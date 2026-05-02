@@ -57,6 +57,28 @@ terraform -version
 
 Expected version: `Terraform v1.15.1`.
 
+## Local Database And Migrations
+
+Local development uses the official PostgreSQL 18 Docker image. The container listens on `55432` on your machine to avoid conflicts with any existing PostgreSQL install.
+
+From the repo root:
+
+```powershell
+corepack pnpm db:start
+corepack pnpm db:migrate
+corepack pnpm db:check
+```
+
+The default local URL is:
+
+```text
+postgresql+asyncpg://pailo:pailo@127.0.0.1:55432/pailo
+```
+
+Every schema change should create an Alembic revision and pass `db:migrate` plus `db:check` against a clean database before it is merged.
+
+If `DATABASE_URL` is set in your shell, it overrides the local default. Use the URL above or clear the variable before local migration checks.
+
 ## Step 1: Bootstrap Remote State
 
 Run this once from your computer after AWS CLI auth works:
@@ -95,6 +117,8 @@ environment = "prod"
 budget_alert_emails = ["your-email@example.com"]
 initial_owner_admin_email = "your-email@example.com"
 ```
+
+RDS PostgreSQL defaults to engine version `18` to match the current upstream major version. If AWS has not enabled PostgreSQL 18 in `ap-south-1` when you first apply, set `postgres_engine_version` to the newest available RDS PostgreSQL version in `terraform.tfvars` and plan a controlled upgrade later. Keep `database_allow_major_version_upgrade = false` unless you are intentionally doing a major RDS upgrade.
 
 `initial_owner_admin_email` answers the first-login question. This is the email address the backend should bootstrap as the first `owner_admin` after the matching Cognito user is invited. Use your own email address for the first production setup.
 
@@ -169,6 +193,7 @@ The repo now has these workflows:
 - `Pailo Monorepo Quality Gates` in `.github/workflows/ci.yml`: runs frontend, backend, API contract, and Terraform static checks on pushes and pull requests.
 - `Pailo AWS Infrastructure Terraform Plan And Apply` in `.github/workflows/terraform.yml`: plans Terraform changes on infra pull requests and main pushes. Manual `workflow_dispatch` with `apply=true` applies from `main`.
 - `Pailo Production ECS Image Build And Deploy` in `.github/workflows/deploy.yml`: builds ARM64 frontend/backend Docker images, pushes `latest` and commit SHA tags to ECR, and forces ECS to redeploy.
+- The deploy workflow runs `alembic upgrade head` as a one-off ECS Fargate task before the service redeploys. This keeps migrations inside the VPC where private RDS is reachable.
 
 Normal flow after first setup:
 

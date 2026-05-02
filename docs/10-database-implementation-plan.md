@@ -74,6 +74,25 @@ Tables:
 - `employee_skills`
 - `employee_documents`
 
+`users` tracks app login access and role assignment, not password storage. Cognito remains the identity provider for passwords, MFA, recovery, and invitations. The local `users` table should include:
+
+- `id`
+- `cognito_sub`
+- `email`
+- `phone`
+- `display_name`
+- `employee_id`
+- `role_id`
+- `invite_status`
+- `status`
+- `invited_at`
+- `invited_by_user_id`
+- `accepted_invite_at`
+- `last_login_at`
+- audit columns
+
+Employee records can exist without app access. User records should exist only for people who can sign in or have been invited to sign in. The first owner/admin user is bootstrapped from `initial_owner_admin_email`; after that, new users are created through owner/admin invitation.
+
 Important indexes:
 
 - `users(cognito_sub)` unique.

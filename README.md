@@ -21,6 +21,17 @@ corepack pnpm build:frontend
 uv run --project apps/backend pytest
 ```
 
+Local PostgreSQL and migrations:
+
+```powershell
+corepack pnpm db:start
+corepack pnpm db:migrate
+corepack pnpm db:check
+```
+
+The local database is PostgreSQL 18 on `127.0.0.1:55432`.
+If `DATABASE_URL` is set in your shell, it overrides that default; update it to the URL above or clear it before running local migration commands.
+
 Docker run:
 
 ```powershell
