@@ -115,6 +115,7 @@ Important columns on `tasks`:
 
 - `status`
 - `priority`
+- `assigned_to_user_id`
 - `assigned_to_employee_id`
 - `assigned_team`
 - `work_order_id`
@@ -128,13 +129,32 @@ Important columns on `tasks`:
 - `blocked_reason`
 - `version`
 
+Important columns on `task_comments`:
+
+- `task_id`
+- `author_user_id`
+- `comment_text`
+- `client_message_id`
+- `edited_at`
+- `version`
+
 Important indexes:
 
 - `tasks(status, due_at)`.
+- `tasks(assigned_to_user_id, status, due_at)` for each user's My Tasks view.
 - `tasks(assigned_to_employee_id, status, due_at)`.
 - `tasks(work_order_id, status)`.
 - `tasks(board_id, status, priority)`.
 - `task_status_updates(task_id, created_at desc)`.
+- `task_comments(task_id, created_at)` for task-board discussion threads.
+- `task_comments(author_user_id, created_at)` for ownership checks and audit review.
+
+Rules:
+
+- Managers can assign or reassign tasks to an app user while retaining optional employee/team context.
+- My Tasks queries are scoped by `assigned_to_user_id` after backend authorization.
+- Any authorized user who can see a task can add a comment.
+- Only the original `author_user_id` can edit a comment, with `edited_at` and `version` updated.
 
 Task status updates are append-only. Do not overwrite history.
 

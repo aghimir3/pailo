@@ -371,7 +371,7 @@ Example board types:
 
 ### Task
 
-Employee-owned work item. This is the project-management layer for Pailo.
+User-assignable work item with optional employee and team context. This is the project-management layer for Pailo.
 
 Fields:
 
@@ -382,6 +382,7 @@ Fields:
 - description
 - status
 - priority
+- assigned_to_user_id
 - assigned_to_employee_id
 - assigned_team
 - created_by
@@ -431,14 +432,17 @@ Fields:
 
 ### TaskComment
 
-Comments and discussion on a task.
+Comments and discussion on a task. Every authorized task participant can add comments, while edits are limited to the original author.
 
 Fields:
 
 - id
 - task_id
-- employee_id
+- author_user_id
 - comment_text
+- client_message_id
+- edited_at
+- version
 - attachment_id
 - created_at
 
@@ -645,6 +649,7 @@ Fields:
 - WorkOrder has many WorkOrderStageLogs.
 - WorkOrder has many Tasks.
 - TaskBoard has many Tasks.
+- Task can be assigned to a User and optionally linked to an Employee or team for reporting.
 - Task has many TaskStatusUpdates.
 - Task has many TaskComments.
 - Task can belong to WorkOrder, ProductStyle, Material, Supplier, Customer, or another parent Task.

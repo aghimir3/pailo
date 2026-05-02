@@ -61,6 +61,7 @@ Each task should include:
 - Board.
 - Status.
 - Priority.
+- Assigned app user.
 - Assigned employee or team.
 - Due date or due time.
 - Related work order.
@@ -75,13 +76,15 @@ Each task should include:
 - Completion time.
 - Reviewer/approver.
 
+Tasks can be assigned directly to an app user for login-scoped work queues. Employee and team assignment remain available for factory reporting, workload views, and cases where the worker record differs from the login account.
+
 ## Employee Experience
 
 Each employee should have a simple `My Tasks` screen.
 
 The screen should show:
 
-- Tasks assigned to me today.
+- Tasks assigned directly to my app user today.
 - Overdue tasks.
 - Priority tasks.
 - Tasks waiting for my update.
@@ -94,12 +97,15 @@ Employee actions should be quick:
 - Pause task.
 - Mark blocked.
 - Add update.
+- Add comment.
 - Add quantity completed.
 - Upload photo.
 - Request review.
 - Mark complete if review is not required.
 
 Avoid long forms for workers. Use big buttons, dropdowns, quantity inputs, and optional photo upload.
+
+The `My Tasks` view should be optimized for phones: status, priority, due time, work order, blocker, quantity, and the primary next action must be visible without opening a dense table. Comment send/edit controls must be thumb-friendly and work without hover or drag/drop.
 
 ## Manager Experience
 
@@ -119,7 +125,7 @@ Managers should be able to:
 - Create tasks manually.
 - Create tasks from templates.
 - Auto-generate tasks from a work order.
-- Assign or reassign tasks.
+- Assign or reassign tasks to an app user, employee, or team as the workflow requires.
 - Change due dates and priorities.
 - Add comments or attachments.
 - Approve/reject completion.

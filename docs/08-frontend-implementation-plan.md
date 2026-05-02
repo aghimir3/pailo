@@ -75,6 +75,7 @@ The frontend owns:
 - User experience and navigation.
 - Forms, validation feedback, and optimistic UI.
 - Kanban/task boards.
+- User assignment controls on task cards and a focused My Tasks view for assigned work.
 - Dashboards and operational tables.
 - Product gallery presentation.
 - Label template editing UI.
@@ -249,7 +250,9 @@ Minimum Samsung acceptance target:
 
 - Login works in Chrome for Android and Samsung Internet.
 - Dashboard and My Tasks stay readable without horizontal page scrolling.
-- Task board drag, status update, comments, and file upload work with touch.
+- Task board assignment, status update, comments, and file upload work with touch.
+- My Tasks shows every task assigned to the logged-in user with status, priority, due time, work order context, blocker state, and quick actions.
+- Comment send/edit actions use visible controls with comfortable target size and do not depend on hover or drag/drop.
 - QR/barcode scanning works or manual fallback is obvious.
 - Label PDF preview/download works.
 - Offline queued task update works after reconnect.

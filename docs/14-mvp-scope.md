@@ -109,17 +109,25 @@ Acceptance:
 ### 6. Task Boards And My Tasks
 
 - Production board grouped by status and stage.
-- My Tasks screen for workers.
+- My Tasks screen for each logged-in user, showing every task assigned directly to that user.
 - Create tasks manually and auto-generate basic tasks from a work order.
+- Assign tasks to a specific app user, with optional employee and team context for factory reporting.
 - Task statuses: backlog, ready, in progress, blocked, waiting for review, done, cancelled.
 - Quick worker actions: start, add quantity, add note, mark blocked, upload photo, request review, complete.
 - Append-only task status history.
+- Task comments on every task-board item. Every authorized participant can add comments, and users can edit only their own comments.
+- Phone-friendly comment composer with a clear text area, send action, edit state, retry-safe client message id, and comfortable touch targets.
 
 Acceptance:
 
 - Workers can update assigned tasks from a phone in seconds.
+- A user assigned to a task can see it in a focused My Tasks view with status, priority, due time, work order, blocker, and quick actions.
+- Managers can assign or reassign a task to an app user without losing employee/team reporting context.
 - Blocked tasks require a blocker reason.
 - Review-required tasks cannot move to done without manager/QC approval.
+- A worker, manager, inventory clerk, or QC user can add a comment to a visible task item from a phone.
+- Comment edits are limited to the original author and preserve edit tracking.
+- Send and edit controls work without hover, drag/drop, or precision tapping.
 
 ### 7. QC And Rework
 
