@@ -19,6 +19,7 @@ permissions:
 env:
   AWS_REGION: ${{ vars.AWS_REGION || 'ap-south-1' }}
   BACKEND_ECR_REPOSITORY: ${{ vars.BACKEND_ECR_REPOSITORY || 'pailo-prod/backend' }}
+  BACKEND_LOG_GROUP: ${{ vars.BACKEND_LOG_GROUP || '/ecs/pailo-prod/backend' }}
   ECS_CLUSTER: ${{ vars.ECS_CLUSTER || 'pailo-prod-cluster' }}
   ECS_SERVICE: ${{ vars.ECS_SERVICE || 'pailo-prod-app' }}
   FRONTEND_ECR_REPOSITORY: ${{ vars.FRONTEND_ECR_REPOSITORY || 'pailo-prod/frontend' }}
@@ -72,6 +73,39 @@ jobs:
           tags: |
             ${{ steps.ecr.outputs.registry }}/${{ env.BACKEND_ECR_REPOSITORY }}:${{ github.sha }}
             ${{ steps.ecr.outputs.registry }}/${{ env.BACKEND_ECR_REPOSITORY }}:latest
+
+      - name: Run backend database migrations on ECS
+        run: |
+          set -euo pipefail
+
+          service_json="$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE")"
+          task_definition="$(echo "$service_json" | jq -r '.services[0].taskDefinition')"
+          assign_public_ip="$(echo "$service_json" | jq -r '.services[0].networkConfiguration.awsvpcConfiguration.assignPublicIp')"
+          network_configuration="$(echo "$service_json" | jq -c --arg assign_public_ip "$assign_public_ip" '{awsvpcConfiguration:{subnets:.services[0].networkConfiguration.awsvpcConfiguration.subnets,securityGroups:.services[0].networkConfiguration.awsvpcConfiguration.securityGroups,assignPublicIp:$assign_public_ip}}')"
+          overrides='{"containerOverrides":[{"name":"backend","command":["alembic","-c","alembic.ini","upgrade","head"]}]}'
+
+          task_arn="$(aws ecs run-task \
+            --cluster "$ECS_CLUSTER" \
+            --launch-type FARGATE \
+            --task-definition "$task_definition" \
+            --network-configuration "$network_configuration" \
+            --overrides "$overrides" \
+            --query 'tasks[0].taskArn' \
+            --output text)"
+
+          if [ -z "$task_arn" ] || [ "$task_arn" = "None" ]; then
+            echo "Failed to start migration task."
+            exit 1
+          fi
+
+          aws ecs wait tasks-stopped --cluster "$ECS_CLUSTER" --tasks "$task_arn"
+          exit_code="$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$task_arn" --query 'tasks[0].containers[?name==`backend`].exitCode | [0]' --output text)"
+
+          if [ "$exit_code" != "0" ]; then
+            echo "Migration task failed with backend exit code $exit_code. Recent backend logs:"
+            aws logs tail "$BACKEND_LOG_GROUP" --since 15m || true
+            exit 1
+          fi
 
       - name: Force ECS deployment
         run: |
