@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  ArrowLeft,
   CheckCircle2,
   GripVertical,
   Loader2,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { FactoryShell } from "@/components/factory/factory-shell";
 import { Button } from "@/components/ui/button";
 import { GlassCard, PanelHeader } from "@/components/ui/glass-card";
 
@@ -221,65 +221,48 @@ export default function LandingPageEditor() {
   /* ─── Render ─── */
   if (loading) {
     return (
-      <main className="app-shell">
-        <div className="workspace" style={{ display: "grid", placeItems: "center", minHeight: "60vh" }}>
+      <FactoryShell eyebrow="Settings" title="Landing Page Editor">
+        <div style={{ display: "grid", placeItems: "center", minHeight: "60vh" }}>
           <Loader2 size={28} className="spin" />
         </div>
-      </main>
+      </FactoryShell>
     );
   }
 
   if (!config) {
     return (
-      <main className="app-shell">
-        <div className="workspace" style={{ padding: 32 }}>
+      <FactoryShell eyebrow="Settings" title="Landing Page Editor">
+        <div style={{ padding: 32 }}>
           <p>Failed to load config. Is the backend running?</p>
           <Link href="/portal">Back to portal</Link>
         </div>
-      </main>
+      </FactoryShell>
     );
   }
 
   return (
-    <main className="app-shell">
-      {/* ─── Sidebar ─── */}
-      <aside className="sidebar" aria-label="Navigation">
-        <div className="brand-lockup">
-          <div className="brand-mark">P</div>
-          <div>
-            <p className="eyebrow">Pailo Shoes</p>
-            <h1>Landing Page</h1>
-          </div>
-        </div>
-        <nav className="nav-stack">
-          <Link className="nav-item" href="/portal">
-            <ArrowLeft size={16} />
-            <span>Back to cockpit</span>
-          </Link>
-        </nav>
-      </aside>
-
+    <FactoryShell
+      eyebrow="Settings"
+      title="Landing Page Editor"
+      description="Edit all content shown on the public landing page"
+      actions={
+        <>
+          {error && <span className="lpe-error">{error}</span>}
+          {saved && (
+            <span className="lpe-saved">
+              <CheckCircle2 size={14} />
+              Saved
+            </span>
+          )}
+          <Button variant="default" onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 size={15} className="spin" /> : <Save size={15} />}
+            {saving ? "Saving..." : "Save all changes"}
+          </Button>
+        </>
+      }
+    >
       {/* ─── Editor ─── */}
-      <div className="workspace lpe-workspace">
-        <header className="lpe-topbar">
-          <div>
-            <h2>Landing Page Editor</h2>
-            <p className="lpe-subtitle">Edit all content shown on the public landing page</p>
-          </div>
-          <div className="lpe-topbar-actions">
-            {error && <span className="lpe-error">{error}</span>}
-            {saved && (
-              <span className="lpe-saved">
-                <CheckCircle2 size={14} />
-                Saved
-              </span>
-            )}
-            <Button variant="default" onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 size={15} className="spin" /> : <Save size={15} />}
-              {saving ? "Saving..." : "Save all changes"}
-            </Button>
-          </div>
-        </header>
+      <div className="lpe-workspace">
 
         <div className="lpe-grid">
           {/* ─── Contact & General ─── */}
@@ -426,6 +409,6 @@ export default function LandingPageEditor() {
           </GlassCard>
         </div>
       </div>
-    </main>
+    </FactoryShell>
   );
 }

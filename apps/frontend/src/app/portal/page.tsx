@@ -5,19 +5,16 @@ import {
   CalendarClock,
   CheckCircle2,
   ClipboardList,
-  Factory,
-  Globe,
   MessageSquare,
   PackageCheck,
   Printer,
   ScanLine,
   TrendingUp,
-  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { getDashboard } from "@pailo/api-client";
 
-import { ThemeToggle } from "@/components/theme-toggle";
+import { FactoryShell } from "@/components/factory/factory-shell";
 import { ThroughputChart } from "@/components/throughput-chart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,16 +25,6 @@ export const metadata: Metadata = {
   title: "Pailo Factory Cockpit | Employee Portal",
   description: "Internal employee portal and factory cockpit for Pailo Shoes operations.",
 };
-
-const navItems = [
-  { label: "Today", icon: Factory, href: "/portal", active: true },
-  { label: "Operations", icon: ClipboardList, href: "/operations" },
-  { label: "Tasks", icon: ScanLine, href: "/tasks" },
-  { label: "Inventory", icon: Boxes, href: "/inventory" },
-  { label: "Labels", icon: Printer, href: "/labels" },
-  { label: "People", icon: Users, href: "/people" },
-  { label: "Landing Page", icon: Globe, href: "/settings" },
-];
 
 function taskTone(status: string) {
   if (status === "blocked") return "red";
@@ -64,54 +51,23 @@ export default async function Home() {
   const dashboard = await loadDashboard();
 
   return (
-    <main className="app-shell">
-      <aside className="sidebar" aria-label="Main navigation">
-        <div className="brand-lockup">
-          <div className="brand-mark">P</div>
-          <div>
-            <p className="eyebrow">Pailo Shoes</p>
-            <h1>Factory Cockpit</h1>
-          </div>
-        </div>
-
-        <nav className="nav-stack">
-          {navItems.map((item) => (
-            <Link className={item.active ? "nav-item active" : "nav-item"} href={item.href} key={item.label}>
-              <item.icon aria-hidden="true" size={18} />
-              <span>{item.label}</span>
+    <FactoryShell
+      actions={
+        <>
+          <Button aria-label="Scan code" size="icon" title="Scan code" type="button" variant="glass">
+            <ScanLine aria-hidden="true" size={18} />
+          </Button>
+          <Button aria-label="Open operations console" asChild>
+            <Link href="/operations">
+              <ClipboardList aria-hidden="true" size={18} />
+              Operations
             </Link>
-          ))}
-        </nav>
-
-        <div className="sidebar-status">
-          <span className="status-dot" />
-          <div>
-            <strong>Floor online</strong>
-            <span>Last sync 09:42</span>
-          </div>
-        </div>
-      </aside>
-
-      <section className="workspace">
-        <header className="topbar">
-          <div>
-            <p className="eyebrow">Saturday, May 2</p>
-            <h2>Today&apos;s factory control</h2>
-          </div>
-          <div className="topbar-actions" aria-label="Quick actions">
-            <ThemeToggle />
-            <Button aria-label="Scan code" size="icon" title="Scan code" type="button" variant="glass">
-              <ScanLine aria-hidden="true" size={18} />
-            </Button>
-            <Button aria-label="Open operations console" asChild>
-              <Link href="/operations">
-                <ClipboardList aria-hidden="true" size={18} />
-                Operations
-              </Link>
-            </Button>
-          </div>
-        </header>
-
+          </Button>
+        </>
+      }
+      eyebrow="Factory cockpit"
+      title="Today's factory control"
+    >
         <section className="command-ribbon" aria-label="Factory actions">
           <Button type="button" variant="glass">
             <ScanLine aria-hidden="true" size={17} />
@@ -284,16 +240,6 @@ export default async function Home() {
             </div>
           </GlassCard>
         </section>
-      </section>
-
-      <nav className="mobile-nav" aria-label="Mobile navigation">
-        {navItems.slice(0, 5).map((item) => (
-          <Link className={item.active ? "mobile-nav-item active" : "mobile-nav-item"} href={item.href} key={item.label}>
-            <item.icon aria-hidden="true" size={19} />
-            <span>{item.label}</span>
-          </Link>
-        ))}
-      </nav>
-    </main>
+    </FactoryShell>
   );
 }
