@@ -389,7 +389,7 @@ def upgrade() -> None:
                 "wage_rate_npr": 120000,
                 "start_date": date(2024, 1, 15),
                 "status": "active",
-                "notes": "Initial owner/admin for MVP bootstrap.",
+                "notes": "Initial owner/admin for launch bootstrap.",
             },
             {
                 "id": EMPLOYEE_IDS[1],
@@ -566,7 +566,7 @@ def upgrade() -> None:
                 "sample_status": "approved",
                 "target_cost_npr": 900,
                 "target_mrp_npr": 2499,
-                "notes": "Everyday black sneaker for the first MVP production batch.",
+                "notes": "Everyday black sneaker for the first production batch.",
             },
             {
                 "id": STYLE_IDS[1],

@@ -302,7 +302,7 @@ class LabelPreviewResponse(BaseModel):
     values: LabelPreviewRequest
 
 
-class MvpCatalogResponse(BaseModel):
+class OperationsCatalogResponse(BaseModel):
     users: list[UserRef]
     employees: list[EmployeeRef]
     styles: list[ProductStyleRecord]

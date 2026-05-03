@@ -8,7 +8,7 @@ export type LabelPreviewRequest = components["schemas"]["LabelPreviewRequest-Inp
 export type LabelPreviewResponse = components["schemas"]["LabelPreviewResponse"];
 export type LabelTemplateRecord = components["schemas"]["LabelTemplateRecord"];
 export type MaterialStockRecord = components["schemas"]["MaterialStockRecord"];
-export type MvpCatalogResponse = components["schemas"]["MvpCatalogResponse"];
+export type OperationsCatalogResponse = components["schemas"]["OperationsCatalogResponse"];
 export type QualityInspectionRecord = components["schemas"]["QualityInspectionRecord"];
 export type QualitySignal = components["schemas"]["QualitySignal"];
 export type TaskCommentCreateRequest = components["schemas"]["TaskCommentCreateRequest"];
@@ -27,8 +27,8 @@ export async function getDashboard(baseUrl = DEFAULT_BASE_URL): Promise<Dashboar
   return getJson<DashboardResponse>("/api/v1/reports/dashboard", baseUrl);
 }
 
-export async function getMvpCatalog(baseUrl = DEFAULT_BASE_URL): Promise<MvpCatalogResponse> {
-  return getJson<MvpCatalogResponse>("/api/v1/catalog/mvp", baseUrl);
+export async function getOperationsCatalog(baseUrl = DEFAULT_BASE_URL): Promise<OperationsCatalogResponse> {
+  return getJson<OperationsCatalogResponse>("/api/v1/operations/catalog", baseUrl);
 }
 
 export async function listTasks(baseUrl = DEFAULT_BASE_URL): Promise<TaskRecord[]> {

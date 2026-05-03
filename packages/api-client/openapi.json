@@ -105,20 +105,20 @@
         }
       }
     },
-    "/api/v1/catalog/mvp": {
+    "/api/v1/operations/catalog": {
       "get": {
         "tags": [
-          "catalog"
+          "operations"
         ],
-        "summary": "Get Mvp Catalog",
-        "operationId": "get_mvp_catalog_api_v1_catalog_mvp_get",
+        "summary": "Get Operations Catalog",
+        "operationId": "get_operations_catalog_api_v1_operations_catalog_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MvpCatalogResponse"
+                  "$ref": "#/components/schemas/OperationsCatalogResponse"
                 }
               }
             }
@@ -1534,7 +1534,7 @@
         ],
         "title": "MaterialStockRecord"
       },
-      "MvpCatalogResponse": {
+      "OperationsCatalogResponse": {
         "properties": {
           "users": {
             "items": {
@@ -1596,7 +1596,7 @@
           "work_orders",
           "label_templates"
         ],
-        "title": "MvpCatalogResponse"
+        "title": "OperationsCatalogResponse"
       },
       "OwnerInsight": {
         "properties": {

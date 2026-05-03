@@ -28,6 +28,13 @@ def test_dashboard_contains_owner_insights(client: TestClient) -> None:
     assert any(insight["tone"] == "red" for insight in payload["owner_insights"])
 
 
+def test_operations_catalog_uses_production_route(client: TestClient) -> None:
+    response = client.get("/api/v1/operations/catalog")
+    assert response.status_code == 200
+    payload = response.json()
+    assert len(payload["work_orders"]) >= 2
+
+
 def test_my_tasks_are_worker_scoped_to_current_user(client: TestClient) -> None:
     response = client.get("/api/v1/tasks/my-tasks")
     assert response.status_code == 200

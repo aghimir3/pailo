@@ -23,12 +23,12 @@ import { GlassCard, PanelHeader } from "@/components/ui/glass-card";
 import { dashboardFallback } from "@/lib/sample-data";
 
 const navItems = [
-  { label: "Today", icon: Factory, active: true },
-  { label: "MVP", icon: ClipboardList, href: "/mvp" },
-  { label: "Scan", icon: ScanLine },
-  { label: "Inventory", icon: Boxes },
-  { label: "Labels", icon: Printer },
-  { label: "People", icon: Users },
+  { label: "Today", icon: Factory, href: "/", active: true },
+  { label: "Operations", icon: ClipboardList, href: "/operations" },
+  { label: "Tasks", icon: ScanLine, href: "/tasks" },
+  { label: "Inventory", icon: Boxes, href: "/inventory" },
+  { label: "Labels", icon: Printer, href: "/labels" },
+  { label: "People", icon: Users, href: "/people" },
 ];
 
 function taskTone(status: string) {
@@ -68,7 +68,7 @@ export default async function Home() {
 
         <nav className="nav-stack">
           {navItems.map((item) => (
-            <Link className={item.active ? "nav-item active" : "nav-item"} href={item.href ?? "/"} key={item.label}>
+            <Link className={item.active ? "nav-item active" : "nav-item"} href={item.href} key={item.label}>
               <item.icon aria-hidden="true" size={18} />
               <span>{item.label}</span>
             </Link>
@@ -95,10 +95,10 @@ export default async function Home() {
             <Button aria-label="Scan code" size="icon" title="Scan code" type="button" variant="glass">
               <ScanLine aria-hidden="true" size={18} />
             </Button>
-            <Button aria-label="Open MVP console" asChild>
-              <Link href="/mvp">
+            <Button aria-label="Open operations console" asChild>
+              <Link href="/operations">
                 <ClipboardList aria-hidden="true" size={18} />
-                MVP console
+                Operations
               </Link>
             </Button>
           </div>
@@ -280,7 +280,7 @@ export default async function Home() {
 
       <nav className="mobile-nav" aria-label="Mobile navigation">
         {navItems.slice(0, 5).map((item) => (
-          <Link className={item.active ? "mobile-nav-item active" : "mobile-nav-item"} href={item.href ?? "/"} key={item.label}>
+          <Link className={item.active ? "mobile-nav-item active" : "mobile-nav-item"} href={item.href} key={item.label}>
             <item.icon aria-hidden="true" size={19} />
             <span>{item.label}</span>
           </Link>

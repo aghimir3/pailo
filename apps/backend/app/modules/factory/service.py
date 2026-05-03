@@ -33,7 +33,7 @@ from app.modules.factory.schemas import (
     LabelSlotRecord,
     LabelTemplateRecord,
     MaterialStockRecord,
-    MvpCatalogResponse,
+    OperationsCatalogResponse,
     OwnerInsight,
     ProductStyleRecord,
     QualityInspectionRecord,
@@ -535,8 +535,8 @@ async def preview_label_sheet(
     )
 
 
-async def get_mvp_catalog(session: AsyncSession) -> MvpCatalogResponse:
-    return MvpCatalogResponse(
+async def get_operations_catalog(session: AsyncSession) -> OperationsCatalogResponse:
+    return OperationsCatalogResponse(
         users=await list_users(session),
         employees=await list_employees(session),
         styles=await list_product_styles(session),

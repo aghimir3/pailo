@@ -89,15 +89,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/catalog/mvp": {
+    "/api/v1/operations/catalog": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get Mvp Catalog */
-        get: operations["get_mvp_catalog_api_v1_catalog_mvp_get"];
+        /** Get Operations Catalog */
+        get: operations["get_operations_catalog_api_v1_operations_catalog_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -566,8 +566,8 @@ export interface components {
             /** Risk */
             risk: string;
         };
-        /** MvpCatalogResponse */
-        MvpCatalogResponse: {
+        /** OperationsCatalogResponse */
+        OperationsCatalogResponse: {
             /** Users */
             users: components["schemas"]["UserRef"][];
             /** Employees */
@@ -1091,7 +1091,7 @@ export interface operations {
             };
         };
     };
-    get_mvp_catalog_api_v1_catalog_mvp_get: {
+    get_operations_catalog_api_v1_operations_catalog_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1106,7 +1106,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MvpCatalogResponse"];
+                    "application/json": components["schemas"]["OperationsCatalogResponse"];
                 };
             };
         };
