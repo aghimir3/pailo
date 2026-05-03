@@ -2,9 +2,9 @@
 
 ## Goal
 
-Create a modern, futuristic public landing page for `pailoshoes.com` that introduces Pailo as a high-capability Nepal shoe factory brand while keeping the MVP factory app on `app.pailoshoes.com`.
+Create a modern, futuristic public landing page for `pailoshoes.com` that advertises Pailo's factory, brand, and quality standards to retail shoe shops, supermarkets, and direct buyers while keeping the MVP factory app on `app.pailoshoes.com`.
 
-The landing page should be visually impressive, but it must not turn the internal MVP into a public ecommerce site. The primary action is an `Employee Portal Login` button that sends staff to the MVP factory app.
+The landing page should be visually impressive and customer-facing. It must not turn the internal MVP into the main story or present staff tools as the public conversion action. Employee portal access should exist only as a quiet footer utility link.
 
 ## Research Notes
 
@@ -21,22 +21,24 @@ The landing page should be visually impressive, but it must not turn the interna
 - `app.pailoshoes.com`: internal MVP factory cockpit.
 - Local development: expose the current MVP dashboard at `/portal` so the landing page can be previewed at `/` without losing existing work.
 - Next.js proxy: when a request comes to `app.pailoshoes.com/`, rewrite it to `/portal` so the app subdomain opens the MVP directly.
+- Local staff access links should use `/portal` so `localhost` opens the local employee portal. On public hosts, `/portal` redirects to `https://app.pailoshoes.com`.
 
 ## Creative Direction
 
 - Use a full-bleed generated bitmap hero image as the first viewport signal, with overlay text directly on the image.
 - Visual language: futuristic factory control, luminous production lines, precision manufacturing, Pailo green/cyan accents, and warm amber production energy.
 - Avoid competitor marks, external shoe brand references, ecommerce language, and generic SaaS hero-card composition.
-- Keep the first viewport rich but practical: Pailo brand, sharp headline, concise supporting copy, employee portal CTA, and live-operational proof points.
+- Keep the first viewport rich but practical: Pailo brand, sharp headline, concise supporting copy, customer-facing CTAs, and production-quality proof points.
 - Keep at least a hint of the next section visible on common desktop and mobile viewports.
 
 ## Page Structure
 
 1. Full-bleed hero with `Pailo Shoes` as the first visual brand signal.
-2. Primary `Employee Portal Login` CTA linking to `https://app.pailoshoes.com`.
-3. Secondary operational stats: pairs/day target, factory workflows, label/stock/work-order control.
-4. Futuristic capability band for production planning, inventory truth, QC gates, labels, and reporting.
-5. Short trust section grounded in Nepal factory operations and private internal tooling.
+2. Primary customer CTA for the factory standard and a secondary CTA for product lines.
+3. Audience cards for retail shoe shops, supermarkets, and direct buyers.
+4. Secondary proof points for retail readiness, shelf handling, and daily-wear value.
+5. Futuristic craft band for material selection, cutting, stitching, sole bonding, QC, and packing.
+6. Product and partner sections grounded in daily footwear, school-ready runs, retail packing, and factory quality.
 
 ## Implementation Steps
 
@@ -53,7 +55,8 @@ The landing page should be visually impressive, but it must not turn the interna
 - `/` shows the public futuristic landing page.
 - `/portal` shows the MVP factory cockpit work already built.
 - `app.pailoshoes.com/` rewrites to `/portal`.
-- The landing page has an obvious `Employee Portal Login` button for the MVP subdomain.
+- Employee portal access is available but visually secondary to the customer-facing content.
+- On localhost, staff access opens `/portal`; on public hosts, `/portal` redirects to `https://app.pailoshoes.com`.
 - The hero uses a real bitmap asset from the app, not a purely CSS/SVG hero.
 - The page remains usable around 390px width without horizontal page scroll.
 - No competitor trademarks, logos, or ecommerce-first assumptions are introduced.
