@@ -1,18 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CheckCircle2,
   GripVertical,
+  ImagePlus,
   Loader2,
   MessageSquare,
   Phone,
   Plus,
   Save,
+  ShoppingBag,
   Sparkles,
   Trash2,
   Type,
+  Upload,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { FactoryShell } from "@/components/factory/factory-shell";
@@ -61,6 +65,14 @@ const ICON_OPTIONS = [
   "Shield", "Heart", "MapPin", "Handshake", "PackageCheck",
   "Footprints", "Star", "RefreshCw", "Truck", "CheckCircle2", "Sparkles",
 ];
+
+interface CatalogItem {
+  id: string;
+  image_filename: string;
+  caption: string;
+  alt_text: string;
+  price: string;
+}
 
 /* ─── Components ─── */
 
@@ -128,12 +140,24 @@ export default function LandingPageEditor() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Catalog state
+  const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     fetch(`${API_BASE}/api/v1/settings/landing-page`)
       .then((r) => r.json())
       .then((data) => setConfig(data))
       .catch(() => setError("Failed to load landing page config"))
       .finally(() => setLoading(false));
+
+    // Load catalog items
+    fetch(`${API_BASE}/api/v1/catalog`)
+      .then((r) => r.json())
+      .then((data) => setCatalogItems(data.items ?? []))
+      .catch(() => {});
   }, []);
 
   const update = useCallback(<K extends keyof LandingPageConfig>(key: K, value: LandingPageConfig[K]) => {
@@ -161,6 +185,88 @@ export default function LandingPageEditor() {
       setError("Network error — could not save");
     } finally {
       setSaving(false);
+    }
+  }
+
+  /* ─── Catalog CRUD ─── */
+  async function uploadCatalogItem(file: File) {
+    setCatalogLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await fetch(`${API_BASE}/api/v1/catalog`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        setError(`Upload failed (${res.status})`);
+        return;
+      }
+      const item: CatalogItem = await res.json();
+      setCatalogItems((prev) => [...prev, item]);
+    } catch {
+      setError("Failed to upload image");
+    } finally {
+      setCatalogLoading(false);
+    }
+  }
+
+  async function updateCatalogItem(itemId: string, field: "caption" | "alt_text" | "price", value: string) {
+    setCatalogItems((prev) =>
+      prev.map((item) => (item.id === itemId ? { ...item, [field]: value } : item))
+    );
+  }
+
+  async function saveCatalogItem(itemId: string) {
+    const item = catalogItems.find((i) => i.id === itemId);
+    if (!item) return;
+    setUploadingId(itemId);
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/catalog/${itemId}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ caption: item.caption, alt_text: item.alt_text, price: item.price }),
+      });
+      if (!res.ok) setError(`Failed to save item (${res.status})`);
+    } catch {
+      setError("Failed to save catalog item");
+    } finally {
+      setUploadingId(null);
+    }
+  }
+
+  async function deleteCatalogItem(itemId: string) {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/catalog/${itemId}`, { method: "DELETE" });
+      if (!res.ok) {
+        setError(`Delete failed (${res.status})`);
+        return;
+      }
+      setCatalogItems((prev) => prev.filter((i) => i.id !== itemId));
+    } catch {
+      setError("Failed to delete catalog item");
+    }
+  }
+
+  async function replaceCatalogImage(itemId: string, file: File) {
+    setUploadingId(itemId);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await fetch(`${API_BASE}/api/v1/catalog/${itemId}/image`, {
+        method: "PUT",
+        body: formData,
+      });
+      if (!res.ok) {
+        setError(`Image replace failed (${res.status})`);
+        return;
+      }
+      const updated: CatalogItem = await res.json();
+      setCatalogItems((prev) => prev.map((i) => (i.id === itemId ? updated : i)));
+    } catch {
+      setError("Failed to replace image");
+    } finally {
+      setUploadingId(null);
     }
   }
 
@@ -405,6 +511,112 @@ export default function LandingPageEditor() {
                 <Plus size={14} />
                 Add proof point
               </Button>
+            </div>
+          </GlassCard>
+
+          {/* ─── Shoe Catalog ─── */}
+          <GlassCard className="lpe-card lpe-card-wide">
+            <PanelHeader>
+              <ShoppingBag size={15} />
+              Shoe Catalog
+            </PanelHeader>
+            <div className="lpe-card-body">
+              <p className="lpe-hint">
+                Upload shoe photos with caption, alt text, and price. Items missing any field won&apos;t appear on the public catalog page. The &ldquo;View Catalog&rdquo; button on the landing page only shows when at least one complete item exists.
+              </p>
+
+              {/* Upload new */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="lpe-hidden-input"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadCatalogItem(file);
+                  e.target.value = "";
+                }}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={catalogLoading}
+              >
+                {catalogLoading ? <Loader2 size={14} className="spin" /> : <ImagePlus size={14} />}
+                {catalogLoading ? "Uploading..." : "Upload new shoe image"}
+              </Button>
+
+              {/* Items */}
+              <SectionHeading icon={GripVertical}>Catalog Items ({catalogItems.length})</SectionHeading>
+              {catalogItems.length === 0 && (
+                <p className="lpe-empty">No catalog items yet. Upload an image to get started.</p>
+              )}
+              {catalogItems.map((item) => (
+                <div className="lpe-catalog-item" key={item.id}>
+                  <div className="lpe-catalog-item-row">
+                    <div className="lpe-catalog-thumb">
+                      <Image
+                        src={`${API_BASE}/api/v1/catalog/images/${item.image_filename}`}
+                        alt={item.alt_text || "Catalog item"}
+                        width={80}
+                        height={80}
+                        unoptimized
+                      />
+                      <label className="lpe-catalog-replace">
+                        <Upload size={12} />
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/gif"
+                          className="lpe-hidden-input"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) replaceCatalogImage(item.id, file);
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                    </div>
+                    <div className="lpe-catalog-fields">
+                      <Field
+                        label="Caption"
+                        value={item.caption}
+                        onChange={(v) => updateCatalogItem(item.id, "caption", v)}
+                        placeholder="e.g. Classic Black School Shoe"
+                      />
+                      <div className="lpe-row-2">
+                        <Field
+                          label="Alt text"
+                          value={item.alt_text}
+                          onChange={(v) => updateCatalogItem(item.id, "alt_text", v)}
+                          placeholder="Describe the image for accessibility"
+                        />
+                        <Field
+                          label="Price"
+                          value={item.price}
+                          onChange={(v) => updateCatalogItem(item.id, "price", v)}
+                          placeholder="e.g. NPR 1,200"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="lpe-catalog-item-actions">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => saveCatalogItem(item.id)}
+                      disabled={uploadingId === item.id}
+                    >
+                      {uploadingId === item.id ? <Loader2 size={14} className="spin" /> : <Save size={14} />}
+                      Save
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => deleteCatalogItem(item.id)}>
+                      <Trash2 size={14} />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
           </GlassCard>
         </div>

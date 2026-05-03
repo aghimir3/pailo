@@ -14,6 +14,7 @@ import {
   Phone,
   RefreshCw,
   Shield,
+  ShoppingBag,
   Sparkles,
   Star,
   Truck,
@@ -21,6 +22,8 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Pailo Shoes | Nepal-made footwear that lasts",
@@ -111,6 +114,7 @@ async function getLandingConfig(): Promise<LandingPageConfig> {
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
     const res = await fetch(`${baseUrl}/api/v1/settings/landing-page`, {
       next: { revalidate: 60 },
+      signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) return DEFAULTS;
     return { ...DEFAULTS, ...(await res.json()) };
@@ -119,8 +123,28 @@ async function getLandingConfig(): Promise<LandingPageConfig> {
   }
 }
 
+async function getCatalogCount(): Promise<number> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+    const res = await fetch(`${baseUrl}/api/v1/catalog`, {
+      next: { revalidate: 60 },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return 0;
+    const data = await res.json();
+    // Only count items with all fields filled
+    return (data.items ?? []).filter(
+      (item: { image_filename: string; caption: string; alt_text: string; price: string }) =>
+        item.image_filename && item.caption && item.alt_text && item.price
+    ).length;
+  } catch {
+    return 0;
+  }
+}
+
 export default async function LandingPage() {
   const cfg = await getLandingConfig();
+  const catalogCount = await getCatalogCount();
 
   const proofIcons = [Star, RefreshCw, Truck, CheckCircle2];
 
@@ -135,6 +159,7 @@ export default async function LandingPage() {
         <nav className="lp-nav-links" aria-label="Page sections">
           <Link href="#why">{cfg.why_eyebrow}</Link>
           <Link href="#buyers">For buyers</Link>
+          {catalogCount > 0 && <Link href="/catalog">Catalog</Link>}
         </nav>
         <div className="lp-nav-end">
           <a href={`tel:${cfg.contact_phone}`} className="lp-nav-phone">
@@ -188,6 +213,14 @@ export default async function LandingPage() {
                   {cfg.hero_cta_secondary}
                 </Link>
               </Button>
+              {catalogCount > 0 && (
+                <Button asChild variant="glass">
+                  <Link href="/catalog">
+                    <ShoppingBag aria-hidden="true" size={17} />
+                    View Catalog
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>
