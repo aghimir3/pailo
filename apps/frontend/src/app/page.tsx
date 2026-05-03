@@ -17,6 +17,7 @@ import {
   Sparkles,
   Star,
   Truck,
+  type LucideIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -27,72 +28,101 @@ export const metadata: Metadata = {
     "Pailo Shoes — durable, comfortable footwear made in Nepal. Built for daily life, school days, and shop shelves. Quality you can feel, supply you can count on.",
 };
 
-const staffPortalUrl = "/portal";
-const DEFAULT_CONTACT_PHONE = "9852030953";
+/* ─── Icon registry ─── */
+const ICON_MAP: Record<string, LucideIcon> = {
+  Shield,
+  Heart,
+  MapPin,
+  Handshake,
+  PackageCheck,
+  Footprints,
+  Star,
+  RefreshCw,
+  Truck,
+  CheckCircle2,
+  Sparkles,
+};
 
-async function getContactPhone(): Promise<string> {
+function getIcon(name: string): LucideIcon {
+  return ICON_MAP[name] ?? Star;
+}
+
+/* ─── Config types ─── */
+interface LandingPageConfig {
+  contact_phone: string;
+  hero_badge: string;
+  hero_title: string;
+  hero_title_highlight: string;
+  hero_subtitle: string;
+  hero_cta_primary: string;
+  hero_cta_secondary: string;
+  why_eyebrow: string;
+  why_heading: string;
+  value_props: { title: string; desc: string; icon: string }[];
+  buyers_eyebrow: string;
+  buyers_heading: string;
+  buyer_cards: { title: string; desc: string; icon: string; highlight: string }[];
+  proof_heading: string;
+  proof_points: string[];
+  proof_cta: string;
+  dispatch_card_title: string;
+  dispatch_card_text: string;
+  footer_tagline: string;
+}
+
+const DEFAULTS: LandingPageConfig = {
+  contact_phone: "9852030953",
+  hero_badge: "Made in Nepal",
+  hero_title: "Shoes that last as long as",
+  hero_title_highlight: "your day does.",
+  hero_subtitle:
+    "Durable, comfortable footwear built for real life — from school runs to shop floors. Nepal-made quality at prices that make sense.",
+  hero_cta_primary: "Why Pailo",
+  hero_cta_secondary: "Stock our shoes",
+  why_eyebrow: "Why Pailo",
+  why_heading: "Footwear that earns its place in your day.",
+  value_props: [
+    { title: "Built to last", desc: "Durable construction that handles Nepal's streets, monsoons, and daily grind without falling apart.", icon: "Shield" },
+    { title: "Comfortable fit", desc: "Practical materials and proven patterns designed for all-day wear — school, work, everywhere.", icon: "Heart" },
+    { title: "Made in Nepal", desc: "Local production means faster restocking, competitive pricing, and shoes built for local conditions.", icon: "MapPin" },
+  ],
+  buyers_eyebrow: "For buyers & partners",
+  buyers_heading: "Whether you stock shelves or buy direct — we make it easy.",
+  buyer_cards: [
+    { title: "Retail shops", desc: "Consistent size runs, clean labels, and reliable batch supply that keeps your shelves stocked.", icon: "Handshake", highlight: "Restocking made simple" },
+    { title: "Supermarkets", desc: "Display-ready packaging, organized pricing, and production records for easy aisle management.", icon: "PackageCheck", highlight: "Shelf-ready from the box" },
+    { title: "Direct buyers", desc: "Quality daily footwear at factory prices — for schools, offices, and families who value durability.", icon: "Footprints", highlight: "Factory price, retail quality" },
+  ],
+  proof_heading: "Quality you can see. Supply you can count on.",
+  proof_points: [
+    "Quality-inspected before every dispatch",
+    "Consistent batches you can reorder with confidence",
+    "Organized dispatch with full production records",
+    "Growing capacity — 1,000+ pairs per day",
+  ],
+  proof_cta: "Start a partnership",
+  dispatch_card_title: "Ready when you are",
+  dispatch_card_text: "Every pair leaves with labels, records, and quality checks complete.",
+  footer_tagline: "Nepal-made footwear that lasts.",
+};
+
+async function getLandingConfig(): Promise<LandingPageConfig> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
-    const res = await fetch(`${baseUrl}/api/v1/settings/public`, {
+    const res = await fetch(`${baseUrl}/api/v1/settings/landing-page`, {
       next: { revalidate: 60 },
     });
-    if (!res.ok) return DEFAULT_CONTACT_PHONE;
-    const settings: { key: string; value: string }[] = await res.json();
-    const phone = settings.find((s) => s.key === "contact_phone");
-    return phone?.value ?? DEFAULT_CONTACT_PHONE;
+    if (!res.ok) return DEFAULTS;
+    return { ...DEFAULTS, ...(await res.json()) };
   } catch {
-    return DEFAULT_CONTACT_PHONE;
+    return DEFAULTS;
   }
 }
 
-const valueProps = [
-  {
-    title: "Built to last",
-    desc: "Durable construction that handles Nepal's streets, monsoons, and daily grind without falling apart.",
-    icon: Shield,
-  },
-  {
-    title: "Comfortable fit",
-    desc: "Practical materials and proven patterns designed for all-day wear — school, work, everywhere.",
-    icon: Heart,
-  },
-  {
-    title: "Made in Nepal",
-    desc: "Local production means faster restocking, competitive pricing, and shoes built for local conditions.",
-    icon: MapPin,
-  },
-];
-
-const buyerBenefits = [
-  {
-    title: "Retail shops",
-    desc: "Consistent size runs, clean labels, and reliable batch supply that keeps your shelves stocked.",
-    icon: Handshake,
-    highlight: "Restocking made simple",
-  },
-  {
-    title: "Supermarkets",
-    desc: "Display-ready packaging, organized pricing, and production records for easy aisle management.",
-    icon: PackageCheck,
-    highlight: "Shelf-ready from the box",
-  },
-  {
-    title: "Direct buyers",
-    desc: "Quality daily footwear at factory prices — for schools, offices, and families who value durability.",
-    icon: Footprints,
-    highlight: "Factory price, retail quality",
-  },
-];
-
-const proofPoints = [
-  { icon: Star, text: "Quality-inspected before every dispatch" },
-  { icon: RefreshCw, text: "Consistent batches you can reorder with confidence" },
-  { icon: Truck, text: "Organized dispatch with full production records" },
-  { icon: CheckCircle2, text: "Growing capacity — 1,000+ pairs per day" },
-];
-
 export default async function LandingPage() {
-  const contactPhone = await getContactPhone();
+  const cfg = await getLandingConfig();
+
+  const proofIcons = [Star, RefreshCw, Truck, CheckCircle2];
 
   return (
     <main className="lp">
@@ -103,13 +133,13 @@ export default async function LandingPage() {
           <span className="lp-brand-text">Pailo</span>
         </Link>
         <nav className="lp-nav-links" aria-label="Page sections">
-          <Link href="#why">Why Pailo</Link>
+          <Link href="#why">{cfg.why_eyebrow}</Link>
           <Link href="#buyers">For buyers</Link>
         </nav>
         <div className="lp-nav-end">
-          <a href={`tel:${contactPhone}`} className="lp-nav-phone">
+          <a href={`tel:${cfg.contact_phone}`} className="lp-nav-phone">
             <Phone aria-hidden="true" size={14} />
-            <span>{contactPhone}</span>
+            <span>{cfg.contact_phone}</span>
           </a>
           <Button asChild variant="glass" className="lp-nav-cta">
             <Link href="#buyers">
@@ -138,27 +168,24 @@ export default async function LandingPage() {
           <div className="lp-hero-content">
             <div className="lp-hero-badge">
               <Sparkles aria-hidden="true" size={14} />
-              <span>Made in Nepal</span>
+              <span>{cfg.hero_badge}</span>
             </div>
             <h1 className="lp-hero-title">
-              Shoes that last as long as
-              <em> your day does.</em>
+              {cfg.hero_title}
+              <em> {cfg.hero_title_highlight}</em>
             </h1>
-            <p className="lp-hero-sub">
-              Durable, comfortable footwear built for real life — from school runs 
-              to shop floors. Nepal-made quality at prices that make sense.
-            </p>
+            <p className="lp-hero-sub">{cfg.hero_subtitle}</p>
             <div className="lp-hero-actions">
               <Button asChild className="lp-cta-primary">
                 <Link href="#why">
-                  Why Pailo
+                  {cfg.hero_cta_primary}
                   <ArrowRight aria-hidden="true" size={17} />
                 </Link>
               </Button>
               <Button asChild variant="glass">
                 <Link href="#buyers">
                   <Handshake aria-hidden="true" size={17} />
-                  Stock our shoes
+                  {cfg.hero_cta_secondary}
                 </Link>
               </Button>
             </div>
@@ -167,22 +194,25 @@ export default async function LandingPage() {
       </section>
 
       {/* ─── Why Pailo ─── */}
-      <section className="lp-why" id="why" aria-label="Why Pailo">
+      <section className="lp-why" id="why" aria-label={cfg.why_eyebrow}>
         <div className="lp-container">
           <div className="lp-section-header lp-center">
-            <span className="lp-eyebrow">Why Pailo</span>
-            <h2>Footwear that earns its place in your day.</h2>
+            <span className="lp-eyebrow">{cfg.why_eyebrow}</span>
+            <h2>{cfg.why_heading}</h2>
           </div>
           <div className="lp-value-grid">
-            {valueProps.map((v) => (
-              <article className="lp-value-card" key={v.title}>
-                <div className="lp-value-icon">
-                  <v.icon aria-hidden="true" size={22} />
-                </div>
-                <h3>{v.title}</h3>
-                <p>{v.desc}</p>
-              </article>
-            ))}
+            {cfg.value_props.map((v) => {
+              const Icon = getIcon(v.icon);
+              return (
+                <article className="lp-value-card" key={v.title}>
+                  <div className="lp-value-icon">
+                    <Icon aria-hidden="true" size={22} />
+                  </div>
+                  <h3>{v.title}</h3>
+                  <p>{v.desc}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -191,20 +221,23 @@ export default async function LandingPage() {
       <section className="lp-buyers" id="buyers" aria-label="For buyers and partners">
         <div className="lp-container">
           <div className="lp-section-header">
-            <span className="lp-eyebrow">For buyers &amp; partners</span>
-            <h2>Whether you stock shelves or buy direct — we make it easy.</h2>
+            <span className="lp-eyebrow">{cfg.buyers_eyebrow}</span>
+            <h2>{cfg.buyers_heading}</h2>
           </div>
           <div className="lp-buyer-grid">
-            {buyerBenefits.map((b) => (
-              <article className="lp-buyer-card" key={b.title}>
-                <div className="lp-buyer-icon">
-                  <b.icon aria-hidden="true" size={22} />
-                </div>
-                <h3>{b.title}</h3>
-                <p>{b.desc}</p>
-                <span className="lp-buyer-highlight">{b.highlight}</span>
-              </article>
-            ))}
+            {cfg.buyer_cards.map((b) => {
+              const Icon = getIcon(b.icon);
+              return (
+                <article className="lp-buyer-card" key={b.title}>
+                  <div className="lp-buyer-icon">
+                    <Icon aria-hidden="true" size={22} />
+                  </div>
+                  <h3>{b.title}</h3>
+                  <p>{b.desc}</p>
+                  <span className="lp-buyer-highlight">{b.highlight}</span>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -214,19 +247,22 @@ export default async function LandingPage() {
         <div className="lp-container">
           <div className="lp-proof-inner">
             <div className="lp-proof-content">
-              <h2>Quality you can see. Supply you can count on.</h2>
+              <h2>{cfg.proof_heading}</h2>
               <div className="lp-proof-list">
-                {proofPoints.map((p) => (
-                  <div className="lp-proof-item" key={p.text}>
-                    <p.icon aria-hidden="true" size={18} />
-                    <span>{p.text}</span>
-                  </div>
-                ))}
+                {cfg.proof_points.map((text, i) => {
+                  const Icon = proofIcons[i % proofIcons.length];
+                  return (
+                    <div className="lp-proof-item" key={text}>
+                      <Icon aria-hidden="true" size={18} />
+                      <span>{text}</span>
+                    </div>
+                  );
+                })}
               </div>
               <div className="lp-proof-cta">
                 <Button asChild className="lp-cta-primary">
                   <Link href="#buyers">
-                    Start a partnership
+                    {cfg.proof_cta}
                     <ArrowRight aria-hidden="true" size={17} />
                   </Link>
                 </Button>
@@ -235,8 +271,8 @@ export default async function LandingPage() {
             <div className="lp-proof-visual" aria-hidden="true">
               <div className="lp-dispatch-card">
                 <Truck aria-hidden="true" size={24} />
-                <strong>Ready when you are</strong>
-                <span>Every pair leaves with labels, records, and quality checks complete.</span>
+                <strong>{cfg.dispatch_card_title}</strong>
+                <span>{cfg.dispatch_card_text}</span>
               </div>
             </div>
           </div>
@@ -250,18 +286,18 @@ export default async function LandingPage() {
             <span className="lp-brand-mark">P</span>
             <div>
               <strong>Pailo Shoes</strong>
-              <span>Nepal-made footwear that lasts.</span>
+              <span>{cfg.footer_tagline}</span>
             </div>
           </div>
           <nav className="lp-footer-links">
-            <Link href="#why">Why Pailo</Link>
+            <Link href="#why">{cfg.why_eyebrow}</Link>
             <Link href="#buyers">For buyers</Link>
-            <a href={`tel:${contactPhone}`} className="lp-footer-phone">
+            <a href={`tel:${cfg.contact_phone}`} className="lp-footer-phone">
               <Phone aria-hidden="true" size={13} />
-              {contactPhone}
+              {cfg.contact_phone}
             </a>
           </nav>
-          <Link className="lp-staff-link" href={staffPortalUrl}>
+          <Link className="lp-staff-link" href="/portal">
             <LockKeyhole aria-hidden="true" size={13} />
             Staff portal
           </Link>

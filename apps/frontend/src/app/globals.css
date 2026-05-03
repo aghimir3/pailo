@@ -2332,60 +2332,212 @@ button {
   }
 }
 
-/* --- Settings Page --- */
+/* --- Landing Page Editor (lpe-*) --- */
 
-.settings-list {
-  display: grid;
-  gap: 0;
+.lpe-workspace {
+  padding: 0 16px 48px;
 }
 
-.settings-row {
-  display: grid;
-  gap: 8px;
-  padding: 16px;
+.lpe-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0 24px;
   border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 24px;
 }
 
-.settings-row:last-child { border-bottom: 0; }
+.lpe-topbar h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
 
-.settings-label {
-  font-size: 0.82rem;
-  font-weight: 700;
+.lpe-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
   color: var(--text-muted);
+  font-weight: 550;
 }
 
-.settings-value-row {
+.lpe-topbar-actions {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.settings-value {
-  font-size: 0.95rem;
-  font-weight: 600;
+.lpe-error {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--tone-red);
 }
 
-.settings-edit {
+.lpe-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--tone-green);
+}
+
+.lpe-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  max-width: 860px;
+}
+
+.lpe-card-body {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+.lpe-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 4px;
+  border-top: 1px solid var(--glass-border);
+  margin-top: 4px;
+}
+
+.lpe-section-heading h3 {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.lpe-field {
+  display: grid;
+  gap: 4px;
+}
+
+.lpe-field-label {
+  font-size: 0.72rem;
+  font-weight: 750;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.lpe-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 550;
+  transition: border-color 150ms;
+}
+
+.lpe-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(46, 208, 183, 0.15);
+}
+
+.lpe-textarea {
+  resize: vertical;
+  min-height: 60px;
+  line-height: 1.5;
+}
+
+.lpe-select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.lpe-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.lpe-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.lpe-row-3 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+}
+
+.lpe-list-item {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="dark"] .lpe-list-item {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.lpe-list-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lpe-list-num {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #060e0b;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.lpe-proof-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.settings-input {
+.lpe-proof-row .lpe-input {
   flex: 1;
-  min-width: 0;
-  padding: 6px 10px;
-  border: 1px solid var(--glass-border);
-  border-radius: 6px;
-  background: var(--glass-bg);
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  font-weight: 600;
 }
 
-.settings-input:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .lpe-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lpe-row-2,
+  .lpe-row-3 {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
