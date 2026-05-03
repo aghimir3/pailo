@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navigationItems = [
-  { href: "/", label: "Dashboard", icon: Gauge, exact: true },
+  { href: "/portal", label: "Dashboard", icon: Gauge, exact: true },
   { href: "/operations", label: "Operations", icon: Factory },
   { href: "/tasks", label: "Tasks", icon: ClipboardList },
   { href: "/work-orders", label: "Work orders", icon: PackageCheck },
@@ -45,7 +45,7 @@ export function FactoryShell({ actions, children, description, eyebrow, title }:
   return (
     <main className="factory-shell">
       <aside className="factory-sidebar" aria-label="Factory navigation">
-        <Link className="factory-brand" href="/">
+        <Link className="factory-brand" href="/portal">
           <span className="brand-mark">P</span>
           <span>
             <small>Pailo Shoes</small>
