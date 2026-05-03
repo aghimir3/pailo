@@ -1287,6 +1287,10 @@ export interface components {
             assigned_to_employee_id?: string | null;
             /** Assigned Team */
             assigned_team?: string | null;
+            /** Work Order Id */
+            work_order_id?: string | null;
+            /** Product Style Id */
+            product_style_id?: string | null;
             /** Due At */
             due_at?: string | null;
             /** Estimated Quantity */

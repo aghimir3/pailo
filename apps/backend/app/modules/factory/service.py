@@ -305,6 +305,10 @@ async def patch_task(
         task.assigned_to_employee_id = payload.assigned_to_employee_id
     if "assigned_team" in payload.model_fields_set:
         task.assigned_team = _clean_text(payload.assigned_team)
+    if "work_order_id" in payload.model_fields_set:
+        task.work_order_id = payload.work_order_id
+    if "product_style_id" in payload.model_fields_set:
+        task.product_style_id = payload.product_style_id
     if "due_at" in payload.model_fields_set:
         task.due_at = payload.due_at
     if "estimated_quantity" in payload.model_fields_set:

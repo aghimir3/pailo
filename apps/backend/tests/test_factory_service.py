@@ -369,6 +369,8 @@ def test_patch_task_rules_and_field_updates() -> None:
                 assigned_to_user_id=None,
                 assigned_to_employee_id=None,
                 assigned_team="  ",
+                work_order_id=None,
+                product_style_id=None,
                 due_at=None,
                 estimated_quantity=None,
                 unit_of_measure="  ",
@@ -384,6 +386,9 @@ def test_patch_task_rules_and_field_updates() -> None:
         assert updated.assignee is None
         assert updated.assigned_employee is None
         assert updated.assigned_team is None
+        assert updated.work_order_id is None
+        assert updated.work_order_code is None
+        assert updated.product_style_code is None
         assert updated.due_at is None
         assert updated.estimated_quantity is None
         assert updated.unit_of_measure is None

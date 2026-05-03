@@ -3763,6 +3763,30 @@
             ],
             "title": "Assigned Team"
           },
+          "work_order_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Order Id"
+          },
+          "product_style_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Style Id"
+          },
           "due_at": {
             "anyOf": [
               {

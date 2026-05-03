@@ -215,6 +215,8 @@ class TaskPatchRequest(BaseModel):
     assigned_to_user_id: UUID | None = None
     assigned_to_employee_id: UUID | None = None
     assigned_team: str | None = None
+    work_order_id: UUID | None = None
+    product_style_id: UUID | None = None
     due_at: datetime | None = None
     estimated_quantity: Decimal | None = None
     unit_of_measure: str | None = None
