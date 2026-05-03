@@ -2613,6 +2613,10 @@ button {
   max-width: 860px;
 }
 
+.lpe-grid .panel-heading {
+  justify-content: flex-start;
+}
+
 .lpe-card-body {
   display: grid;
   gap: 14px;
