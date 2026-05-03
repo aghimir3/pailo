@@ -4,7 +4,7 @@
 
 Create a web-based label system so Pailo can design, edit, preview, and print shoe labels without manually editing Word files for every change.
 
-The current workspace includes a sample label file: `../Sticker 42.doc`.
+The current workspace includes a sample Word label document in the repository root.
 
 ## Recommended Direction
 
@@ -19,11 +19,11 @@ Why PDF first:
 
 DOCX can still be supported later as import/export, but the production workflow should not depend on manually editing DOCX files.
 
-## MVP Priority: Sticker 42 Production Labels
+## MVP Priority: 24-Up A4 Production Labels
 
-The first MVP label workflow must reproduce the physical layout of `../Sticker 42.doc` because that file already works with Pailo's current sticker paper. Treat this Word file as the calibrated production reference, not as a file that users edit directly.
+The first MVP label workflow must reproduce the physical layout of the sample Word label document because that file already works with Pailo's current sticker paper. Treat this Word file as the calibrated production reference, not as a file that users edit directly.
 
-Measured from `Sticker 42.doc` on 2026-05-02:
+Measured from the sample Word label document on 2026-05-02:
 
 - Page: A4 portrait, about 210.00 mm x 297.00 mm.
 - Sticker count per page: 24 labels.
@@ -34,14 +34,15 @@ Measured from `Sticker 42.doc` on 2026-05-02:
 - Label left positions: about 7.20 mm, 73.24 mm, and 139.28 mm.
 - Label top positions: about 13.09 mm, then every 33.86 mm down the page.
 - Current editable content visible in the file: `Manufactured By`, manufacturer name, `Art. NO.`, `Colour`, `MRP`, `SIZE`, and `Made in Nepal`.
+- Font: Calibri. `Manufactured By:` and manufacturer name are 10.5 pt, the Art/Colour/MRP lines are 12 pt, `SIZE` and the size value are 20 pt, and `Made in Nepal` is 9 pt.
 
-The MVP should ship a locked `Sticker 42` template preset using these dimensions. Users should edit values and print quantities, but the template geometry should remain protected unless an admin intentionally creates a new approved template version.
+The MVP should ship a locked 24-up A4 label template preset using these dimensions. Users should edit values and print quantities, but the template geometry should remain protected unless an admin intentionally creates a new approved template version.
 
 ## MVP Label UX
 
 The high-value MVP experience should be simple and hard to misprint:
 
-1. User opens Labels and chooses the `Sticker 42` template.
+1. User opens Labels and chooses the approved 24-up A4 label template.
 2. App shows one large editable sticker preview, not a cluttered 24-label editing canvas.
 3. User edits structured fields:
 	- Art No.
@@ -65,7 +66,7 @@ Generate the final output as a backend-created PDF with millimeter-based coordin
 
 Implementation direction:
 
-- Store the `Sticker 42` geometry in structured template data.
+- Store the 24-up A4 label geometry in structured template data.
 - Use exact page, label, gap, and offset dimensions from the measured file.
 - Render the PDF server-side using a library that supports exact page sizes and millimeter positioning.
 - Use embedded or controlled fonts so text measurements are predictable.
@@ -186,7 +187,7 @@ Made in {{made_in}}
 6. User downloads or prints PDF.
 7. App records print history.
 
-For the MVP `Sticker 42` workflow, the default screen should be even more direct: edit one sticker, enter quantity, preview the 24-up sheet, then print PDF.
+For the MVP 24-up A4 label workflow, the default screen should be even more direct: edit one sticker, enter quantity, preview the 24-up sheet, then print PDF.
 
 ## Batch Printing Examples
 
@@ -231,7 +232,7 @@ Suggested fields:
 
 ## DOCX Handling
 
-The existing `../Sticker 42.doc` can be used as a visual reference.
+The existing sample Word label document can be used as a visual reference.
 
 For the MVP, it is more than a visual reference: it is the calibrated source for the first production template dimensions. The application should recreate this layout in structured template data and generate PDFs from that data.
 

@@ -21,6 +21,7 @@ The goal is to build one operating system for the factory: product development, 
 - [13-implementation-execution-plan.md](13-implementation-execution-plan.md) - incremental execution plan for building the app from runnable foundation to production launch.
 - [14-mvp-scope.md](14-mvp-scope.md) - concrete MVP scope, workflows, acceptance criteria, out-of-scope items, and build order.
 - [15-mvp-build-plan.md](15-mvp-build-plan.md) - execution-focused vertical slice plan for completing the MVP implementation.
+- [16-public-landing-page-plan.md](16-public-landing-page-plan.md) - public landing page plan for `pailoshoes.com` with `app.pailoshoes.com` kept as the MVP employee portal.
 
 ## Implementation Artifacts
 
@@ -28,7 +29,7 @@ The goal is to build one operating system for the factory: product development, 
 
 ## Current Workspace Notes
 
-- Existing label sample: `../Sticker 42.doc`
+- Existing label sample: root Word label document
 - Brand name: `Pailo`, a Nepali word written in Roman letters.
 - Purchased domain: `pailoshoes.com`.
 - Current approximate production cost: `900 NPR` per pair.

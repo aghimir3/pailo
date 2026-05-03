@@ -19,7 +19,7 @@ Already in place before this MVP implementation slice:
 
 Implementation checkpoint added in this slice:
 
-- Deterministic MVP seed data for app users, employees, suppliers, product styles, BOM snapshot, materials, stock, work orders, tasks, comments, QC, Sticker 42, and print history.
+- Deterministic MVP seed data for app users, employees, suppliers, product styles, BOM snapshot, materials, stock, work orders, tasks, comments, QC, 24-up A4 labels, and print history.
 - DB-backed dashboard, tasks, My Tasks, work orders, inventory, QC, catalog, label-template, and CSV report endpoints.
 - Task mutations with assignment scoping, blocked-reason enforcement, review-required completion guard, optimistic `version` checks, retry-safe comments, and author-only comment edits.
 - Generated OpenAPI JSON and TypeScript API client from the live FastAPI schema.
@@ -98,13 +98,13 @@ Frontend:
 - Add QC screen for inspection entry, defect quantities, photos later, and rework creation.
 - Show QC status on work orders and dashboard.
 
-### Slice 5: Sticker 42 Labels
+### Slice 5: Label Generator
 
-Outcome: Pailo can preview, print, and audit Sticker 42 labels for a work order.
+Outcome: Pailo can preview, print, and audit 24-up A4 labels for a work order.
 
 Backend:
 
-- Add label template read APIs and approved `Sticker 42` seed/template configuration.
+- Add label template read APIs and approved 24-up A4 seed/template configuration.
 - Add label variable resolution from style, work order, size, MRP, manufacturer, and batch data.
 - Add PDF generation from millimeter coordinates and store print-job history.
 

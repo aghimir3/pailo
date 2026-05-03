@@ -269,7 +269,7 @@ Recommended MVP implementation:
 - Store generated PDF in S3.
 - Return signed URL to frontend.
 
-Avoid editing binary Word files directly. Recreate `Sticker 42.doc` as a web template.
+Avoid editing binary Word files directly. Recreate the sample Word label document as a web template.
 
 ### Files
 

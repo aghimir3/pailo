@@ -399,7 +399,7 @@ Initial seed data:
 - Task statuses and board types.
 - Material categories.
 - Product categories.
-- Label template sample recreated from `Sticker 42.doc`.
+- Label template sample recreated from the root Word label document.
 - Initial 15 product style placeholders.
 
 ## Backup And Recovery

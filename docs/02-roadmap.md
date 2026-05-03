@@ -11,7 +11,7 @@ Estimated time: 1 to 2 weeks.
 Goals:
 
 - Map the current factory process from material purchase to final packing.
-- Collect current label files, including `../Sticker 42.doc`.
+- Collect current label files, including the root Word label sample.
 - Define Pailo style code rules.
 - List all material categories and units of measure.
 - List employee roles and production stages.

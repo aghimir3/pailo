@@ -144,7 +144,7 @@ Acceptance:
 ### 8. Label Templates And Print Jobs
 
 - Label template list with approved template versions.
-- High-priority `Sticker 42` template preset recreated from the root `Sticker 42.doc` dimensions.
+- High-priority 24-up A4 label template preset recreated from the root sample Word label document dimensions.
 - One-sticker editor for fields the factory changes often: Art No., Colour, Size, MRP, Manufactured By, and origin text such as Made in Nepal.
 - 24-up A4 sheet preview matching the current sticker paper: 3 columns x 8 rows.
 - Quantity picker that fills slots left-to-right, top-to-bottom; 3 labels fill only the top row, and 25 labels create a second page.
@@ -158,7 +158,7 @@ Acceptance:
 
 - Labels use Pailo branding and Pailo style codes only.
 - A manager can edit one sticker's values, choose quantity, preview the exact 24-label sheet, and print a PDF for the current sticker paper.
-- The first approved template preserves the measured `Sticker 42.doc` page, label, gap, and slot positions.
+- The first approved template preserves the measured sample Word label document page, label, gap, and slot positions.
 - Print history is auditable.
 
 ### 9. Suppliers And Purchasing Basics
@@ -224,12 +224,12 @@ Acceptance:
 8. Manager reviews blocked/review-needed tasks.
 9. QC records inspection and rework if needed.
 10. Receive finished goods.
-11. Print `Sticker 42` labels by size and quantity.
+11. Print labels by size and quantity.
 12. Owner reviews daily dashboard and reports.
 
-### Sticker 42 Label Workflow
+### Label Generator Workflow
 
-1. User selects the approved `Sticker 42` template.
+1. User selects the approved 24-up A4 label template.
 2. User chooses a style, work order, or manual label entry.
 3. App shows one large sticker preview with editable Art No., Colour, Size, MRP, Manufactured By, and origin fields.
 4. User enters total label quantity or per-size quantities.
@@ -273,7 +273,7 @@ Acceptance:
 - Employees can see assigned tasks and update them on a phone.
 - Manager can see work order progress, blocked tasks, and review-needed tasks.
 - Inventory changes are traceable and low stock is visible.
-- `Sticker 42` labels can be printed accurately from editable label fields and batch/product data.
+- 24-up A4 labels can be printed accurately from editable label fields and batch/product data.
 - QC failures create traceable rework.
 - Owner dashboard explains daily output, stock risk, QC risk, cost pressure, and blockers.
 - The app runs locally with Docker Compose and has a clear AWS deployment path.
@@ -286,7 +286,7 @@ Acceptance:
 4. Work orders and task auto-generation.
 5. Worker My Tasks and manager task board.
 6. Inventory movements and finished goods receipt.
-7. `Sticker 42` label editor, calibrated PDF generation, and print history.
+7. Label generator, calibrated PDF generation, and print history.
 8. QC inspections and rework tasks.
 9. Reports and dashboard connected to live data.
 10. Deployment smoke tests and operational hardening.

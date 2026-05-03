@@ -29,7 +29,7 @@ The current repository is planning-docs-first. Treat [docs/README.md](docs/READM
 - Use NPR for money unless another currency is explicitly required. Keep Nepal-ready details such as local phone/address fields and optional Nepali date/language support in mind.
 - Keep competitor trademarks, logos, and brand names out of generated labels, product names, packaging, invoices, catalog exports, and customer-facing outputs. Store inspiration only as internal reference notes/photos when needed.
 - Use `app.pailoshoes.com` for the internal factory app. Reserve `pailoshoes.com` and `www.pailoshoes.com` for future public brand/catalog/verification experiences.
-- Labels should use Pailo branding, Pailo style codes, immutable template versions, PDF output, and print-job history. Treat `Sticker 42.doc` as a visual reference to recreate, not as a binary file to edit in production.
+- Labels should use Pailo branding, Pailo style codes, immutable template versions, PDF output, and print-job history. Treat the root Word label document as a visual reference to recreate, not as a binary file to edit in production.
 
 ## Architecture
 
