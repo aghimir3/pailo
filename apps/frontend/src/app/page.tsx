@@ -11,6 +11,7 @@ import {
   LockKeyhole,
   MapPin,
   PackageCheck,
+  Phone,
   RefreshCw,
   Shield,
   Sparkles,
@@ -27,6 +28,22 @@ export const metadata: Metadata = {
 };
 
 const staffPortalUrl = "/portal";
+const DEFAULT_CONTACT_PHONE = "9852030953";
+
+async function getContactPhone(): Promise<string> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+    const res = await fetch(`${baseUrl}/api/v1/settings/public`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return DEFAULT_CONTACT_PHONE;
+    const settings: { key: string; value: string }[] = await res.json();
+    const phone = settings.find((s) => s.key === "contact_phone");
+    return phone?.value ?? DEFAULT_CONTACT_PHONE;
+  } catch {
+    return DEFAULT_CONTACT_PHONE;
+  }
+}
 
 const valueProps = [
   {
@@ -74,7 +91,9 @@ const proofPoints = [
   { icon: CheckCircle2, text: "Growing capacity — 1,000+ pairs per day" },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const contactPhone = await getContactPhone();
+
   return (
     <main className="lp">
       {/* ─── Nav ─── */}
@@ -88,6 +107,10 @@ export default function LandingPage() {
           <Link href="#buyers">For buyers</Link>
         </nav>
         <div className="lp-nav-end">
+          <a href={`tel:${contactPhone}`} className="lp-nav-phone">
+            <Phone aria-hidden="true" size={14} />
+            <span>{contactPhone}</span>
+          </a>
           <Button asChild variant="glass" className="lp-nav-cta">
             <Link href="#buyers">
               Partner with us
@@ -233,6 +256,10 @@ export default function LandingPage() {
           <nav className="lp-footer-links">
             <Link href="#why">Why Pailo</Link>
             <Link href="#buyers">For buyers</Link>
+            <a href={`tel:${contactPhone}`} className="lp-footer-phone">
+              <Phone aria-hidden="true" size={13} />
+              {contactPhone}
+            </a>
           </nav>
           <Link className="lp-staff-link" href={staffPortalUrl}>
             <LockKeyhole aria-hidden="true" size={13} />

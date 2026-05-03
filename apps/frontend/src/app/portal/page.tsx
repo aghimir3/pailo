@@ -10,6 +10,7 @@ import {
   PackageCheck,
   Printer,
   ScanLine,
+  Settings,
   TrendingUp,
   Users,
 } from "lucide-react";
@@ -35,6 +36,7 @@ const navItems = [
   { label: "Inventory", icon: Boxes, href: "/inventory" },
   { label: "Labels", icon: Printer, href: "/labels" },
   { label: "People", icon: Users, href: "/people" },
+  { label: "Settings", icon: Settings, href: "/settings" },
 ];
 
 function taskTone(status: string) {

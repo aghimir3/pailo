@@ -513,14 +513,57 @@ class LabelTemplate(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
 
 
-class LabelPrintJob(UUIDPrimaryKeyMixin, TimestampMixin, Base):
-    __tablename__ = "label_print_jobs"
-    __table_args__ = (Index("ix_label_print_jobs_created_at", "created_at"),)
+class SavedLabel(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "saved_labels"
+    __table_args__ = (
+        CheckConstraint("default_quantity > 0", name="saved_label_default_quantity_positive"),
+        CheckConstraint("status in ('active', 'archived')", name="saved_label_status"),
+        Index("ix_saved_labels_status_updated", "status", "updated_at"),
+        Index("ix_saved_labels_template_status", "template_id", "status"),
+    )
 
-    print_job_code: Mapped[str] = mapped_column(String(48), nullable=False, unique=True)
+    label_code: Mapped[str] = mapped_column(String(48), nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String(180), nullable=False)
     template_id: Mapped[UUID] = mapped_column(
         ForeignKey("label_templates.id", ondelete="RESTRICT"), nullable=False
     )
+    template_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    product_style_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("product_styles.id", ondelete="SET NULL")
+    )
+    art_no: Mapped[str] = mapped_column(String(80), nullable=False)
+    colour: Mapped[str] = mapped_column(String(80), nullable=False)
+    size: Mapped[str] = mapped_column(String(24), nullable=False)
+    mrp_npr: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    manufactured_by: Mapped[str] = mapped_column(String(160), nullable=False)
+    origin_text: Mapped[str] = mapped_column(String(80), nullable=False)
+    default_quantity: Mapped[int] = mapped_column(Integer, nullable=False, server_default="24")
+    notes: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, server_default="active")
+    created_by_user_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
+    updated_by_user_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
+
+
+class LabelPrintJob(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "label_print_jobs"
+    __table_args__ = (
+        Index("ix_label_print_jobs_created_at", "created_at"),
+        Index("ix_label_print_jobs_saved_label_id", "saved_label_id"),
+    )
+
+    print_job_code: Mapped[str] = mapped_column(String(48), nullable=False, unique=True)
+    saved_label_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("saved_labels.id", ondelete="SET NULL")
+    )
+    template_id: Mapped[UUID] = mapped_column(
+        ForeignKey("label_templates.id", ondelete="RESTRICT"), nullable=False
+    )
+    template_version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
     work_order_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("work_orders.id", ondelete="SET NULL")
     )
@@ -555,3 +598,14 @@ class AuditLog(UUIDPrimaryKeyMixin, Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+
+
+class SiteSetting(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "site_settings"
+    __table_args__ = (
+        UniqueConstraint("key", name="uq_site_settings_key"),
+    )
+
+    key: Mapped[str] = mapped_column(String(120), nullable=False)
+    value: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)

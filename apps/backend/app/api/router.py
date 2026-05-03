@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1 import health, inventory, labels, operations, quality, reports, tasks, work_orders
+from app.api.v1 import health, inventory, labels, operations, quality, reports, settings, tasks, work_orders
 
 api_router = APIRouter()
 api_router.include_router(health.router, tags=["health"])
@@ -11,3 +11,4 @@ api_router.include_router(work_orders.router, prefix="/work-orders", tags=["work
 api_router.include_router(inventory.router, prefix="/inventory", tags=["inventory"])
 api_router.include_router(quality.router, prefix="/quality", tags=["quality"])
 api_router.include_router(labels.router, prefix="/labels", tags=["labels"])
+api_router.include_router(settings.router, prefix="/settings", tags=["settings"])
