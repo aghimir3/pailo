@@ -422,7 +422,10 @@ export interface components {
         };
         /** LabelPreviewRequest */
         "LabelPreviewRequest-Input": {
-            /** Quantity */
+            /**
+             * Quantity
+             * @default 25
+             */
             quantity: number;
             /** Art No */
             art_no: string;
@@ -434,7 +437,7 @@ export interface components {
             mrp_npr: number | string;
             /**
              * Manufactured By
-             * @default Pailo Shoes
+             * @default AB Fashion & Wears
              */
             manufactured_by: string;
             /**
@@ -445,7 +448,10 @@ export interface components {
         };
         /** LabelPreviewRequest */
         "LabelPreviewRequest-Output": {
-            /** Quantity */
+            /**
+             * Quantity
+             * @default 25
+             */
             quantity: number;
             /** Art No */
             art_no: string;
@@ -457,7 +463,7 @@ export interface components {
             mrp_npr: string;
             /**
              * Manufactured By
-             * @default Pailo Shoes
+             * @default AB Fashion & Wears
              */
             manufactured_by: string;
             /**

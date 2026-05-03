@@ -975,7 +975,7 @@ def upgrade() -> None:
                 "id": TASK_IDS[3],
                 "task_code": "TASK-2026-000044",
                 "title": "Print size 39-40 labels",
-                "description": "Print Sticker 42 labels for the QC-cleared school shoe batch.",
+                "description": "Print 24-up A4 labels for the QC-cleared school shoe batch.",
                 "board_id": PRODUCTION_BOARD_ID,
                 "status": "ready",
                 "priority": "medium",
@@ -1151,8 +1151,8 @@ def upgrade() -> None:
         [
             {
                 "id": LABEL_TEMPLATE_ID,
-                "template_code": "STICKER-42",
-                "name": "Sticker 42 24-up A4",
+                "template_code": "A4-24-LABEL",
+                "name": "24-up A4 label template",
                 "version": 1,
                 "template_type": "product_label",
                 "status": "approved",
@@ -1171,7 +1171,7 @@ def upgrade() -> None:
                 "design_json": {
                     "brand": "Pailo",
                     "fields": ["Art No.", "Colour", "Size", "MRP", "Manufactured By", "Made in Nepal"],
-                    "source_reference": "Sticker 42.doc dimensions recreated as calibrated millimeter coordinates",
+                    "source_reference": "sample Word label document dimensions recreated as calibrated millimeter coordinates",
                 },
                 "approved_at": now,
                 "approved_by_user_id": USER_IDS[0],
@@ -1194,7 +1194,7 @@ def upgrade() -> None:
                     "colour": "White",
                     "size": "39",
                     "mrp_npr": "1899",
-                    "manufactured_by": "Pailo Shoes",
+                    "manufactured_by": "AB Fashion & Wears",
                     "origin_text": "Made in Nepal",
                 },
                 "pdf_s3_key": None,

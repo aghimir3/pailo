@@ -100,7 +100,7 @@ def test_label_preview_uses_24_up_sheet(client: TestClient) -> None:
             "colour": "White",
             "size": "39",
             "mrp_npr": "1899",
-            "manufactured_by": "Pailo Shoes",
+            "manufactured_by": "AB Fashion & Wears",
             "origin_text": "Made in Nepal",
         },
     )

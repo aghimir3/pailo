@@ -1150,7 +1150,8 @@
             "type": "integer",
             "maximum": 240.0,
             "minimum": 1.0,
-            "title": "Quantity"
+            "title": "Quantity",
+            "default": 25
           },
           "art_no": {
             "type": "string",
@@ -1187,7 +1188,7 @@
             "type": "string",
             "maxLength": 160,
             "title": "Manufactured By",
-            "default": "Pailo Shoes"
+            "default": "AB Fashion & Wears"
           },
           "origin_text": {
             "type": "string",
@@ -1198,7 +1199,6 @@
         },
         "type": "object",
         "required": [
-          "quantity",
           "art_no",
           "colour",
           "size",
@@ -1212,7 +1212,8 @@
             "type": "integer",
             "maximum": 240.0,
             "minimum": 1.0,
-            "title": "Quantity"
+            "title": "Quantity",
+            "default": 25
           },
           "art_no": {
             "type": "string",
@@ -1241,7 +1242,7 @@
             "type": "string",
             "maxLength": 160,
             "title": "Manufactured By",
-            "default": "Pailo Shoes"
+            "default": "AB Fashion & Wears"
           },
           "origin_text": {
             "type": "string",
@@ -1252,7 +1253,6 @@
         },
         "type": "object",
         "required": [
-          "quantity",
           "art_no",
           "colour",
           "size",
