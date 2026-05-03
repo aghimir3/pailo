@@ -1,5 +1,6 @@
 from collections.abc import Iterator
 from typing import cast
+from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
@@ -19,6 +20,12 @@ def test_health(client: TestClient) -> None:
     assert response.json()["status"] == "ok"
 
 
+def test_api_health(client: TestClient) -> None:
+    response = client.get("/api/v1/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok", "scope": "api"}
+
+
 def test_dashboard_contains_owner_insights(client: TestClient) -> None:
     response = client.get("/api/v1/reports/dashboard")
     assert response.status_code == 200
@@ -35,6 +42,42 @@ def test_operations_catalog_uses_production_route(client: TestClient) -> None:
     assert len(payload["work_orders"]) >= 2
 
 
+def test_inventory_quality_and_work_order_routes(client: TestClient) -> None:
+    low_stock_response = client.get("/api/v1/inventory/low-stock")
+    assert low_stock_response.status_code == 200
+    assert {alert["code"] for alert in low_stock_response.json()} >= {"MAT-THR-BLK", "MAT-OUT-TR42"}
+
+    materials_response = client.get("/api/v1/inventory/materials")
+    assert materials_response.status_code == 200
+    assert any(material["risk"].startswith("Near minimum") for material in materials_response.json())
+
+    signals_response = client.get("/api/v1/quality/signals")
+    assert signals_response.status_code == 200
+    assert signals_response.json()[0]["label"] == "Defect rate"
+
+    inspections_response = client.get("/api/v1/quality/inspections")
+    assert inspections_response.status_code == 200
+    assert inspections_response.json()[0]["inspection_code"] == "QC-2026-000001"
+
+    work_orders_response = client.get("/api/v1/work-orders")
+    assert work_orders_response.status_code == 200
+    work_order = work_orders_response.json()[0]
+    detail_response = client.get(f"/api/v1/work-orders/{work_order['id']}")
+    assert detail_response.status_code == 200
+    assert detail_response.json()["work_order_code"] == work_order["work_order_code"]
+
+
+def test_csv_exports_include_expected_headers(client: TestClient) -> None:
+    tasks_response = client.get("/api/v1/reports/tasks.csv")
+    assert tasks_response.status_code == 200
+    assert tasks_response.headers["content-disposition"] == 'attachment; filename="pailo-tasks.csv"'
+    assert tasks_response.text.splitlines()[0] == "task_code,title,status,priority,assignee,work_order,due_at"
+
+    stock_response = client.get("/api/v1/reports/low-stock.csv")
+    assert stock_response.status_code == 200
+    assert stock_response.text.splitlines()[0] == "material,code,current,minimum,risk,supplier"
+
+
 def test_my_tasks_are_worker_scoped_to_current_user(client: TestClient) -> None:
     response = client.get("/api/v1/tasks/my-tasks")
     assert response.status_code == 200
@@ -42,6 +85,23 @@ def test_my_tasks_are_worker_scoped_to_current_user(client: TestClient) -> None:
     assert payload
     assert {task["assignee"]["display_name"] for task in payload} == {"Ram"}
     assert any(task["task_code"] == "TASK-2026-000041" for task in payload)
+
+
+def test_task_detail_and_auth_errors(client: TestClient) -> None:
+    task = _first_task(client, "TASK-2026-000041")
+    detail_response = client.get(f"/api/v1/tasks/{task['id']}")
+    assert detail_response.status_code == 200
+    assert detail_response.json()["task_code"] == "TASK-2026-000041"
+
+    missing_task_response = client.get(f"/api/v1/tasks/{uuid4()}")
+    assert missing_task_response.status_code == 404
+    assert "not found" in missing_task_response.json()["detail"]
+
+    invalid_user_response = client.get(
+        "/api/v1/tasks/my-tasks",
+        headers={"X-Pailo-User-Email": "missing@pailoshoes.com"},
+    )
+    assert invalid_user_response.status_code == 401
 
 
 def test_blocked_task_requires_reason(client: TestClient) -> None:
