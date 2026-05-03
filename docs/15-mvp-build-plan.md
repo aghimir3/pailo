@@ -23,7 +23,7 @@ Implementation checkpoint added in this slice:
 - DB-backed dashboard, tasks, My Tasks, work orders, inventory, QC, catalog, label-template, and CSV report endpoints.
 - Task mutations with assignment scoping, blocked-reason enforcement, review-required completion guard, optimistic `version` checks, retry-safe comments, and author-only comment edits.
 - Generated OpenAPI JSON and TypeScript API client from the live FastAPI schema.
-- A phone-friendly MVP operating console at `/mvp` covering task board, My Tasks, work orders, styles, inventory, suppliers, QC, Sticker 42 preview, users, and owner exports.
+- A phone-friendly production route set covering `/operations`, `/tasks`, `/work-orders`, `/inventory`, `/quality`, `/labels`, `/people`, and `/reports`. Runtime routes should use production product language; MVP remains an internal milestone name in planning docs only.
 - Backend tests for worker scoping, blocked-task reasons, review-required completion, comment ownership, and 24-up label preview.
 
 Remaining gap for production hardening:
