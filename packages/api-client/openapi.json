@@ -1573,6 +1573,103 @@
         }
       }
     },
+    "/api/v1/settings/landing-page": {
+      "get": {
+        "tags": [
+          "settings"
+        ],
+        "summary": "Get Landing Page Config",
+        "description": "Public endpoint \u2014 returns the full landing page configuration.",
+        "operationId": "get_landing_page_config_api_v1_settings_landing_page_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LandingPageConfig"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "settings"
+        ],
+        "summary": "Update Landing Page Config",
+        "description": "Update the full landing page config. Requires authenticated user.",
+        "operationId": "update_landing_page_config_api_v1_settings_landing_page_put",
+        "parameters": [
+          {
+            "name": "X-Pailo-User-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Id"
+            }
+          },
+          {
+            "name": "X-Pailo-User-Email",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Pailo-User-Email"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LandingPageConfig"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LandingPageConfig"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/settings/{key}": {
       "put": {
         "tags": [
@@ -2274,6 +2371,163 @@
           "design_json"
         ],
         "title": "LabelTemplateRecord"
+      },
+      "LandingPageConfig": {
+        "properties": {
+          "contact_phone": {
+            "type": "string",
+            "title": "Contact Phone",
+            "default": "9852030953"
+          },
+          "hero_badge": {
+            "type": "string",
+            "title": "Hero Badge",
+            "default": "Made in Nepal"
+          },
+          "hero_title": {
+            "type": "string",
+            "title": "Hero Title",
+            "default": "Shoes that last as long as"
+          },
+          "hero_title_highlight": {
+            "type": "string",
+            "title": "Hero Title Highlight",
+            "default": "your day does."
+          },
+          "hero_subtitle": {
+            "type": "string",
+            "title": "Hero Subtitle",
+            "default": "Durable, comfortable footwear built for real life \u2014 from school runs to shop floors. Nepal-made quality at prices that make sense."
+          },
+          "hero_cta_primary": {
+            "type": "string",
+            "title": "Hero Cta Primary",
+            "default": "Why Pailo"
+          },
+          "hero_cta_secondary": {
+            "type": "string",
+            "title": "Hero Cta Secondary",
+            "default": "Stock our shoes"
+          },
+          "why_eyebrow": {
+            "type": "string",
+            "title": "Why Eyebrow",
+            "default": "Why Pailo"
+          },
+          "why_heading": {
+            "type": "string",
+            "title": "Why Heading",
+            "default": "Footwear that earns its place in your day."
+          },
+          "value_props": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Value Props",
+            "default": [
+              {
+                "title": "Built to last",
+                "desc": "Durable construction that handles Nepal's streets, monsoons, and daily grind without falling apart.",
+                "icon": "Shield"
+              },
+              {
+                "title": "Comfortable fit",
+                "desc": "Practical materials and proven patterns designed for all-day wear \u2014 school, work, everywhere.",
+                "icon": "Heart"
+              },
+              {
+                "title": "Made in Nepal",
+                "desc": "Local production means faster restocking, competitive pricing, and shoes built for local conditions.",
+                "icon": "MapPin"
+              }
+            ]
+          },
+          "buyers_eyebrow": {
+            "type": "string",
+            "title": "Buyers Eyebrow",
+            "default": "For buyers & partners"
+          },
+          "buyers_heading": {
+            "type": "string",
+            "title": "Buyers Heading",
+            "default": "Whether you stock shelves or buy direct \u2014 we make it easy."
+          },
+          "buyer_cards": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Buyer Cards",
+            "default": [
+              {
+                "title": "Retail shops",
+                "desc": "Consistent size runs, clean labels, and reliable batch supply that keeps your shelves stocked.",
+                "icon": "Handshake",
+                "highlight": "Restocking made simple"
+              },
+              {
+                "title": "Supermarkets",
+                "desc": "Display-ready packaging, organized pricing, and production records for easy aisle management.",
+                "icon": "PackageCheck",
+                "highlight": "Shelf-ready from the box"
+              },
+              {
+                "title": "Direct buyers",
+                "desc": "Quality daily footwear at factory prices \u2014 for schools, offices, and families who value durability.",
+                "icon": "Footprints",
+                "highlight": "Factory price, retail quality"
+              }
+            ]
+          },
+          "proof_heading": {
+            "type": "string",
+            "title": "Proof Heading",
+            "default": "Quality you can see. Supply you can count on."
+          },
+          "proof_points": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Proof Points",
+            "default": [
+              "Quality-inspected before every dispatch",
+              "Consistent batches you can reorder with confidence",
+              "Organized dispatch with full production records",
+              "Growing capacity \u2014 1,000+ pairs per day"
+            ]
+          },
+          "proof_cta": {
+            "type": "string",
+            "title": "Proof Cta",
+            "default": "Start a partnership"
+          },
+          "dispatch_card_title": {
+            "type": "string",
+            "title": "Dispatch Card Title",
+            "default": "Ready when you are"
+          },
+          "dispatch_card_text": {
+            "type": "string",
+            "title": "Dispatch Card Text",
+            "default": "Every pair leaves with labels, records, and quality checks complete."
+          },
+          "footer_tagline": {
+            "type": "string",
+            "title": "Footer Tagline",
+            "default": "Nepal-made footwear that lasts."
+          }
+        },
+        "type": "object",
+        "title": "LandingPageConfig",
+        "description": "Full landing page configuration stored as JSON."
       },
       "MaterialStockRecord": {
         "properties": {

@@ -471,6 +471,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/landing-page": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Landing Page Config
+         * @description Public endpoint — returns the full landing page configuration.
+         */
+        get: operations["get_landing_page_config_api_v1_settings_landing_page_get"];
+        /**
+         * Update Landing Page Config
+         * @description Update the full landing page config. Requires authenticated user.
+         */
+        put: operations["update_landing_page_config_api_v1_settings_landing_page_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/settings/{key}": {
         parameters: {
             query?: never;
@@ -731,6 +755,151 @@ export interface components {
             design_json: {
                 [key: string]: unknown;
             };
+        };
+        /**
+         * LandingPageConfig
+         * @description Full landing page configuration stored as JSON.
+         */
+        LandingPageConfig: {
+            /**
+             * Contact Phone
+             * @default 9852030953
+             */
+            contact_phone: string;
+            /**
+             * Hero Badge
+             * @default Made in Nepal
+             */
+            hero_badge: string;
+            /**
+             * Hero Title
+             * @default Shoes that last as long as
+             */
+            hero_title: string;
+            /**
+             * Hero Title Highlight
+             * @default your day does.
+             */
+            hero_title_highlight: string;
+            /**
+             * Hero Subtitle
+             * @default Durable, comfortable footwear built for real life — from school runs to shop floors. Nepal-made quality at prices that make sense.
+             */
+            hero_subtitle: string;
+            /**
+             * Hero Cta Primary
+             * @default Why Pailo
+             */
+            hero_cta_primary: string;
+            /**
+             * Hero Cta Secondary
+             * @default Stock our shoes
+             */
+            hero_cta_secondary: string;
+            /**
+             * Why Eyebrow
+             * @default Why Pailo
+             */
+            why_eyebrow: string;
+            /**
+             * Why Heading
+             * @default Footwear that earns its place in your day.
+             */
+            why_heading: string;
+            /**
+             * Value Props
+             * @default [
+             *       {
+             *         "title": "Built to last",
+             *         "desc": "Durable construction that handles Nepal's streets, monsoons, and daily grind without falling apart.",
+             *         "icon": "Shield"
+             *       },
+             *       {
+             *         "title": "Comfortable fit",
+             *         "desc": "Practical materials and proven patterns designed for all-day wear — school, work, everywhere.",
+             *         "icon": "Heart"
+             *       },
+             *       {
+             *         "title": "Made in Nepal",
+             *         "desc": "Local production means faster restocking, competitive pricing, and shoes built for local conditions.",
+             *         "icon": "MapPin"
+             *       }
+             *     ]
+             */
+            value_props: {
+                [key: string]: string;
+            }[];
+            /**
+             * Buyers Eyebrow
+             * @default For buyers & partners
+             */
+            buyers_eyebrow: string;
+            /**
+             * Buyers Heading
+             * @default Whether you stock shelves or buy direct — we make it easy.
+             */
+            buyers_heading: string;
+            /**
+             * Buyer Cards
+             * @default [
+             *       {
+             *         "title": "Retail shops",
+             *         "desc": "Consistent size runs, clean labels, and reliable batch supply that keeps your shelves stocked.",
+             *         "icon": "Handshake",
+             *         "highlight": "Restocking made simple"
+             *       },
+             *       {
+             *         "title": "Supermarkets",
+             *         "desc": "Display-ready packaging, organized pricing, and production records for easy aisle management.",
+             *         "icon": "PackageCheck",
+             *         "highlight": "Shelf-ready from the box"
+             *       },
+             *       {
+             *         "title": "Direct buyers",
+             *         "desc": "Quality daily footwear at factory prices — for schools, offices, and families who value durability.",
+             *         "icon": "Footprints",
+             *         "highlight": "Factory price, retail quality"
+             *       }
+             *     ]
+             */
+            buyer_cards: {
+                [key: string]: string;
+            }[];
+            /**
+             * Proof Heading
+             * @default Quality you can see. Supply you can count on.
+             */
+            proof_heading: string;
+            /**
+             * Proof Points
+             * @default [
+             *       "Quality-inspected before every dispatch",
+             *       "Consistent batches you can reorder with confidence",
+             *       "Organized dispatch with full production records",
+             *       "Growing capacity — 1,000+ pairs per day"
+             *     ]
+             */
+            proof_points: string[];
+            /**
+             * Proof Cta
+             * @default Start a partnership
+             */
+            proof_cta: string;
+            /**
+             * Dispatch Card Title
+             * @default Ready when you are
+             */
+            dispatch_card_title: string;
+            /**
+             * Dispatch Card Text
+             * @default Every pair leaves with labels, records, and quality checks complete.
+             */
+            dispatch_card_text: string;
+            /**
+             * Footer Tagline
+             * @default Nepal-made footwear that lasts.
+             */
+            footer_tagline: string;
         };
         /** MaterialStockRecord */
         MaterialStockRecord: {
@@ -2235,6 +2404,62 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SiteSettingResponse"][];
+                };
+            };
+        };
+    };
+    get_landing_page_config_api_v1_settings_landing_page_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LandingPageConfig"];
+                };
+            };
+        };
+    };
+    update_landing_page_config_api_v1_settings_landing_page_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LandingPageConfig"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LandingPageConfig"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
