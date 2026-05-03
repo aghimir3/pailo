@@ -1,6 +1,10 @@
 locals {
-  app_domain_name = "${var.app_subdomain}.${var.root_domain_name}"
-  name_prefix     = "${var.project_name}-${var.environment}"
+  app_domain_name    = "${var.app_subdomain}.${var.root_domain_name}"
+  public_domain_name = var.root_domain_name
+  www_domain_name    = "www.${var.root_domain_name}"
+  name_prefix        = "${var.project_name}-${var.environment}"
+
+  public_host_names = [local.public_domain_name, local.www_domain_name]
 
   backend_container_name  = "backend"
   frontend_container_name = "frontend"

@@ -1,6 +1,6 @@
 # Pailo Terraform Infrastructure
 
-This Terraform root provisions the launch AWS infrastructure for the internal Pailo factory app.
+This Terraform root provisions the launch AWS infrastructure for the public Pailo Shoes landing page and the internal Pailo factory app.
 
 Default region: `ap-south-1` for Nepal latency.
 
@@ -13,7 +13,7 @@ Default region: `ap-south-1` for Nepal latency.
 - Private RDS PostgreSQL with generated master password in Secrets Manager.
 - Private S3 bucket for product photos, employee documents, label assets, generated label PDFs, exports, and temporary uploads.
 - Cognito user pool and web app client.
-- Route 53 app record and ACM DNS-validated certificate when DNS is enabled.
+- Route 53 records for `pailoshoes.com`, `www.pailoshoes.com`, and `app.pailoshoes.com`, plus an ACM DNS-validated certificate when DNS is enabled.
 - CloudWatch log groups, launch alarms, SSM configuration parameters, and a monthly AWS Budget.
 
 ## First Use
@@ -55,6 +55,8 @@ The main root creates `github_actions_role_arn`, an IAM role trusted by GitHub O
 ## Deployment Notes
 
 - The default launch posture avoids NAT Gateway cost by running Fargate tasks in public subnets with public IPs, while allowing inbound traffic only from the ALB security group.
+- `pailoshoes.com` serves the public landing page, `www.pailoshoes.com` redirects to it, and `app.pailoshoes.com` serves the internal factory portal from the same frontend container.
+- HTTPS `/api/*` and `/health` listener forwarding is scoped to `app.pailoshoes.com`; the public landing hosts do not become alternate backend API hosts.
 - RDS is in private subnets and only accepts PostgreSQL traffic from the ECS task security group.
 - The app keeps frontend and backend as separate containers in one ECS task definition to preserve code/runtime boundaries while minimizing launch cost.
 - Push ARM64-compatible images to the output ECR repository URLs before the first successful ECS deployment.

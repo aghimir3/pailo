@@ -13,11 +13,13 @@ Use ECS Fargate with separate frontend and backend containers in one ECS task de
 This preserves separation while saving money.
 
 ```text
-Route 53 + ACM TLS certificate for app.pailoshoes.com
+Route 53 + ACM TLS certificate for pailoshoes.com, www.pailoshoes.com, and app.pailoshoes.com
   |
 Application Load Balancer
-  |-- /*      -> frontend container port 3000
-  |-- /api/* -> backend container port 8000
+  |-- pailoshoes.com /*          -> frontend public landing page
+  |-- www.pailoshoes.com /*      -> redirect to pailoshoes.com
+  |-- app.pailoshoes.com /*      -> frontend factory portal
+  |-- app.pailoshoes.com /api/* -> backend container port 8000
   |
 ECS Fargate service: pailo-app
   |-- frontend container: Next.js standalone server
@@ -72,17 +74,17 @@ Pailo owns `pailoshoes.com`.
 Recommended launch DNS:
 
 - `app.pailoshoes.com`: internal factory app, pointed to the Application Load Balancer.
-- `pailoshoes.com`: reserved for the future public brand site or a simple coming-soon page.
-- `www.pailoshoes.com`: redirect to `pailoshoes.com` once the public site exists.
+- `pailoshoes.com`: public Pailo Shoes landing page, pointed to the same Application Load Balancer.
+- `www.pailoshoes.com`: redirect to `pailoshoes.com`.
 - `api.pailoshoes.com`: optional later; avoid at launch unless a separate API domain is truly needed.
 
 AWS setup:
 
 - Create a Route 53 hosted zone for `pailoshoes.com`, or point existing registrar nameservers to Route 53.
-- Request an ACM certificate in the same region as the ALB for `app.pailoshoes.com`.
+- Request an ACM certificate in the same region as the ALB for `app.pailoshoes.com`, with subject alternative names for `pailoshoes.com` and `www.pailoshoes.com`.
 - If CloudFront is used for the future public site, request the CloudFront certificate in `us-east-1`.
 - Add Cognito callback/logout URLs for `https://app.pailoshoes.com`.
-- Set production CORS to allow only `https://app.pailoshoes.com` if the API ever moves to a separate subdomain.
+- Keep production API routing and CORS scoped to `https://app.pailoshoes.com`; the public landing hosts should not become alternate backend API origins.
 - Set up SPF, DKIM, and DMARC before sending email from addresses like `admin@pailoshoes.com` or `support@pailoshoes.com`.
 
 ## Network Plan

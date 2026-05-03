@@ -95,6 +95,32 @@ resource "aws_lb_listener" "https" {
   }
 }
 
+resource "aws_lb_listener_rule" "www_redirect_https" {
+  count = var.enable_dns ? 1 : 0
+
+  listener_arn = aws_lb_listener.https[0].arn
+  priority     = 5
+
+  action {
+    type = "redirect"
+
+    redirect {
+      host        = local.public_domain_name
+      path        = "/#{path}"
+      port        = "443"
+      protocol    = "HTTPS"
+      query       = "#{query}"
+      status_code = "HTTP_301"
+    }
+  }
+
+  condition {
+    host_header {
+      values = [local.www_domain_name]
+    }
+  }
+}
+
 resource "aws_lb_listener_rule" "api_https" {
   count = var.enable_dns ? 1 : 0
 
@@ -104,6 +130,12 @@ resource "aws_lb_listener_rule" "api_https" {
   action {
     target_group_arn = aws_lb_target_group.backend.arn
     type             = "forward"
+  }
+
+  condition {
+    host_header {
+      values = [local.app_domain_name]
+    }
   }
 
   condition {

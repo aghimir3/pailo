@@ -3,6 +3,11 @@ output "app_url" {
   value       = var.enable_dns ? "https://${local.app_domain_name}" : "http://${aws_lb.app.dns_name}"
 }
 
+output "public_site_url" {
+  description = "Primary URL for the public Pailo Shoes landing page."
+  value       = var.enable_dns ? "https://${local.public_domain_name}" : "http://${aws_lb.app.dns_name}"
+}
+
 output "aws_region" {
   description = "AWS region used by this Terraform root."
   value       = var.aws_region

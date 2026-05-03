@@ -3,178 +3,285 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  BadgeCheck,
+  ArrowUpRight,
   Boxes,
+  CheckCircle2,
+  CircleDot,
   Factory,
-  Gauge,
+  Footprints,
+  Gem,
+  Handshake,
   LockKeyhole,
   PackageCheck,
-  Radar,
-  ScanLine,
+  Palette,
+  Ruler,
+  Scissors,
   ShieldCheck,
   Sparkles,
+  Target,
+  Truck,
+  Zap,
 } from "lucide-react";
 
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Pailo Shoes | Future-ready footwear factory",
-  description: "A public home for Pailo Shoes with the employee factory portal hosted at app.pailoshoes.com.",
+  title: "Pailo Shoes | Nepal's precision footwear factory",
+  description:
+    "Pailo Shoes — Nepal-built footwear with factory discipline, material traceability, and retail-ready production for shops, supermarkets, and direct buyers.",
 };
 
-const portalUrl = "https://app.pailoshoes.com";
+const staffPortalUrl = "/portal";
 
-const heroSignals = [
-  { label: "Scaling target", value: "1000", detail: "pairs/day operating path" },
-  { label: "Factory OS", value: "12", detail: "connected workflow modules" },
-  { label: "Launch portal", value: "app", detail: "private employee access" },
+const metrics = [
+  { value: "1000+", label: "Daily capacity target", suffix: "pairs" },
+  { value: "6", label: "Production stages", suffix: "steps" },
+  { value: "100%", label: "Batch traceability", suffix: "tracked" },
+  { value: "Nepal", label: "Made locally", suffix: "origin" },
 ];
 
-const capabilities = [
+const processSteps = [
+  { num: "01", title: "Select", desc: "Premium materials sourced and verified", icon: Gem },
+  { num: "02", title: "Cut", desc: "Precision panels from certified stock", icon: Scissors },
+  { num: "03", title: "Stitch", desc: "Upper assembly with controlled tension", icon: Target },
+  { num: "04", title: "Bond", desc: "Sole attachment under pressure and heat", icon: Zap },
+  { num: "05", title: "Inspect", desc: "Multi-point QC before clearance", icon: ShieldCheck },
+  { num: "06", title: "Pack", desc: "Labelled, logged, dispatch-ready", icon: PackageCheck },
+];
+
+const bentoFeatures = [
   {
-    title: "Production command",
-    detail: "Work orders, stages, task boards, blockers, and manager review stay visible from the floor to the office.",
-    icon: Factory,
+    title: "Retail shoe shops",
+    desc: "Reliable styles, clear size runs, and batches that make restocking seamless.",
+    icon: Handshake,
+    span: "wide",
   },
   {
-    title: "Inventory truth",
-    detail: "Raw material risk, stock movements, supplier context, and finished-goods receipt stay tied to the factory ledger.",
-    icon: Boxes,
-  },
-  {
-    title: "Quality gates",
-    detail: "QC signals, rework, photo-ready inspections, and dispatch gates protect every production batch before it leaves.",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Label control",
-    detail: "Pailo style codes, approved template versions, print history, and QR-ready public verification are built into the system.",
+    title: "Supermarkets & chains",
+    desc: "Display-ready packing with visible pricing and organized production records.",
     icon: PackageCheck,
+    span: "normal",
+  },
+  {
+    title: "Direct buyers",
+    desc: "Durable footwear for school, work, and daily movement — made close to the people who wear them.",
+    icon: Footprints,
+    span: "normal",
+  },
+  {
+    title: "Factory discipline",
+    desc: "Every pair moves through planned batches, stage gates, material control, and documented handoff.",
+    icon: Factory,
+    span: "normal",
+  },
+  {
+    title: "Material traceability",
+    desc: "Raw materials, soles, labels, and finished pairs stay connected to the same production record.",
+    icon: Boxes,
+    span: "wide",
+  },
+  {
+    title: "Practical design",
+    desc: "Materials, fit, and finishing chosen for Nepal's streets, schools, shops, and working days.",
+    icon: Palette,
+    span: "normal",
   },
 ];
 
-const operatingLoop = ["Plan batch", "Assign tasks", "Move stock", "Check QC", "Print labels", "Report output"];
+const marqueeItems = [
+  "Factory-controlled production",
+  "Batch traceability",
+  "Retail-ready labels",
+  "Quality inspected",
+  "Nepal-made",
+  "Dispatch-organized",
+  "Size-run consistency",
+  "Material-tracked",
+];
 
 export default function LandingPage() {
   return (
-    <main className="landing-page">
-      <section className="landing-hero" aria-label="Pailo Shoes public landing page">
-        <div className="landing-hero-media" aria-hidden="true">
+    <main className="lp">
+      {/* ─── Hero ─── */}
+      <section className="lp-hero" aria-label="Pailo Shoes">
+        <div className="lp-hero-bg" aria-hidden="true">
           <Image
-            alt="Futuristic Pailo factory control room with shoe production lines and dashboard panels"
-            className="landing-hero-image"
+            alt=""
+            className="lp-hero-img"
             fill
             priority
             sizes="100vw"
             src="/landing/pailo-factory-vision.png"
           />
+          <div className="lp-hero-grain" />
         </div>
 
-        <header className="landing-nav" aria-label="Landing navigation">
-          <Link aria-label="Pailo Shoes home" className="landing-brand" href="/">
-            <span className="landing-brand-mark">P</span>
-            <span>
-              <strong>Pailo Shoes</strong>
-              <small>Nepal factory systems</small>
-            </span>
+        <header className="lp-nav">
+          <Link aria-label="Pailo Shoes home" className="lp-brand" href="/">
+            <span className="lp-brand-mark">P</span>
+            <span className="lp-brand-text">Pailo</span>
           </Link>
-          <div className="landing-nav-actions">
-            <ThemeToggle />
-            <Button asChild variant="glass">
-              <a href={portalUrl}>
-                <LockKeyhole aria-hidden="true" size={17} />
-                Employee Portal
-              </a>
+          <nav className="lp-nav-links" aria-label="Page sections">
+            <Link href="#process">Process</Link>
+            <Link href="#partners">Partners</Link>
+            <Link href="#quality">Quality</Link>
+          </nav>
+          <div className="lp-nav-end">
+            <Button asChild variant="glass" className="lp-nav-cta">
+              <Link href="#partners">
+                Get in touch
+                <ArrowUpRight aria-hidden="true" size={15} />
+              </Link>
             </Button>
           </div>
         </header>
 
-        <div className="landing-hero-content">
-          <div className="landing-copy">
-            <p className="landing-kicker">
-              <Sparkles aria-hidden="true" size={17} />
-              Factory intelligence for the next production leap
-            </p>
-            <h1>Pailo Shoes</h1>
-            <p className="landing-standfirst">
-              A future-ready footwear factory in Nepal, building the operating backbone for production planning,
-              inventory accuracy, quality control, labels, and daily team execution.
-            </p>
-            <div className="landing-cta-row">
-              <Button asChild className="landing-primary-cta">
-                <a href={portalUrl}>
-                  <LockKeyhole aria-hidden="true" size={18} />
-                  Employee Portal Login
-                  <ArrowRight aria-hidden="true" size={18} />
-                </a>
-              </Button>
-              <Button asChild variant="glass">
-                <Link href="/portal">
-                  <Radar aria-hidden="true" size={18} />
-                  Preview Factory Cockpit
-                </Link>
-              </Button>
-            </div>
+        <div className="lp-hero-content">
+          <div className="lp-hero-badge">
+            <Sparkles aria-hidden="true" size={14} />
+            <span>Nepal&rsquo;s precision footwear factory</span>
           </div>
-
-          <div className="landing-signal-grid" aria-label="Pailo operating signals">
-            {heroSignals.map((signal) => (
-              <div className="landing-signal" key={signal.label}>
-                <span>{signal.label}</span>
-                <strong>{signal.value}</strong>
-                <small>{signal.detail}</small>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="landing-capability-band" aria-label="Pailo factory capabilities">
-        <div className="landing-section-heading">
-          <p className="landing-kicker compact">
-            <Gauge aria-hidden="true" size={16} />
-            Built around real factory motion
+          <h1 className="lp-hero-title">
+            <span className="lp-title-line">Shoes built</span>
+            <span className="lp-title-line lp-title-accent">with factory</span>
+            <span className="lp-title-line">discipline.</span>
+          </h1>
+          <p className="lp-hero-sub">
+            Practical, durable footwear made in Nepal for retail shops, supermarkets, and direct buyers who need
+            comfort, consistency, and reliable supply at scale.
           </p>
-          <h2>One control loop from raw material to dispatched pair.</h2>
+          <div className="lp-hero-actions">
+            <Button asChild className="lp-cta-primary">
+              <Link href="#process">
+                See how we build
+                <ArrowRight aria-hidden="true" size={17} />
+              </Link>
+            </Button>
+            <Button asChild variant="glass">
+              <Link href="#partners">
+                <Handshake aria-hidden="true" size={17} />
+                Partner with us
+              </Link>
+            </Button>
+          </div>
         </div>
-        <div className="landing-loop" aria-label="Factory operating loop">
-          {operatingLoop.map((step, index) => (
-            <div className="landing-loop-step" key={step}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <strong>{step}</strong>
+
+        <div className="lp-hero-metrics" aria-label="Factory metrics">
+          {metrics.map((m) => (
+            <div className="lp-metric" key={m.label}>
+              <strong>{m.value}</strong>
+              <span>{m.label}</span>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="landing-capabilities" aria-label="Factory operating modules">
-        {capabilities.map((capability) => (
-          <article className="landing-capability-card" key={capability.title}>
-            <capability.icon aria-hidden="true" size={24} />
-            <h3>{capability.title}</h3>
-            <p>{capability.detail}</p>
-          </article>
-        ))}
+      {/* ─── Marquee ─── */}
+      <div className="lp-marquee" aria-hidden="true">
+        <div className="lp-marquee-track">
+          {[...marqueeItems, ...marqueeItems].map((item, i) => (
+            <span key={i}>
+              <CircleDot size={10} />
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── Process ─── */}
+      <section className="lp-process" id="process" aria-label="Manufacturing process">
+        <div className="lp-section-header">
+          <span className="lp-eyebrow">How it&rsquo;s made</span>
+          <h2>Six stages. Zero shortcuts.</h2>
+          <p>Every Pailo pair moves through a controlled production line — from material selection to dispatch-ready packing.</p>
+        </div>
+        <div className="lp-process-grid">
+          {processSteps.map((step) => (
+            <article className="lp-step" key={step.num}>
+              <div className="lp-step-num">{step.num}</div>
+              <step.icon aria-hidden="true" size={22} className="lp-step-icon" />
+              <h3>{step.title}</h3>
+              <p>{step.desc}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
-      <section className="landing-trust-strip" aria-label="Private factory portal status">
-        <div>
-          <p className="landing-kicker compact">
-            <BadgeCheck aria-hidden="true" size={16} />
-            Private launch path
-          </p>
-          <h2>Public brand at pailoshoes.com, internal operations at app.pailoshoes.com.</h2>
+      {/* ─── Bento Partners ─── */}
+      <section className="lp-bento" id="partners" aria-label="Who we serve and how">
+        <div className="lp-section-header">
+          <span className="lp-eyebrow">Built for partners</span>
+          <h2>From shop shelves to school corridors.</h2>
+          <p>Pailo serves retailers, chains, and direct customers with the same factory discipline and batch consistency.</p>
         </div>
-        <div className="landing-trust-actions">
-          <Button asChild>
-            <a href={portalUrl}>
-              <ScanLine aria-hidden="true" size={18} />
-              Open Employee Portal
-            </a>
-          </Button>
+        <div className="lp-bento-grid">
+          {bentoFeatures.map((feat) => (
+            <article className={`lp-bento-card ${feat.span === "wide" ? "lp-bento-wide" : ""}`} key={feat.title}>
+              <feat.icon aria-hidden="true" size={24} className="lp-bento-icon" />
+              <h3>{feat.title}</h3>
+              <p>{feat.desc}</p>
+            </article>
+          ))}
         </div>
       </section>
+
+      {/* ─── Quality / Trust ─── */}
+      <section className="lp-quality" id="quality" aria-label="Quality commitment">
+        <div className="lp-quality-content">
+          <span className="lp-eyebrow">The Pailo standard</span>
+          <h2>Every public promise needs a disciplined production floor behind it.</h2>
+          <div className="lp-quality-points">
+            <div className="lp-quality-point">
+              <CheckCircle2 aria-hidden="true" size={20} />
+              <span>Built for customers who need shoes that survive real daily movement.</span>
+            </div>
+            <div className="lp-quality-point">
+              <CheckCircle2 aria-hidden="true" size={20} />
+              <span>Made close to the market, with room for practical feedback and batch improvement.</span>
+            </div>
+            <div className="lp-quality-point">
+              <CheckCircle2 aria-hidden="true" size={20} />
+              <span>Backed by a factory system that keeps quality, labels, and dispatch organized.</span>
+            </div>
+          </div>
+          <div className="lp-quality-cta">
+            <Button asChild className="lp-cta-primary">
+              <Link href="#partners">
+                <Ruler aria-hidden="true" size={17} />
+                Explore partnership
+                <ArrowRight aria-hidden="true" size={17} />
+              </Link>
+            </Button>
+          </div>
+        </div>
+        <div className="lp-quality-visual" aria-hidden="true">
+          <div className="lp-dispatch-card">
+            <Truck aria-hidden="true" size={28} />
+            <strong>Dispatch-ready</strong>
+            <span>Labels, packing, and records aligned before every pair leaves the factory.</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Footer ─── */}
+      <footer className="lp-footer">
+        <div className="lp-footer-brand">
+          <span className="lp-brand-mark">P</span>
+          <div>
+            <strong>Pailo Shoes</strong>
+            <span>Nepal footwear factory &amp; production partner.</span>
+          </div>
+        </div>
+        <nav className="lp-footer-links">
+          <Link href="#process">Process</Link>
+          <Link href="#partners">Partners</Link>
+          <Link href="#quality">Quality</Link>
+        </nav>
+        <Link className="lp-staff-link" href={staffPortalUrl}>
+          <LockKeyhole aria-hidden="true" size={13} />
+          Staff portal
+        </Link>
+      </footer>
     </main>
   );
 }

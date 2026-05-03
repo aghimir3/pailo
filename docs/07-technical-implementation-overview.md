@@ -79,12 +79,12 @@ ECS / Backend / Frontend -> CloudWatch logs and metrics
 Pailo owns `pailoshoes.com`. Use it deliberately:
 
 - `app.pailoshoes.com`: internal factory management app at launch.
-- `pailoshoes.com`: future public brand site, catalog, product verification, and storytelling.
-- `www.pailoshoes.com`: redirect to `pailoshoes.com` when the public site exists.
+- `pailoshoes.com`: public brand landing page now; catalog, product verification, and deeper storytelling can be added later.
+- `www.pailoshoes.com`: redirect to `pailoshoes.com`.
 - `api.pailoshoes.com`: optional later; at launch, prefer same-origin `/api/*` behind the app load balancer to reduce CORS complexity and keep infrastructure simple.
 - `assets.pailoshoes.com`: optional later if public assets are served through CloudFront.
 
-Use the domain in AWS Route 53, ACM TLS certificates, Cognito callback/logout URLs, QR-code product links, and customer-facing email setup. Keep the internal app on the app subdomain so the root domain stays clean for Pailo's public brand.
+Use the domain in AWS Route 53, ACM TLS certificates, Cognito callback/logout URLs, QR-code product links, and customer-facing email setup. Keep internal factory workflows on the app subdomain while the root domain carries Pailo's public brand presence.
 
 ## Repository Layout
 

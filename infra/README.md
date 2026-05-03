@@ -144,6 +144,7 @@ terraform output
 Important outputs:
 
 - `app_url`: app URL, either `https://app.pailoshoes.com` or the ALB URL when DNS is disabled.
+- `public_site_url`: public landing page URL, either `https://pailoshoes.com` or the ALB URL when DNS is disabled.
 - `ecr_repository_urls`: where CI pushes frontend and backend images.
 - `github_actions_role_arn`: IAM role GitHub Actions uses through OIDC.
 - `route53_name_servers`: name servers to copy to the registrar if Terraform created the hosted zone.

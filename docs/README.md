@@ -47,5 +47,5 @@ Start with a web app that works well on mobile phones, tablets, and office compu
 - Database: PostgreSQL on Amazon RDS.
 - Files: Amazon S3 for shoe photos, employee documents, label assets, and generated PDFs.
 - Deployment: Terraform-managed AWS ECS on Fargate in `ap-south-1`, tuned for about 5 active users/day at launch while keeping the app snappy.
-- Domain plan: use `app.pailoshoes.com` for the internal factory app at launch and reserve `pailoshoes.com` / `www.pailoshoes.com` for the future public brand site.
+- Domain plan: use `pailoshoes.com` for the public landing page, redirect `www.pailoshoes.com` to it, and keep `app.pailoshoes.com` for the internal factory app.
 - Scaling path: start cost-conscious, then split services and add more managed infrastructure only when factory usage justifies it.
