@@ -427,7 +427,10 @@ export interface components {
              * @default 25
              */
             quantity: number;
-            /** Art No */
+            /**
+             * Art No
+             * @default AFL 02
+             */
             art_no: string;
             /** Colour */
             colour: string;
@@ -453,7 +456,10 @@ export interface components {
              * @default 25
              */
             quantity: number;
-            /** Art No */
+            /**
+             * Art No
+             * @default AFL 02
+             */
             art_no: string;
             /** Colour */
             colour: string;

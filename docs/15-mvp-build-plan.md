@@ -24,7 +24,7 @@ Implementation checkpoint added in this slice:
 - Task mutations with assignment scoping, blocked-reason enforcement, review-required completion guard, optimistic `version` checks, retry-safe comments, and author-only comment edits.
 - Generated OpenAPI JSON and TypeScript API client from the live FastAPI schema.
 - A phone-friendly production route set covering `/operations`, `/tasks`, `/work-orders`, `/inventory`, `/quality`, `/labels`, `/people`, and `/reports`. Runtime routes should use production product language; MVP remains an internal milestone name in planning docs only.
-- Backend tests for worker scoping, blocked-task reasons, review-required completion, comment ownership, and 24-up label preview.
+- Backend tests for worker scoping, blocked-task reasons, review-required completion, comment ownership, and calibrated 24-up label preview geometry.
 
 Remaining gap for production hardening:
 
@@ -104,7 +104,7 @@ Outcome: Pailo can preview, print, and audit 24-up A4 labels for a work order.
 
 Backend:
 
-- Add label template read APIs and approved 24-up A4 seed/template configuration.
+- Add label template read APIs and approved 24-up A4 seed/template configuration using the measured Word file's visible rounded-border geometry: 63.50 mm x 33.87 mm labels, 7.20 mm left offset, 13.09 mm top offset, 2.54 mm horizontal gutter, and 0 mm vertical gutter. Keep the text inset aligned to the Word table at about 8.73 mm left and 13.41 mm top.
 - Add label variable resolution from style, work order, size, MRP, manufacturer, and batch data.
 - Add PDF generation from millimeter coordinates and store print-job history.
 

@@ -276,7 +276,7 @@ class LabelTemplateRecord(BaseModel):
 
 class LabelPreviewRequest(BaseModel):
     quantity: int = Field(default=25, ge=1, le=240)
-    art_no: str = Field(min_length=1, max_length=80)
+    art_no: str = Field(default="AFL 02", min_length=1, max_length=80)
     colour: str = Field(min_length=1, max_length=80)
     size: str = Field(min_length=1, max_length=24)
     mrp_npr: Decimal = Field(ge=0)

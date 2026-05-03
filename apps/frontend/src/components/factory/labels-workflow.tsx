@@ -49,6 +49,7 @@ type SheetSlot = {
 
 const defaultManufacturer = "AB Fashion & Wears";
 const defaultQuantity = "24";
+const defaultArtNo = "AFL 02";
 const labelFormStorageKey = "pailo:label-generator:last-values:v1";
 
 export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWorkflowProps) {
@@ -62,6 +63,7 @@ export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWork
   const [isPending, startTransition] = useTransition();
 
   const selectedTemplate = templates.find((template) => template.id === form.templateId) ?? preview.template;
+  const geometryDetails = templateGeometryDetails(selectedTemplate);
   const pages = useMemo(() => buildSheetPages(preview), [preview]);
   const filledCount = preview.slots.length;
   const emptySlotsOnLastPage = (preview.page_count * preview.template.slots_per_page) - filledCount;
@@ -259,7 +261,12 @@ export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWork
           <div className="label-template-metrics">
             <div><span>Sheet</span><strong>{selectedTemplate.page_width_mm} x {selectedTemplate.page_height_mm} mm</strong></div>
             <div><span>Labels</span><strong>{selectedTemplate.columns} x {selectedTemplate.rows}</strong></div>
-            <div><span>Label size</span><strong>{selectedTemplate.label_width_mm} x {selectedTemplate.label_height_mm} mm</strong></div>
+            <div><span>Outer border</span><strong>{selectedTemplate.label_width_mm} x {selectedTemplate.label_height_mm} mm</strong></div>
+            <div><span>Border origin</span><strong>{selectedTemplate.margin_left_mm} L / {selectedTemplate.margin_top_mm} T mm</strong></div>
+            <div><span>Page margins</span><strong>{selectedTemplate.margin_left_mm} L / {geometryDetails.rightMarginMm} R mm</strong></div>
+            <div><span>Gutters</span><strong>{selectedTemplate.gap_x_mm} X / {selectedTemplate.gap_y_mm} Y mm</strong></div>
+            <div><span>Text inset</span><strong>{geometryDetails.textInsetXMm} X / {geometryDetails.textInsetYMm} Y mm</strong></div>
+            <div><span>Outline</span><strong>{geometryDetails.outlineWidthPt} pt / rounded</strong></div>
             <div><span>Pages</span><strong>{preview.page_count}</strong></div>
           </div>
           <div className="label-template-footer">
@@ -276,7 +283,7 @@ export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWork
             </div>
             <Eye aria-hidden="true" className="panel-icon" size={22} />
           </PanelHeader>
-          <div className="single-label-preview">
+          <div className="single-label-preview" style={singleLabelStyle(preview.template)}>
             <StickerContent values={preview.values} />
           </div>
         </GlassCard>
@@ -321,7 +328,7 @@ export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWork
 function formPayload(form: LabelFormState): LabelPreviewRequest {
   return {
     quantity: clampQuantity(form.quantity),
-    art_no: form.art_no.trim() || "PAILO-STYLE",
+    art_no: form.art_no.trim() || defaultArtNo,
     colour: form.colour.trim() || "Black",
     size: form.size.trim() || "42",
     mrp_npr: form.mrp_npr.trim() || "0",
@@ -334,7 +341,7 @@ function createInitialForm(preview: LabelPreviewResponse): LabelFormState {
   return {
     templateId: preview.template.id,
     quantity: String(preview.values.quantity || defaultQuantity),
-    art_no: preview.values.art_no,
+    art_no: preview.values.art_no || defaultArtNo,
     colour: preview.values.colour,
     size: preview.values.size,
     mrp_npr: String(preview.values.mrp_npr),
@@ -503,6 +510,48 @@ function slotStyle(slot: SheetSlot): CSSProperties {
   };
 }
 
+function singleLabelStyle(template: LabelTemplateRecord): CSSProperties {
+  return {
+    "--label-height": `${template.label_height_mm}mm`,
+    "--label-width": `${template.label_width_mm}mm`,
+  } as CSSProperties;
+}
+
+function templateGeometryDetails(template: LabelTemplateRecord) {
+  const measuredGeometry = isRecord(template.design_json.measured_geometry_mm)
+    ? template.design_json.measured_geometry_mm
+    : {};
+  const pageWidth = mm(template.page_width_mm);
+  const pageHeight = mm(template.page_height_mm);
+  const labelWidth = mm(template.label_width_mm);
+  const labelHeight = mm(template.label_height_mm);
+  const leftMargin = mm(template.margin_left_mm);
+  const topMargin = mm(template.margin_top_mm);
+  const horizontalGap = mm(template.gap_x_mm);
+  const verticalGap = mm(template.gap_y_mm);
+  const rightMargin = pageWidth - leftMargin - (template.columns * labelWidth) - ((template.columns - 1) * horizontalGap);
+  const bottomMargin = pageHeight - topMargin - (template.rows * labelHeight) - ((template.rows - 1) * verticalGap);
+  const textInsetX = numberFromRecord(measuredGeometry, "text_table_inset_x", 1.53);
+  const textInsetY = numberFromRecord(measuredGeometry, "text_table_inset_y", 0.32);
+  return {
+    rightMarginMm: formatMm(rightMargin),
+    bottomMarginMm: formatMm(bottomMargin),
+    textInsetXMm: formatMm(textInsetX),
+    textInsetYMm: formatMm(textInsetY),
+    outlineWidthPt: formatNumber(numberFromRecord(measuredGeometry, "border_line_weight_pt", 0.25)),
+  };
+}
+
+function numberFromRecord(value: Record<string, unknown>, key: string, fallback: number) {
+  const rawValue = value[key];
+  if (typeof rawValue === "number" && Number.isFinite(rawValue)) return rawValue;
+  if (typeof rawValue === "string") {
+    const parsed = Number.parseFloat(rawValue);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return fallback;
+}
+
 function mm(value: string) {
   const parsed = Number.parseFloat(value);
   return Number.isNaN(parsed) ? 0 : parsed;
@@ -510,4 +559,8 @@ function mm(value: string) {
 
 function formatMm(value: number) {
   return value.toFixed(2);
+}
+
+function formatNumber(value: number) {
+  return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
 }

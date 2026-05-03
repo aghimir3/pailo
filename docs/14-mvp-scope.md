@@ -145,6 +145,7 @@ Acceptance:
 
 - Label template list with approved template versions.
 - High-priority 24-up A4 label template preset recreated from the root sample Word label document dimensions.
+- Locked template geometry from the measured Word file's outer rounded sticker borders: 63.50 mm x 33.87 mm labels, 7.20 mm left offset, 13.09 mm top offset, 2.54 mm horizontal gutter, and 0 mm vertical gutter. Text starts inside that border at about 8.73 mm left and 13.41 mm top.
 - One-sticker editor for fields the factory changes often: Art No., Colour, Size, MRP, Manufactured By, and origin text such as Made in Nepal.
 - 24-up A4 sheet preview matching the current sticker paper: 3 columns x 8 rows.
 - Quantity picker that fills slots left-to-right, top-to-bottom; 3 labels fill only the top row, and 25 labels create a second page.
@@ -159,6 +160,7 @@ Acceptance:
 - Labels use Pailo branding and Pailo style codes only.
 - A manager can edit one sticker's values, choose quantity, preview the exact 24-label sheet, and print a PDF for the current sticker paper.
 - The first approved template preserves the measured sample Word label document page, label, gap, and slot positions.
+- Label borders print as the Word file's 0.25 pt light-gray rounded rectangles; optional alignment guides can still be used for calibration sheets.
 - Print history is auditable.
 
 ### 9. Suppliers And Purchasing Basics

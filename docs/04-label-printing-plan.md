@@ -23,16 +23,21 @@ DOCX can still be supported later as import/export, but the production workflow 
 
 The first MVP label workflow must reproduce the physical layout of the sample Word label document because that file already works with Pailo's current sticker paper. Treat this Word file as the calibrated production reference, not as a file that users edit directly.
 
-Measured from the sample Word label document on 2026-05-02:
+Measured from the sample Word label document through Microsoft Word COM on 2026-05-02:
 
-- Page: A4 portrait, about 210.00 mm x 297.00 mm.
+- Page: A4 portrait, about 209.99 mm x 296.99 mm.
+- Word page setup margins: about 13.05 mm top, 10.94 mm bottom, 8.64 mm left, and 7.87 mm right.
 - Sticker count per page: 24 labels.
 - Grid: 3 columns x 8 rows.
-- Label size: about 63.50 mm wide x 33.87 mm high.
-- Horizontal gap between label columns: about 2.54 mm.
+- Word table structure: 8 rows x 5 columns, where columns 2 and 4 are narrow gutter columns.
+- Visible sticker border source: 24 rounded rectangle shapes, not the Word table cell borders.
+- Outer sticker border size: about 63.50 mm wide x 33.87 mm high.
+- Horizontal gap between outer sticker borders: about 2.54 mm.
 - Vertical gap: 0 mm between label rows.
-- Label left positions: about 7.20 mm, 73.24 mm, and 139.28 mm.
-- Label top positions: about 13.09 mm, then every 33.86 mm down the page.
+- Outer border left positions: about 7.20 mm, 73.24 mm, and 139.28 mm. This makes the page margins visually balanced: about 7.20 mm left and about 7.21 mm right.
+- Outer border top positions: about 13.09 mm, then every 33.87 mm down the page.
+- Text table starts inside the border at about 8.73 mm left and 13.41 mm top, so text is inset about 1.53 mm horizontally and 0.32 mm vertically from the rounded border.
+- Label border: rounded rectangle, 0.25 pt light gray line, roughly `#BFBFBF`. The Word table cell borders are disabled; the visible border comes from shapes layered over the table.
 - Current editable content visible in the file: `Manufactured By`, manufacturer name, `Art. NO.`, `Colour`, `MRP`, `SIZE`, and `Made in Nepal`.
 - Font: Calibri. `Manufactured By:` and manufacturer name are 10.5 pt, the Art/Colour/MRP lines are 12 pt, `SIZE` and the size value are 20 pt, and `Made in Nepal` is 9 pt.
 

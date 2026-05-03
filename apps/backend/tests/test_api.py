@@ -96,7 +96,6 @@ def test_label_preview_uses_24_up_sheet(client: TestClient) -> None:
         f"/api/v1/labels/templates/{sticker_template['id']}/preview",
         json={
             "quantity": 25,
-            "art_no": "PAI-2026-SCH-001",
             "colour": "White",
             "size": "39",
             "mrp_npr": "1899",
@@ -107,9 +106,20 @@ def test_label_preview_uses_24_up_sheet(client: TestClient) -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["template"]["slots_per_page"] == 24
+    assert payload["template"]["label_height_mm"] == "33.87"
+    assert payload["template"]["margin_left_mm"] == "7.20"
+    assert payload["template"]["margin_top_mm"] == "13.09"
+    assert payload["template"]["gap_x_mm"] == "2.54"
+    assert payload["template"]["gap_y_mm"] == "0.00"
     assert payload["page_count"] == 2
     assert payload["slots"][0]["row"] == 1
     assert payload["slots"][0]["column"] == 1
+    assert payload["slots"][0]["x_mm"] == "7.20"
+    assert payload["slots"][0]["y_mm"] == "13.09"
+    assert payload["slots"][1]["x_mm"] == "73.24"
+    assert payload["slots"][2]["x_mm"] == "139.28"
+    assert payload["slots"][3]["y_mm"] == "46.96"
+    assert payload["values"]["art_no"] == "AFL 02"
 
 
 def _first_task(client: TestClient, task_code: str) -> dict[str, object]:
