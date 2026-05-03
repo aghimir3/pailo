@@ -33,12 +33,12 @@ export async function loadOperationsData(): Promise<OperationsData> {
     const template = catalog.label_templates[0];
     const labelPreview = template
       ? await previewLabelSheet(template.id, {
-          quantity: 25,
+          quantity: 24,
           art_no: catalog.styles[1]?.style_code ?? "PAI-2026-SCH-001",
           colour: "White",
           size: "39",
           mrp_npr: "1899",
-          manufactured_by: "Pailo Shoes",
+          manufactured_by: "AB Fashion & Wears",
           origin_text: "Made in Nepal",
         })
       : fallbackData.labelPreview;
@@ -138,7 +138,7 @@ const fallbackData: OperationsData = {
       { id: "60000000-0000-4000-8000-000000000001", work_order_code: "WO-2026-000001", style_code: "PAI-2026-SNK-001", style_name: "Pailo City Runner", status: "in_progress", priority: "high", planned_pairs: 120, completed_pairs: 86, current_stage: "Stitching", due_date: "2026-05-02", cost_snapshot_npr: "934", version: 1, blocker: "Delivery not confirmed", size_lines: [{ id: "61000000-0000-4000-8000-000000000001", color: "Black", size: "40", planned_pairs: 60, completed_pairs: 44 }] },
     ],
     label_templates: [
-      { id: fallbackTemplateId, template_code: "STICKER-42", name: "Sticker 42 24-up A4", version: 1, status: "approved", page_width_mm: "210", page_height_mm: "297", label_width_mm: "63.5", label_height_mm: "33.9", margin_top_mm: "12.5", margin_left_mm: "7.25", gap_x_mm: "3.2", gap_y_mm: "1.6", slots_per_page: 24, columns: 3, rows: 8, fill_order: "row_major", design_json: {} },
+      { id: fallbackTemplateId, template_code: "A4-24-LABEL", name: "24-up A4 label template", version: 1, status: "approved", page_width_mm: "210", page_height_mm: "297", label_width_mm: "63.5", label_height_mm: "33.9", margin_top_mm: "12.5", margin_left_mm: "7.25", gap_x_mm: "3.2", gap_y_mm: "1.6", slots_per_page: 24, columns: 3, rows: 8, fill_order: "row_major", design_json: {} },
     ],
   },
   tasks: [
@@ -150,10 +150,10 @@ const fallbackData: OperationsData = {
     { id: "90000000-0000-4000-8000-000000000001", inspection_code: "QC-2026-000001", work_order_code: "WO-2026-000002", style_code: "PAI-2026-SCH-001", inspected_by: "Sita", inspected_at: "2026-05-02T10:00:00Z", inspected_quantity: 40, defect_quantity: 7, status: "rework_required", notes: "Glue marks found." },
   ],
   labelPreview: {
-    template: { id: fallbackTemplateId, template_code: "STICKER-42", name: "Sticker 42 24-up A4", version: 1, status: "approved", page_width_mm: "210", page_height_mm: "297", label_width_mm: "63.5", label_height_mm: "33.9", margin_top_mm: "12.5", margin_left_mm: "7.25", gap_x_mm: "3.2", gap_y_mm: "1.6", slots_per_page: 24, columns: 3, rows: 8, fill_order: "row_major", design_json: {} },
-    page_count: 2,
-    slots: Array.from({ length: 25 }).map((_, index) => ({ page: index < 24 ? 1 : 2, slot: (index % 24) + 1, row: Math.floor((index % 24) / 3) + 1, column: (index % 3) + 1, x_mm: "0", y_mm: "0", width_mm: "63.5", height_mm: "33.9" })),
-    values: { quantity: 25, art_no: "PAI-2026-SCH-001", colour: "White", size: "39", mrp_npr: "1899", manufactured_by: "Pailo Shoes", origin_text: "Made in Nepal" },
+    template: { id: fallbackTemplateId, template_code: "A4-24-LABEL", name: "24-up A4 label template", version: 1, status: "approved", page_width_mm: "210", page_height_mm: "297", label_width_mm: "63.5", label_height_mm: "33.9", margin_top_mm: "12.5", margin_left_mm: "7.25", gap_x_mm: "3.2", gap_y_mm: "1.6", slots_per_page: 24, columns: 3, rows: 8, fill_order: "row_major", design_json: {} },
+    page_count: 1,
+    slots: Array.from({ length: 24 }).map((_, index) => ({ page: 1, slot: index + 1, row: Math.floor(index / 3) + 1, column: (index % 3) + 1, x_mm: "0", y_mm: "0", width_mm: "63.5", height_mm: "33.9" })),
+    values: { quantity: 24, art_no: "PAI-2026-SCH-001", colour: "White", size: "39", mrp_npr: "1899", manufactured_by: "AB Fashion & Wears", origin_text: "Made in Nepal" },
   },
 };
 

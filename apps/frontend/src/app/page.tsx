@@ -1,291 +1,180 @@
-import {
-  AlertTriangle,
-  Boxes,
-  CalendarClock,
-  CheckCircle2,
-  ClipboardList,
-  Factory,
-  MessageSquare,
-  PackageCheck,
-  Printer,
-  ScanLine,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { getDashboard } from "@pailo/api-client";
+import {
+  ArrowRight,
+  BadgeCheck,
+  Boxes,
+  Factory,
+  Gauge,
+  LockKeyhole,
+  PackageCheck,
+  Radar,
+  ScanLine,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ThroughputChart } from "@/components/throughput-chart";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { GlassCard, PanelHeader } from "@/components/ui/glass-card";
-import { dashboardFallback } from "@/lib/sample-data";
 
-const navItems = [
-  { label: "Today", icon: Factory, href: "/", active: true },
-  { label: "Operations", icon: ClipboardList, href: "/operations" },
-  { label: "Tasks", icon: ScanLine, href: "/tasks" },
-  { label: "Inventory", icon: Boxes, href: "/inventory" },
-  { label: "Labels", icon: Printer, href: "/labels" },
-  { label: "People", icon: Users, href: "/people" },
+export const metadata: Metadata = {
+  title: "Pailo Shoes | Future-ready footwear factory",
+  description: "A public home for Pailo Shoes with the employee factory portal hosted at app.pailoshoes.com.",
+};
+
+const portalUrl = "https://app.pailoshoes.com";
+
+const heroSignals = [
+  { label: "Scaling target", value: "1000", detail: "pairs/day operating path" },
+  { label: "Factory OS", value: "12", detail: "connected workflow modules" },
+  { label: "Launch portal", value: "app", detail: "private employee access" },
 ];
 
-function taskTone(status: string) {
-  if (status === "blocked") return "red";
-  if (status === "waiting_for_review") return "cyan";
-  if (status === "ready") return "amber";
-  return "green";
-}
+const capabilities = [
+  {
+    title: "Production command",
+    detail: "Work orders, stages, task boards, blockers, and manager review stay visible from the floor to the office.",
+    icon: Factory,
+  },
+  {
+    title: "Inventory truth",
+    detail: "Raw material risk, stock movements, supplier context, and finished-goods receipt stay tied to the factory ledger.",
+    icon: Boxes,
+  },
+  {
+    title: "Quality gates",
+    detail: "QC signals, rework, photo-ready inspections, and dispatch gates protect every production batch before it leaves.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Label control",
+    detail: "Pailo style codes, approved template versions, print history, and QR-ready public verification are built into the system.",
+    icon: PackageCheck,
+  },
+];
 
-function priorityTone(priority: string) {
-  if (priority === "urgent" || priority === "high") return "red";
-  if (priority === "medium") return "amber";
-  return "neutral";
-}
+const operatingLoop = ["Plan batch", "Assign tasks", "Move stock", "Check QC", "Print labels", "Report output"];
 
-async function loadDashboard() {
-  try {
-    return await getDashboard();
-  } catch {
-    return dashboardFallback;
-  }
-}
-
-export default async function Home() {
-  const dashboard = await loadDashboard();
-
+export default function LandingPage() {
   return (
-    <main className="app-shell">
-      <aside className="sidebar" aria-label="Main navigation">
-        <div className="brand-lockup">
-          <div className="brand-mark">P</div>
-          <div>
-            <p className="eyebrow">Pailo Shoes</p>
-            <h1>Factory Cockpit</h1>
-          </div>
+    <main className="landing-page">
+      <section className="landing-hero" aria-label="Pailo Shoes public landing page">
+        <div className="landing-hero-media" aria-hidden="true">
+          <Image
+            alt="Futuristic Pailo factory control room with shoe production lines and dashboard panels"
+            className="landing-hero-image"
+            fill
+            priority
+            sizes="100vw"
+            src="/landing/pailo-factory-vision.png"
+          />
         </div>
 
-        <nav className="nav-stack">
-          {navItems.map((item) => (
-            <Link className={item.active ? "nav-item active" : "nav-item"} href={item.href} key={item.label}>
-              <item.icon aria-hidden="true" size={18} />
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-
-        <div className="sidebar-status">
-          <span className="status-dot" />
-          <div>
-            <strong>Floor online</strong>
-            <span>Last sync 09:42</span>
-          </div>
-        </div>
-      </aside>
-
-      <section className="workspace">
-        <header className="topbar">
-          <div>
-            <p className="eyebrow">Saturday, May 2</p>
-            <h2>Today&apos;s factory control</h2>
-          </div>
-          <div className="topbar-actions" aria-label="Quick actions">
+        <header className="landing-nav" aria-label="Landing navigation">
+          <Link aria-label="Pailo Shoes home" className="landing-brand" href="/">
+            <span className="landing-brand-mark">P</span>
+            <span>
+              <strong>Pailo Shoes</strong>
+              <small>Nepal factory systems</small>
+            </span>
+          </Link>
+          <div className="landing-nav-actions">
             <ThemeToggle />
-            <Button aria-label="Scan code" size="icon" title="Scan code" type="button" variant="glass">
-              <ScanLine aria-hidden="true" size={18} />
-            </Button>
-            <Button aria-label="Open operations console" asChild>
-              <Link href="/operations">
-                <ClipboardList aria-hidden="true" size={18} />
-                Operations
-              </Link>
+            <Button asChild variant="glass">
+              <a href={portalUrl}>
+                <LockKeyhole aria-hidden="true" size={17} />
+                Employee Portal
+              </a>
             </Button>
           </div>
         </header>
 
-        <section className="command-ribbon" aria-label="Factory actions">
-          <Button type="button" variant="glass">
-            <ScanLine aria-hidden="true" size={17} />
-            Scan batch
-          </Button>
-          <Button type="button" variant="glass">
-            <Boxes aria-hidden="true" size={17} />
-            Receive material
-          </Button>
-          <Button type="button" variant="glass">
-            <Printer aria-hidden="true" size={17} />
-            Print labels
-          </Button>
-        </section>
-
-        <section className="kpi-grid" aria-label="Factory metrics">
-          {dashboard.kpis.map((kpi) => (
-            <GlassCard className={`kpi-card tone-${kpi.tone}`} key={kpi.label}>
-              <span>{kpi.label}</span>
-              <strong>{kpi.value}</strong>
-              <p>{kpi.detail}</p>
-              <small>{kpi.trend}</small>
-            </GlassCard>
-          ))}
-        </section>
-
-        <section className="dashboard-grid">
-          <GlassCard className="panel chart-panel">
-            <PanelHeader>
-              <div>
-                <p className="eyebrow">Output trend</p>
-                <h3>Planned vs completed pairs</h3>
-              </div>
-              <TrendingUp aria-hidden="true" className="panel-icon" size={20} />
-            </PanelHeader>
-            <ThroughputChart data={dashboard.throughput} />
-          </GlassCard>
-
-          <GlassCard className="panel insight-panel">
-            <PanelHeader>
-              <div>
-                <p className="eyebrow">Owner view</p>
-                <h3>Decisions that need attention</h3>
-              </div>
-              <AlertTriangle aria-hidden="true" className="panel-icon warning" size={20} />
-            </PanelHeader>
-            <div className="insight-list">
-              {dashboard.owner_insights.map((insight) => (
-                <div className={`insight tone-${insight.tone}`} key={insight.title}>
-                  <strong>{insight.title}</strong>
-                  <p>{insight.detail}</p>
-                  <span>{insight.action}</span>
-                </div>
-              ))}
+        <div className="landing-hero-content">
+          <div className="landing-copy">
+            <p className="landing-kicker">
+              <Sparkles aria-hidden="true" size={17} />
+              Factory intelligence for the next production leap
+            </p>
+            <h1>Pailo Shoes</h1>
+            <p className="landing-standfirst">
+              A future-ready footwear factory in Nepal, building the operating backbone for production planning,
+              inventory accuracy, quality control, labels, and daily team execution.
+            </p>
+            <div className="landing-cta-row">
+              <Button asChild className="landing-primary-cta">
+                <a href={portalUrl}>
+                  <LockKeyhole aria-hidden="true" size={18} />
+                  Employee Portal Login
+                  <ArrowRight aria-hidden="true" size={18} />
+                </a>
+              </Button>
+              <Button asChild variant="glass">
+                <Link href="/portal">
+                  <Radar aria-hidden="true" size={18} />
+                  Preview Factory Cockpit
+                </Link>
+              </Button>
             </div>
-          </GlassCard>
+          </div>
 
-          <GlassCard className="panel work-panel">
-            <PanelHeader>
-              <div>
-                <p className="eyebrow">Production</p>
-                <h3>Active work orders</h3>
+          <div className="landing-signal-grid" aria-label="Pailo operating signals">
+            {heroSignals.map((signal) => (
+              <div className="landing-signal" key={signal.label}>
+                <span>{signal.label}</span>
+                <strong>{signal.value}</strong>
+                <small>{signal.detail}</small>
               </div>
-              <PackageCheck aria-hidden="true" className="panel-icon" size={20} />
-            </PanelHeader>
-            <div className="work-order-list">
-              {dashboard.work_orders.map((order) => {
-                const progress = Math.round((order.completed_pairs / order.planned_pairs) * 100);
-                return (
-                  <section className="work-order-card" key={order.code}>
-                    <div className="work-order-topline">
-                      <strong>{order.code}</strong>
-                      <span>{order.due}</span>
-                    </div>
-                    <h4>{order.style}</h4>
-                    <p>{order.color} / {order.stage}</p>
-                    <div className="progress-track" aria-label={`${progress}% complete`}>
-                      <span style={{ width: `${progress}%` }} />
-                    </div>
-                    <div className="work-order-meta">
-                      <span>{order.completed_pairs}/{order.planned_pairs} pairs</span>
-                      {order.blocker ? <em>{order.blocker}</em> : <em className="clear">No blocker</em>}
-                    </div>
-                  </section>
-                );
-              })}
-            </div>
-          </GlassCard>
-
-          <GlassCard className="panel task-panel">
-            <PanelHeader>
-              <div>
-                <p className="eyebrow">My Tasks</p>
-                <h3>Assigned to Ram</h3>
-              </div>
-              <ClipboardList aria-hidden="true" className="panel-icon" size={20} />
-            </PanelHeader>
-            <div className="task-list">
-              {dashboard.my_tasks.map((task) => (
-                <section className={task.blocker_reason ? "task-card task-card-alert" : "task-card"} key={task.code}>
-                  <div className="task-main">
-                    <div className="task-card-head">
-                      <Badge tone={taskTone(task.status)}>{task.status.replaceAll("_", " ")}</Badge>
-                      <Badge tone={priorityTone(task.priority)}>{task.priority}</Badge>
-                    </div>
-                    <h4>{task.title}</h4>
-                    <div className="task-meta-grid">
-                      <span><CalendarClock aria-hidden="true" size={15} />{task.due_time}</span>
-                      <span>{task.work_order ?? "General"}</span>
-                      <span>{task.quantity ?? "No quantity"}</span>
-                    </div>
-                    {task.blocker_reason ? <p className="task-blocker">{task.blocker_reason}</p> : null}
-                  </div>
-                  <div className="task-actions">
-                    <Button className="task-action" size="sm" type="button" variant="glass">
-                      <MessageSquare aria-hidden="true" size={16} />
-                      Comment
-                    </Button>
-                    <Button className="task-action" size="sm" type="button" variant="glass">
-                      <CheckCircle2 aria-hidden="true" size={16} />
-                      Update
-                    </Button>
-                  </div>
-                </section>
-              ))}
-            </div>
-          </GlassCard>
-
-          <GlassCard className="panel inventory-panel">
-            <PanelHeader>
-              <div>
-                <p className="eyebrow">Inventory</p>
-                <h3>Low-stock risks</h3>
-              </div>
-              <Boxes aria-hidden="true" className="panel-icon" size={20} />
-            </PanelHeader>
-            <div className="inventory-list">
-              {dashboard.inventory_alerts.map((item) => (
-                <div className="inventory-row" key={item.code}>
-                  <div>
-                    <strong>{item.material}</strong>
-                    <span>{item.code}</span>
-                  </div>
-                  <div>
-                    <strong>{item.current}</strong>
-                    <span>Min {item.minimum}</span>
-                  </div>
-                  <p>{item.risk}</p>
-                </div>
-              ))}
-            </div>
-          </GlassCard>
-
-          <GlassCard className="panel quality-panel">
-            <PanelHeader>
-              <div>
-                <p className="eyebrow">Quality</p>
-                <h3>QC signals</h3>
-              </div>
-              <CheckCircle2 aria-hidden="true" className="panel-icon" size={20} />
-            </PanelHeader>
-            <div className="quality-grid">
-              {dashboard.quality_signals.map((signal) => (
-                <div className={`quality-card tone-${signal.tone}`} key={signal.label}>
-                  <span>{signal.label}</span>
-                  <strong>{signal.value}</strong>
-                  <p>{signal.detail}</p>
-                </div>
-              ))}
-            </div>
-          </GlassCard>
-        </section>
+            ))}
+          </div>
+        </div>
       </section>
 
-      <nav className="mobile-nav" aria-label="Mobile navigation">
-        {navItems.slice(0, 5).map((item) => (
-          <Link className={item.active ? "mobile-nav-item active" : "mobile-nav-item"} href={item.href} key={item.label}>
-            <item.icon aria-hidden="true" size={19} />
-            <span>{item.label}</span>
-          </Link>
+      <section className="landing-capability-band" aria-label="Pailo factory capabilities">
+        <div className="landing-section-heading">
+          <p className="landing-kicker compact">
+            <Gauge aria-hidden="true" size={16} />
+            Built around real factory motion
+          </p>
+          <h2>One control loop from raw material to dispatched pair.</h2>
+        </div>
+        <div className="landing-loop" aria-label="Factory operating loop">
+          {operatingLoop.map((step, index) => (
+            <div className="landing-loop-step" key={step}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <strong>{step}</strong>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-capabilities" aria-label="Factory operating modules">
+        {capabilities.map((capability) => (
+          <article className="landing-capability-card" key={capability.title}>
+            <capability.icon aria-hidden="true" size={24} />
+            <h3>{capability.title}</h3>
+            <p>{capability.detail}</p>
+          </article>
         ))}
-      </nav>
+      </section>
+
+      <section className="landing-trust-strip" aria-label="Private factory portal status">
+        <div>
+          <p className="landing-kicker compact">
+            <BadgeCheck aria-hidden="true" size={16} />
+            Private launch path
+          </p>
+          <h2>Public brand at pailoshoes.com, internal operations at app.pailoshoes.com.</h2>
+        </div>
+        <div className="landing-trust-actions">
+          <Button asChild>
+            <a href={portalUrl}>
+              <ScanLine aria-hidden="true" size={18} />
+              Open Employee Portal
+            </a>
+          </Button>
+        </div>
+      </section>
     </main>
   );
 }

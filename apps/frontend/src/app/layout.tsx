@@ -5,8 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Pailo Factory Cockpit",
-  description: "Factory operating system for Pailo Shoes.",
+  title: "Pailo Shoes",
+  description: "Future-ready footwear manufacturing and factory operating systems from Nepal.",
 };
 
 export const viewport: Viewport = {
