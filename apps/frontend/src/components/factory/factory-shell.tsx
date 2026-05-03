@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Factory,
   Gauge,
+  Globe,
   PackageCheck,
   Printer,
   ShieldCheck,
@@ -29,6 +30,7 @@ const navigationItems = [
   { href: "/labels", label: "Labels", icon: Printer },
   { href: "/people", label: "People", icon: Users },
   { href: "/reports", label: "Reports", icon: BarChart3 },
+  { href: "/settings", label: "Landing Page", icon: Globe },
 ];
 
 type FactoryShellProps = {
