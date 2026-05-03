@@ -346,6 +346,151 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/labels/saved": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Saved Labels */
+        get: operations["list_saved_labels_api_v1_labels_saved_get"];
+        put?: never;
+        /** Create Saved Label */
+        post: operations["create_saved_label_api_v1_labels_saved_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/labels/saved/{saved_label_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Saved Label */
+        get: operations["get_saved_label_api_v1_labels_saved__saved_label_id__get"];
+        put?: never;
+        post?: never;
+        /** Archive Saved Label */
+        delete: operations["archive_saved_label_api_v1_labels_saved__saved_label_id__delete"];
+        options?: never;
+        head?: never;
+        /** Patch Saved Label */
+        patch: operations["patch_saved_label_api_v1_labels_saved__saved_label_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/labels/saved/{saved_label_id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duplicate Saved Label */
+        post: operations["duplicate_saved_label_api_v1_labels_saved__saved_label_id__duplicate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/labels/saved/{saved_label_id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview Saved Label */
+        post: operations["preview_saved_label_api_v1_labels_saved__saved_label_id__preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/labels/print-jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Label Print Jobs */
+        get: operations["list_label_print_jobs_api_v1_labels_print_jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/labels/saved/{saved_label_id}/print-jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Label Print Job */
+        post: operations["create_label_print_job_api_v1_labels_saved__saved_label_id__print_jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Public Settings
+         * @description Public endpoint — returns all site settings (no auth required).
+         */
+        get: operations["get_public_settings_api_v1_settings_public_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Setting
+         * @description Update a site setting. Requires authenticated user.
+         */
+        put: operations["update_setting_api_v1_settings__key__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -486,6 +631,43 @@ export interface components {
             /** Slots */
             slots: components["schemas"]["LabelSlotRecord"][];
             values: components["schemas"]["LabelPreviewRequest-Output"];
+        };
+        /** LabelPrintJobCreateRequest */
+        LabelPrintJobCreateRequest: {
+            /** Quantity */
+            quantity?: number | null;
+        };
+        /** LabelPrintJobRecord */
+        LabelPrintJobRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Print Job Code */
+            print_job_code: string;
+            /** Saved Label Id */
+            saved_label_id?: string | null;
+            /**
+             * Template Id
+             * Format: uuid
+             */
+            template_id: string;
+            /** Template Version */
+            template_version: number;
+            /** Product Style Id */
+            product_style_id?: string | null;
+            /** Requested Quantity */
+            requested_quantity: number;
+            /** Page Count */
+            page_count: number;
+            field_values: components["schemas"]["LabelPreviewRequest-Output"];
+            printed_by?: components["schemas"]["UserRef"] | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** LabelSlotRecord */
         LabelSlotRecord: {
@@ -667,6 +849,148 @@ export interface components {
             detail: string;
             /** Tone */
             tone: string;
+        };
+        /** SavedLabelCreateRequest */
+        SavedLabelCreateRequest: {
+            /** Name */
+            name?: string | null;
+            /**
+             * Template Id
+             * Format: uuid
+             */
+            template_id: string;
+            /** Product Style Id */
+            product_style_id?: string | null;
+            /**
+             * Art No
+             * @default AFL 02
+             */
+            art_no: string;
+            /** Colour */
+            colour: string;
+            /** Size */
+            size: string;
+            /** Mrp Npr */
+            mrp_npr: number | string;
+            /**
+             * Manufactured By
+             * @default AB Fashion & Wears
+             */
+            manufactured_by: string;
+            /**
+             * Origin Text
+             * @default Made in Nepal
+             */
+            origin_text: string;
+            /**
+             * Default Quantity
+             * @default 24
+             */
+            default_quantity: number;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** SavedLabelDuplicateRequest */
+        SavedLabelDuplicateRequest: {
+            /** Name */
+            name?: string | null;
+        };
+        /** SavedLabelPatchRequest */
+        SavedLabelPatchRequest: {
+            /** Name */
+            name?: string | null;
+            /** Template Id */
+            template_id?: string | null;
+            /** Product Style Id */
+            product_style_id?: string | null;
+            /** Art No */
+            art_no?: string | null;
+            /** Colour */
+            colour?: string | null;
+            /** Size */
+            size?: string | null;
+            /** Mrp Npr */
+            mrp_npr?: number | string | null;
+            /** Manufactured By */
+            manufactured_by?: string | null;
+            /** Origin Text */
+            origin_text?: string | null;
+            /** Default Quantity */
+            default_quantity?: number | null;
+            /** Notes */
+            notes?: string | null;
+            /** Version */
+            version: number;
+        };
+        /** SavedLabelPreviewRequest */
+        SavedLabelPreviewRequest: {
+            /** Quantity */
+            quantity?: number | null;
+        };
+        /** SavedLabelRecord */
+        SavedLabelRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label Code */
+            label_code: string;
+            /** Name */
+            name: string;
+            /**
+             * Template Id
+             * Format: uuid
+             */
+            template_id: string;
+            /** Template Version */
+            template_version: number;
+            /** Product Style Id */
+            product_style_id?: string | null;
+            /** Art No */
+            art_no: string;
+            /** Colour */
+            colour: string;
+            /** Size */
+            size: string;
+            /** Mrp Npr */
+            mrp_npr: string;
+            /** Manufactured By */
+            manufactured_by: string;
+            /** Origin Text */
+            origin_text: string;
+            /** Default Quantity */
+            default_quantity: number;
+            /** Notes */
+            notes?: string | null;
+            /** Status */
+            status: string;
+            created_by?: components["schemas"]["UserRef"] | null;
+            updated_by?: components["schemas"]["UserRef"] | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Version */
+            version: number;
+        };
+        /** SiteSettingResponse */
+        SiteSettingResponse: {
+            /** Key */
+            key: string;
+            /** Value */
+            value: string;
+        };
+        /** SiteSettingUpdateRequest */
+        SiteSettingUpdateRequest: {
+            /** Value */
+            value: string;
         };
         /** SupplierRecord */
         SupplierRecord: {
@@ -1568,6 +1892,378 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LabelPreviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_saved_labels_api_v1_labels_saved_get: {
+        parameters: {
+            query?: {
+                include_archived?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedLabelRecord"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_saved_label_api_v1_labels_saved_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedLabelCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedLabelRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_saved_label_api_v1_labels_saved__saved_label_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                saved_label_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedLabelRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    archive_saved_label_api_v1_labels_saved__saved_label_id__delete: {
+        parameters: {
+            query: {
+                version: number;
+            };
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
+            path: {
+                saved_label_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedLabelRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_saved_label_api_v1_labels_saved__saved_label_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
+            path: {
+                saved_label_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedLabelPatchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedLabelRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    duplicate_saved_label_api_v1_labels_saved__saved_label_id__duplicate_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
+            path: {
+                saved_label_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedLabelDuplicateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedLabelRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_saved_label_api_v1_labels_saved__saved_label_id__preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                saved_label_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedLabelPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelPreviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_label_print_jobs_api_v1_labels_print_jobs_get: {
+        parameters: {
+            query?: {
+                saved_label_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelPrintJobRecord"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_label_print_job_api_v1_labels_saved__saved_label_id__print_jobs_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
+            path: {
+                saved_label_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LabelPrintJobCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabelPrintJobRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_public_settings_api_v1_settings_public_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SiteSettingResponse"][];
+                };
+            };
+        };
+    };
+    update_setting_api_v1_settings__key__put: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+            };
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SiteSettingUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SiteSettingResponse"];
                 };
             };
             /** @description Validation Error */

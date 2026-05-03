@@ -182,6 +182,70 @@ def test_label_preview_uses_24_up_sheet(client: TestClient) -> None:
     assert payload["values"]["art_no"] == "AFL 02"
 
 
+def test_saved_label_api_lifecycle_records_print_snapshots(client: TestClient) -> None:
+    templates_response = client.get("/api/v1/labels/templates")
+    assert templates_response.status_code == 200
+    template_id = templates_response.json()[0]["id"]
+    manager_headers = {"X-Pailo-User-Email": "milan@pailoshoes.com"}
+
+    create_response = client.post(
+        "/api/v1/labels/saved",
+        headers=manager_headers,
+        json={
+            "template_id": template_id,
+            "art_no": "AFL 02",
+            "colour": "White",
+            "size": "39",
+            "mrp_npr": "1899",
+            "manufactured_by": "AB Fashion & Wears",
+            "origin_text": "Made in Nepal",
+            "default_quantity": 24,
+        },
+    )
+    assert create_response.status_code == 201
+    saved_label = create_response.json()
+    assert saved_label["label_code"].startswith("SLBL-2026-")
+    assert saved_label["name"] == "AFL 02 - White - 39"
+
+    list_response = client.get("/api/v1/labels/saved")
+    assert list_response.status_code == 200
+    assert any(label["id"] == saved_label["id"] for label in list_response.json())
+
+    preview_response = client.post(
+        f"/api/v1/labels/saved/{saved_label['id']}/preview",
+        json={"quantity": 25},
+    )
+    assert preview_response.status_code == 200
+    assert preview_response.json()["page_count"] == 2
+
+    patch_response = client.patch(
+        f"/api/v1/labels/saved/{saved_label['id']}",
+        headers=manager_headers,
+        json={"size": "40", "version": saved_label["version"]},
+    )
+    assert patch_response.status_code == 200
+    patched_label = patch_response.json()
+    assert patched_label["size"] == "40"
+    assert patched_label["version"] == saved_label["version"] + 1
+
+    print_response = client.post(
+        f"/api/v1/labels/saved/{saved_label['id']}/print-jobs",
+        json={"quantity": 24},
+    )
+    assert print_response.status_code == 201
+    print_job = print_response.json()
+    assert print_job["saved_label_id"] == saved_label["id"]
+    assert print_job["template_version"] == patched_label["template_version"]
+    assert print_job["field_values"]["size"] == "40"
+
+    archive_response = client.delete(
+        f"/api/v1/labels/saved/{saved_label['id']}?version={patched_label['version']}",
+        headers=manager_headers,
+    )
+    assert archive_response.status_code == 200
+    assert archive_response.json()["status"] == "archived"
+
+
 def _first_task(client: TestClient, task_code: str) -> dict[str, object]:
     response = client.get("/api/v1/tasks")
     assert response.status_code == 200

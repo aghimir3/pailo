@@ -302,6 +302,84 @@ class LabelPreviewResponse(BaseModel):
     values: LabelPreviewRequest
 
 
+class SavedLabelCreateRequest(BaseModel):
+    name: str | None = Field(default=None, max_length=180)
+    template_id: UUID
+    product_style_id: UUID | None = None
+    art_no: str = Field(default="AFL 02", min_length=1, max_length=80)
+    colour: str = Field(min_length=1, max_length=80)
+    size: str = Field(min_length=1, max_length=24)
+    mrp_npr: Decimal = Field(ge=0)
+    manufactured_by: str = Field(default="AB Fashion & Wears", min_length=1, max_length=160)
+    origin_text: str = Field(default="Made in Nepal", min_length=1, max_length=80)
+    default_quantity: int = Field(default=24, ge=1, le=240)
+    notes: str | None = Field(default=None, max_length=1000)
+
+
+class SavedLabelPatchRequest(BaseModel):
+    name: str | None = Field(default=None, max_length=180)
+    template_id: UUID | None = None
+    product_style_id: UUID | None = None
+    art_no: str | None = Field(default=None, min_length=1, max_length=80)
+    colour: str | None = Field(default=None, min_length=1, max_length=80)
+    size: str | None = Field(default=None, min_length=1, max_length=24)
+    mrp_npr: Decimal | None = Field(default=None, ge=0)
+    manufactured_by: str | None = Field(default=None, min_length=1, max_length=160)
+    origin_text: str | None = Field(default=None, min_length=1, max_length=80)
+    default_quantity: int | None = Field(default=None, ge=1, le=240)
+    notes: str | None = Field(default=None, max_length=1000)
+    version: int = Field(ge=1)
+
+
+class SavedLabelDuplicateRequest(BaseModel):
+    name: str | None = Field(default=None, max_length=180)
+
+
+class SavedLabelPreviewRequest(BaseModel):
+    quantity: int | None = Field(default=None, ge=1, le=240)
+
+
+class LabelPrintJobCreateRequest(BaseModel):
+    quantity: int | None = Field(default=None, ge=1, le=240)
+
+
+class SavedLabelRecord(BaseModel):
+    id: UUID
+    label_code: str
+    name: str
+    template_id: UUID
+    template_version: int
+    product_style_id: UUID | None = None
+    art_no: str
+    colour: str
+    size: str
+    mrp_npr: Decimal
+    manufactured_by: str
+    origin_text: str
+    default_quantity: int
+    notes: str | None = None
+    status: str
+    created_by: UserRef | None = None
+    updated_by: UserRef | None = None
+    created_at: datetime
+    updated_at: datetime
+    version: int
+
+
+class LabelPrintJobRecord(BaseModel):
+    id: UUID
+    print_job_code: str
+    saved_label_id: UUID | None = None
+    template_id: UUID
+    template_version: int
+    product_style_id: UUID | None = None
+    requested_quantity: int
+    page_count: int
+    field_values: LabelPreviewRequest
+    printed_by: UserRef | None = None
+    created_at: datetime
+
+
 class OperationsCatalogResponse(BaseModel):
     users: list[UserRef]
     employees: list[EmployeeRef]

@@ -2,14 +2,22 @@
 
 import type { CSSProperties, FormEvent } from "react";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { AlertCircle, CheckCircle2, Eye, Printer, RefreshCw } from "lucide-react";
+import { AlertCircle, Archive, CheckCircle2, Copy, FolderOpen, Printer, RefreshCw, Ruler, Save, Search, X } from "lucide-react";
 
 import {
+  archiveSavedLabel,
+  createLabelPrintJob,
+  createSavedLabel,
+  duplicateSavedLabel,
+  patchSavedLabel,
   previewLabelSheet,
+  previewSavedLabel,
   type LabelPreviewRequest,
   type LabelPreviewResponse,
   type LabelTemplateRecord,
   type OperationsCatalogResponse,
+  type SavedLabelCreateRequest,
+  type SavedLabelRecord,
 } from "@pailo/api-client";
 
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +28,7 @@ type ProductStyle = OperationsCatalogResponse["styles"][number];
 
 type LabelsWorkflowProps = {
   initialPreview: LabelPreviewResponse;
+  initialSavedLabels: SavedLabelRecord[];
   styles: ProductStyle[];
   templates: LabelTemplateRecord[];
 };
@@ -52,9 +61,14 @@ const defaultQuantity = "24";
 const defaultArtNo = "AFL 02";
 const labelFormStorageKey = "pailo:label-generator:last-values:v1";
 
-export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWorkflowProps) {
+export function LabelsWorkflow({ initialPreview, initialSavedLabels, styles, templates }: LabelsWorkflowProps) {
   const [preview, setPreview] = useState(initialPreview);
   const [form, setForm] = useState<LabelFormState>(() => createInitialForm(initialPreview));
+  const [savedLabels, setSavedLabels] = useState(initialSavedLabels);
+  const [activeSavedLabelId, setActiveSavedLabelId] = useState<string | null>(null);
+  const [savedLabelSearch, setSavedLabelSearch] = useState("");
+  const [isFindLabelOpen, setIsFindLabelOpen] = useState(false);
+  const [isGeometryOpen, setIsGeometryOpen] = useState(false);
   const [showGuides, setShowGuides] = useState(false);
   const [status, setStatus] = useState("Preview ready");
   const [isDirty, setIsDirty] = useState(false);
@@ -67,6 +81,21 @@ export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWork
   const pages = useMemo(() => buildSheetPages(preview), [preview]);
   const filledCount = preview.slots.length;
   const emptySlotsOnLastPage = (preview.page_count * preview.template.slots_per_page) - filledCount;
+  const activeSavedLabel = savedLabels.find((savedLabel) => savedLabel.id === activeSavedLabelId) ?? null;
+  const filteredSavedLabels = useMemo(
+    () => filterSavedLabels(savedLabels, savedLabelSearch),
+    [savedLabelSearch, savedLabels],
+  );
+  const geometryMetrics = [
+    { label: "Sheet", value: `${selectedTemplate.page_width_mm} x ${selectedTemplate.page_height_mm} mm` },
+    { label: "Labels", value: `${selectedTemplate.columns} x ${selectedTemplate.rows}` },
+    { label: "Outer border", value: `${selectedTemplate.label_width_mm} x ${selectedTemplate.label_height_mm} mm` },
+    { label: "Border origin", value: `${selectedTemplate.margin_left_mm} L / ${selectedTemplate.margin_top_mm} T mm` },
+    { label: "Page margins", value: `${selectedTemplate.margin_left_mm} L / ${geometryDetails.rightMarginMm} R mm` },
+    { label: "Gutters", value: `${selectedTemplate.gap_x_mm} X / ${selectedTemplate.gap_y_mm} Y mm` },
+    { label: "Text inset", value: `${geometryDetails.textInsetXMm} X / ${geometryDetails.textInsetYMm} Y mm` },
+    { label: "Outline", value: `${geometryDetails.outlineWidthPt} pt / rounded` },
+  ];
 
   useEffect(() => {
     if (hasLoadedSavedForm.current) return;
@@ -105,10 +134,44 @@ export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWork
     writeSavedForm(form);
   }, [form]);
 
+  useEffect(() => {
+    if (!isFindLabelOpen && !isGeometryOpen) return;
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      setIsFindLabelOpen(false);
+      setIsGeometryOpen(false);
+    }
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isFindLabelOpen, isGeometryOpen]);
+
   function setField(field: keyof LabelFormState, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
     setIsDirty(true);
     setStatus("Preview needs update");
+  }
+
+  function applySavedLabel(savedLabel: SavedLabelRecord) {
+    const nextForm = formFromSavedLabel(savedLabel);
+    const template = templates.find((candidate) => candidate.id === savedLabel.template_id) ?? selectedTemplate;
+    const payload = formPayload(nextForm);
+    setForm(nextForm);
+    setActiveSavedLabelId(savedLabel.id);
+    setPreview(buildLocalPreview(template, payload));
+    setIsDirty(false);
+    setIsFindLabelOpen(false);
+    setStatus(`Loaded ${savedLabel.name}`);
+
+    void previewSavedLabel(savedLabel.id, { quantity: payload.quantity })
+      .then((nextPreview) => {
+        setPreview(nextPreview);
+        setStatus(`Loaded ${savedLabel.name}`);
+      })
+      .catch(() => {
+        setStatus("Loaded saved label from local template geometry");
+      });
   }
 
   function applyStyle(styleId: string) {
@@ -150,8 +213,17 @@ export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWork
   function handlePrint() {
     startTransition(() => {
       void (async () => {
+        const shouldRecordPrintJob = activeSavedLabel !== null && !isDirty;
         if (isDirty) {
           await requestPreview();
+        }
+        if (shouldRecordPrintJob && activeSavedLabel) {
+          try {
+            await createLabelPrintJob(activeSavedLabel.id, { quantity: clampQuantity(form.quantity) });
+            setStatus(`Print job recorded for ${activeSavedLabel.name}`);
+          } catch {
+            setStatus("Print preview ready; print history could not be recorded");
+          }
         }
         window.requestAnimationFrame(() => {
           window.requestAnimationFrame(() => window.print());
@@ -160,7 +232,53 @@ export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWork
     });
   }
 
+  function handleSaveLabel() {
+    startTransition(() => {
+      void (async () => {
+        const nextPreview = await requestPreview();
+        const payload = savedLabelPayload(form, nextPreview.values, nextPreview.template.id);
+        try {
+          const savedLabel = activeSavedLabel
+            ? await patchSavedLabel(activeSavedLabel.id, { ...payload, version: activeSavedLabel.version })
+            : await createSavedLabel(payload);
+          setSavedLabels((current) => upsertSavedLabel(current, savedLabel));
+          setActiveSavedLabelId(savedLabel.id);
+          setIsDirty(false);
+          setStatus(`Saved ${savedLabel.name}`);
+        } catch {
+          setStatus("Could not save label");
+        }
+      })();
+    });
+  }
+
+  function handleDuplicateSavedLabel(savedLabel: SavedLabelRecord) {
+    startTransition(() => {
+      void duplicateSavedLabel(savedLabel.id, { name: `${savedLabel.name} copy` })
+        .then((duplicate) => {
+          setSavedLabels((current) => upsertSavedLabel(current, duplicate));
+          applySavedLabel(duplicate);
+        })
+        .catch(() => setStatus("Could not duplicate saved label"));
+    });
+  }
+
+  function handleArchiveSavedLabel(savedLabel: SavedLabelRecord) {
+    startTransition(() => {
+      void archiveSavedLabel(savedLabel.id, savedLabel.version)
+        .then(() => {
+          setSavedLabels((current) => current.filter((candidate) => candidate.id !== savedLabel.id));
+          if (activeSavedLabelId === savedLabel.id) {
+            setActiveSavedLabelId(null);
+          }
+          setStatus(`Archived ${savedLabel.name}`);
+        })
+        .catch(() => setStatus("Could not archive saved label"));
+    });
+  }
+
   return (
+    <>
     <section className="label-room-grid">
       <GlassCard className="ops-panel label-editor-panel">
         <PanelHeader>
@@ -168,7 +286,10 @@ export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWork
             <p className="eyebrow">Label values</p>
             <h2>Label print setup</h2>
           </div>
-          <Printer aria-hidden="true" className="panel-icon" size={22} />
+          <Button size="sm" type="button" variant="glass" onClick={() => setIsFindLabelOpen(true)}>
+            <FolderOpen aria-hidden="true" size={16} />
+            Find label
+          </Button>
         </PanelHeader>
 
         <form className="label-editor-form" onSubmit={handleSubmit}>
@@ -236,6 +357,10 @@ export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWork
               <RefreshCw aria-hidden="true" size={17} />
               Update preview
             </Button>
+            <Button disabled={isPending} type="button" variant="glass" onClick={handleSaveLabel}>
+              <Save aria-hidden="true" size={17} />
+              {activeSavedLabel ? "Update saved" : "Save label"}
+            </Button>
             <Button disabled={isPending} type="button" onClick={handlePrint}>
               <Printer aria-hidden="true" size={17} />
               Print labels
@@ -243,85 +368,157 @@ export function LabelsWorkflow({ initialPreview, styles, templates }: LabelsWork
           </div>
         </form>
 
+        <div className="label-run-summary" aria-label="Current print run">
+          <div><span>Labels</span><strong>{filledCount}</strong></div>
+          <div><span>Pages</span><strong>{preview.page_count}</strong></div>
+          <div><span>Empty</span><strong>{emptySlotsOnLastPage}</strong></div>
+        </div>
+
+        <div className="label-active-card">
+          <div>
+            <span>{activeSavedLabel ? "Loaded saved label" : "Saved label"}</span>
+            <strong>{activeSavedLabel ? activeSavedLabel.name : "No saved label loaded"}</strong>
+          </div>
+          <Button size="sm" type="button" variant="glass" onClick={() => setIsFindLabelOpen(true)}>
+            <Search aria-hidden="true" size={15} />
+            Find
+          </Button>
+        </div>
+
         <div className="label-status-row">
           {isDirty ? <AlertCircle aria-hidden="true" size={17} /> : <CheckCircle2 aria-hidden="true" size={17} />}
           <span>{status}</span>
         </div>
       </GlassCard>
 
-      <div className="label-side-stack">
-        <GlassCard className="ops-panel label-template-panel">
-          <PanelHeader>
-            <div>
-              <p className="eyebrow">Template</p>
-              <h2>Approved geometry</h2>
-            </div>
-            <Eye aria-hidden="true" className="panel-icon" size={22} />
-          </PanelHeader>
-          <div className="label-template-metrics">
-            <div><span>Sheet</span><strong>{selectedTemplate.page_width_mm} x {selectedTemplate.page_height_mm} mm</strong></div>
-            <div><span>Labels</span><strong>{selectedTemplate.columns} x {selectedTemplate.rows}</strong></div>
-            <div><span>Outer border</span><strong>{selectedTemplate.label_width_mm} x {selectedTemplate.label_height_mm} mm</strong></div>
-            <div><span>Border origin</span><strong>{selectedTemplate.margin_left_mm} L / {selectedTemplate.margin_top_mm} T mm</strong></div>
-            <div><span>Page margins</span><strong>{selectedTemplate.margin_left_mm} L / {geometryDetails.rightMarginMm} R mm</strong></div>
-            <div><span>Gutters</span><strong>{selectedTemplate.gap_x_mm} X / {selectedTemplate.gap_y_mm} Y mm</strong></div>
-            <div><span>Text inset</span><strong>{geometryDetails.textInsetXMm} X / {geometryDetails.textInsetYMm} Y mm</strong></div>
-            <div><span>Outline</span><strong>{geometryDetails.outlineWidthPt} pt / rounded</strong></div>
-            <div><span>Pages</span><strong>{preview.page_count}</strong></div>
-          </div>
-          <div className="label-template-footer">
-            <Badge tone={selectedTemplate.status === "approved" ? "green" : "amber"}>{selectedTemplate.status}</Badge>
-            <span>{templateDisplayName(selectedTemplate)} / v{selectedTemplate.version}</span>
-          </div>
-        </GlassCard>
-
+      <div className="label-preview-stack">
         <GlassCard className="ops-panel label-single-panel">
           <PanelHeader>
             <div>
               <p className="eyebrow">Label</p>
               <h2>Single label preview</h2>
             </div>
-            <Eye aria-hidden="true" className="panel-icon" size={22} />
+            <div className="label-panel-actions">
+              <Badge tone={selectedTemplate.status === "approved" ? "green" : "amber"}>{selectedTemplate.status}</Badge>
+              <Button size="sm" type="button" variant="glass" onClick={() => setIsGeometryOpen(true)}>
+                <Ruler aria-hidden="true" size={15} />
+                Geometry
+              </Button>
+            </div>
           </PanelHeader>
+          <div className="label-template-strip">
+            <span>{templateDisplayName(selectedTemplate)} / v{selectedTemplate.version}</span>
+            <strong>{selectedTemplate.columns} x {selectedTemplate.rows} / {selectedTemplate.label_width_mm} x {selectedTemplate.label_height_mm} mm</strong>
+          </div>
           <div className="single-label-preview" style={singleLabelStyle(preview.template)}>
             <StickerContent values={preview.values} />
           </div>
         </GlassCard>
-      </div>
 
-      <GlassCard className="ops-panel label-preview-panel">
-        <PanelHeader>
-          <div>
-            <p className="eyebrow">Print preview</p>
-            <h2>{filledCount} labels across {preview.page_count} page{preview.page_count === 1 ? "" : "s"}</h2>
+        <GlassCard className="ops-panel label-preview-panel">
+          <PanelHeader>
+            <div>
+              <p className="eyebrow">Print preview</p>
+              <h2>{filledCount} labels across {preview.page_count} page{preview.page_count === 1 ? "" : "s"}</h2>
+            </div>
+            <Badge tone={emptySlotsOnLastPage > 0 ? "amber" : "green"}>{emptySlotsOnLastPage} empty</Badge>
+          </PanelHeader>
+
+          <div className="label-print-scroll">
+            <div className={showGuides ? "label-print-area print-guides" : "label-print-area"} aria-label="Label sheet print preview">
+              {pages.map((pageSlots, pageIndex) => (
+                <section
+                  aria-label={`Page ${pageIndex + 1}`}
+                  className="label-print-page"
+                  key={pageIndex}
+                  style={pageStyle(preview.template)}
+                >
+                  {pageSlots.map((slot) => (
+                    <div
+                      className={slot.filled ? "label-sheet-slot label-filled-slot" : "label-sheet-slot label-empty-slot"}
+                      key={`${slot.page}-${slot.slot}`}
+                      style={slotStyle(slot)}
+                    >
+                      {slot.filled ? <StickerContent values={preview.values} /> : null}
+                    </div>
+                  ))}
+                </section>
+              ))}
+            </div>
           </div>
-          <Badge tone={emptySlotsOnLastPage > 0 ? "amber" : "green"}>{emptySlotsOnLastPage} empty</Badge>
-        </PanelHeader>
-
-        <div className="label-print-scroll">
-          <div className={showGuides ? "label-print-area print-guides" : "label-print-area"} aria-label="Label sheet print preview">
-            {pages.map((pageSlots, pageIndex) => (
-              <section
-                aria-label={`Page ${pageIndex + 1}`}
-                className="label-print-page"
-                key={pageIndex}
-                style={pageStyle(preview.template)}
-              >
-                {pageSlots.map((slot) => (
-                  <div
-                    className={slot.filled ? "label-sheet-slot label-filled-slot" : "label-sheet-slot label-empty-slot"}
-                    key={`${slot.page}-${slot.slot}`}
-                    style={slotStyle(slot)}
-                  >
-                    {slot.filled ? <StickerContent values={preview.values} /> : null}
-                  </div>
-                ))}
-              </section>
+        </GlassCard>
+      </div>
+    </section>
+    {isFindLabelOpen ? (
+      <div className="label-modal-backdrop" role="presentation" onMouseDown={(event) => {
+        if (event.target === event.currentTarget) setIsFindLabelOpen(false);
+      }}>
+        <section aria-describedby="find-label-description" aria-labelledby="find-label-title" aria-modal="true" className="glass-card label-modal label-find-modal" role="dialog">
+          <div className="label-modal-header">
+            <div>
+              <p className="eyebrow">Saved labels</p>
+              <h2 id="find-label-title">Find label</h2>
+              <p id="find-label-description">Search reusable labels by art number, colour, size, price, or saved name.</p>
+            </div>
+            <Button aria-label="Close find label" size="icon" type="button" variant="ghost" onClick={() => setIsFindLabelOpen(false)}>
+              <X aria-hidden="true" size={18} />
+            </Button>
+          </div>
+          <label className="label-library-search label-modal-search">
+            <Search aria-hidden="true" size={16} />
+            <input autoFocus value={savedLabelSearch} placeholder="Search saved labels" onChange={(event) => setSavedLabelSearch(event.target.value)} />
+          </label>
+          <div className="label-modal-list">
+            {filteredSavedLabels.length ? filteredSavedLabels.map((savedLabel) => (
+              <article className={savedLabel.id === activeSavedLabelId ? "label-saved-item active" : "label-saved-item"} key={savedLabel.id}>
+                <button type="button" className="label-saved-main" onClick={() => applySavedLabel(savedLabel)}>
+                  <strong>{savedLabel.name}</strong>
+                  <span>{savedLabel.art_no} / {savedLabel.colour} / {savedLabel.size} / Rs {savedLabel.mrp_npr} / {savedLabel.default_quantity} labels</span>
+                </button>
+                <div className="label-saved-actions">
+                  <Button aria-label={`Duplicate ${savedLabel.name}`} disabled={isPending} size="icon" type="button" variant="glass" onClick={() => handleDuplicateSavedLabel(savedLabel)}>
+                    <Copy aria-hidden="true" size={15} />
+                  </Button>
+                  <Button aria-label={`Archive ${savedLabel.name}`} disabled={isPending} size="icon" type="button" variant="ghost" onClick={() => handleArchiveSavedLabel(savedLabel)}>
+                    <Archive aria-hidden="true" size={15} />
+                  </Button>
+                </div>
+              </article>
+            )) : (
+              <p className="label-library-empty">No saved labels yet</p>
+            )}
+          </div>
+        </section>
+      </div>
+    ) : null}
+    {isGeometryOpen ? (
+      <div className="label-modal-backdrop" role="presentation" onMouseDown={(event) => {
+        if (event.target === event.currentTarget) setIsGeometryOpen(false);
+      }}>
+        <section aria-describedby="geometry-description" aria-labelledby="geometry-title" aria-modal="true" className="glass-card label-modal label-geometry-modal" role="dialog">
+          <div className="label-modal-header">
+            <div>
+              <p className="eyebrow">Template</p>
+              <h2 id="geometry-title">Approved geometry</h2>
+              <p id="geometry-description">Locked measurements from the approved 24-up A4 label template.</p>
+            </div>
+            <Button aria-label="Close approved geometry" size="icon" type="button" variant="ghost" onClick={() => setIsGeometryOpen(false)}>
+              <X aria-hidden="true" size={18} />
+            </Button>
+          </div>
+          <div className="label-template-metrics label-modal-metrics">
+            {geometryMetrics.map((metric) => (
+              <div key={metric.label}><span>{metric.label}</span><strong>{metric.value}</strong></div>
             ))}
           </div>
-        </div>
-      </GlassCard>
-    </section>
+          <div className="label-template-footer">
+            <Badge tone={selectedTemplate.status === "approved" ? "green" : "amber"}>{selectedTemplate.status}</Badge>
+            <span>{templateDisplayName(selectedTemplate)} / v{selectedTemplate.version}</span>
+          </div>
+        </section>
+      </div>
+    ) : null}
+    </>
   );
 }
 
@@ -348,6 +545,56 @@ function createInitialForm(preview: LabelPreviewResponse): LabelFormState {
     manufactured_by: preview.values.manufactured_by || defaultManufacturer,
     origin_text: preview.values.origin_text,
   };
+}
+
+function formFromSavedLabel(savedLabel: SavedLabelRecord): LabelFormState {
+  return {
+    templateId: savedLabel.template_id,
+    quantity: String(savedLabel.default_quantity || defaultQuantity),
+    art_no: savedLabel.art_no || defaultArtNo,
+    colour: savedLabel.colour,
+    size: savedLabel.size,
+    mrp_npr: String(savedLabel.mrp_npr),
+    manufactured_by: savedLabel.manufactured_by || defaultManufacturer,
+    origin_text: savedLabel.origin_text,
+  };
+}
+
+function savedLabelPayload(
+  form: LabelFormState,
+  values: LabelPreviewRequest,
+  templateId: string,
+): SavedLabelCreateRequest {
+  return {
+    template_id: templateId,
+    art_no: values.art_no,
+    colour: values.colour,
+    size: values.size,
+    mrp_npr: values.mrp_npr,
+    manufactured_by: values.manufactured_by,
+    origin_text: values.origin_text,
+    default_quantity: clampQuantity(form.quantity),
+  };
+}
+
+function upsertSavedLabel(current: SavedLabelRecord[], nextSavedLabel: SavedLabelRecord) {
+  const withoutExisting = current.filter((savedLabel) => savedLabel.id !== nextSavedLabel.id);
+  return [nextSavedLabel, ...withoutExisting];
+}
+
+function filterSavedLabels(savedLabels: SavedLabelRecord[], search: string) {
+  const query = search.trim().toLowerCase();
+  if (!query) return savedLabels;
+  return savedLabels.filter((savedLabel) => (
+    [
+      savedLabel.name,
+      savedLabel.label_code,
+      savedLabel.art_no,
+      savedLabel.colour,
+      savedLabel.size,
+      savedLabel.mrp_npr,
+    ].some((value) => String(value).toLowerCase().includes(query))
+  ));
 }
 
 function readSavedForm(templates: LabelTemplateRecord[], initialPreview: LabelPreviewResponse): LabelFormState | null {

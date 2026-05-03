@@ -147,12 +147,14 @@ Acceptance:
 - High-priority 24-up A4 label template preset recreated from the root sample Word label document dimensions.
 - Locked template geometry from the measured Word file's outer rounded sticker borders: 63.50 mm x 33.87 mm labels, 7.20 mm left offset, 13.09 mm top offset, 2.54 mm horizontal gutter, and 0 mm vertical gutter. Text starts inside that border at about 8.73 mm left and 13.41 mm top.
 - One-sticker editor for fields the factory changes often: Art No., Colour, Size, MRP, Manufactured By, and origin text such as Made in Nepal.
+- Saved labels for reusable art/colour/size/MRP combinations, with load, save/update, duplicate, and archive actions.
 - 24-up A4 sheet preview matching the current sticker paper: 3 columns x 8 rows.
 - Quantity picker that fills slots left-to-right, top-to-bottom; 3 labels fill only the top row, and 25 labels create a second page.
 - Per-size quantity entry for work-order label printing.
 - Resolve label variables from style, work order, size, batch, price, and manufacturer data.
 - Generate print-ready PDF labels from server-side millimeter coordinates, not browser scaling.
 - Store print-job history with actor, template version, timestamp, and batch.
+- Print jobs keep immutable field-value snapshots even when a saved label is edited later.
 - Admin-only calibration offsets and template version approval.
 
 Acceptance:
@@ -235,9 +237,10 @@ Acceptance:
 2. User chooses a style, work order, or manual label entry.
 3. App shows one large sticker preview with editable Art No., Colour, Size, MRP, Manufactured By, and origin fields.
 4. User enters total label quantity or per-size quantities.
-5. App generates a 24-slot sheet preview using the measured A4 layout.
-6. User prints or downloads the PDF.
-7. App records the print job and template version.
+5. User saves reusable label values or loads an existing saved label when printing a repeat art/colour/size combination.
+6. App generates a 24-slot sheet preview using the measured A4 layout.
+7. User prints or downloads the PDF.
+8. App records the print job, saved-label reference when available, template version, and field-value snapshot.
 
 ### Worker Task Workflow
 

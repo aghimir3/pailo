@@ -13,8 +13,13 @@ from app.db.session import AsyncSessionLocal, engine
 from app.modules.factory import sample_data, service
 from app.modules.factory.schemas import (
     InventoryAlert,
+    LabelPrintJobCreateRequest,
     LabelPreviewRequest,
     QualitySignal,
+    SavedLabelCreateRequest,
+    SavedLabelDuplicateRequest,
+    SavedLabelPatchRequest,
+    SavedLabelPreviewRequest,
     TaskCommentCreateRequest,
     TaskCommentUpdateRequest,
     TaskCreateRequest,
@@ -134,6 +139,110 @@ def test_record_lookup_and_not_found_errors() -> None:
             with pytest.raises(service.FactoryServiceError) as exc_info:
                 await lookup()
             assert exc_info.value.status_code == 404
+
+    run_in_db(scenario)
+
+
+def test_saved_label_lifecycle_and_print_job_snapshot() -> None:
+    async def scenario(session: AsyncSession) -> None:
+        created = await service.create_saved_label(
+            session,
+            SavedLabelCreateRequest(
+                template_id=LABEL_TEMPLATE_ID,
+                art_no=" AFL 02 ",
+                colour=" White ",
+                size="39",
+                mrp_npr=Decimal("1899"),
+                manufactured_by=" AB Fashion & Wears ",
+                origin_text=" Made in Nepal ",
+                default_quantity=24,
+                notes="  Core white school label  ",
+            ),
+            MANAGER,
+        )
+
+        assert created.label_code.startswith("SLBL-2026-")
+        assert created.name == "AFL 02 - White - 39"
+        assert created.art_no == "AFL 02"
+        assert created.created_by and created.created_by.display_name == "Milan"
+        assert created.notes == "Core white school label"
+
+        active_labels = await service.list_saved_labels(session)
+        assert any(label.id == created.id for label in active_labels)
+
+        preview = await service.preview_saved_label(
+            session,
+            created.id,
+            SavedLabelPreviewRequest(quantity=25),
+        )
+        assert preview.page_count == 2
+        assert preview.values.art_no == "AFL 02"
+
+        patched = await service.patch_saved_label(
+            session,
+            created.id,
+            SavedLabelPatchRequest(
+                name="AFL 02 white size 40",
+                size="40",
+                notes=" ",
+                version=created.version,
+            ),
+            OWNER,
+        )
+        assert patched.name == "AFL 02 white size 40"
+        assert patched.size == "40"
+        assert patched.notes is None
+        assert patched.version == created.version + 1
+
+        with pytest.raises(service.FactoryServiceError) as stale_error:
+            await service.patch_saved_label(
+                session,
+                created.id,
+                SavedLabelPatchRequest(size="41", version=created.version),
+                OWNER,
+            )
+        assert stale_error.value.status_code == 409
+
+        duplicate = await service.duplicate_saved_label(
+            session,
+            created.id,
+            SavedLabelDuplicateRequest(name="AFL 02 white duplicate"),
+            OWNER,
+        )
+        assert duplicate.id != created.id
+        assert duplicate.name == "AFL 02 white duplicate"
+        assert duplicate.size == "40"
+
+        print_job = await service.create_label_print_job(
+            session,
+            created.id,
+            LabelPrintJobCreateRequest(quantity=24),
+            RAM,
+        )
+        assert print_job.saved_label_id == created.id
+        assert print_job.template_version == patched.template_version
+        assert print_job.requested_quantity == 24
+        assert print_job.page_count == 1
+        assert print_job.field_values.size == "40"
+        assert print_job.printed_by and print_job.printed_by.display_name == "Ram"
+
+        jobs = await service.list_label_print_jobs(session, saved_label_id=created.id)
+        assert any(job.id == print_job.id for job in jobs)
+
+        archived = await service.archive_saved_label(session, created.id, patched.version, MANAGER)
+        assert archived.status == "archived"
+        assert archived.version == patched.version + 1
+        assert all(label.id != created.id for label in await service.list_saved_labels(session))
+        assert any(label.id == created.id for label in await service.list_saved_labels(session, include_archived=True))
+
+        with pytest.raises(service.FactoryServiceError) as archived_edit_error:
+            await service.patch_saved_label(
+                session,
+                created.id,
+                SavedLabelPatchRequest(size="42", version=archived.version),
+                OWNER,
+            )
+        assert archived_edit_error.value.status_code == 409
 
     run_in_db(scenario)
 

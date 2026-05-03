@@ -4,6 +4,8 @@ export type { components, paths } from "./generated/schema";
 
 export type DashboardResponse = components["schemas"]["DashboardResponse"];
 export type InventoryAlert = components["schemas"]["InventoryAlert"];
+export type LabelPrintJobCreateRequest = components["schemas"]["LabelPrintJobCreateRequest"];
+export type LabelPrintJobRecord = components["schemas"]["LabelPrintJobRecord"];
 export type LabelPreviewRequest = components["schemas"]["LabelPreviewRequest-Input"];
 export type LabelPreviewResponse = components["schemas"]["LabelPreviewResponse"];
 export type LabelTemplateRecord = components["schemas"]["LabelTemplateRecord"];
@@ -11,6 +13,11 @@ export type MaterialStockRecord = components["schemas"]["MaterialStockRecord"];
 export type OperationsCatalogResponse = components["schemas"]["OperationsCatalogResponse"];
 export type QualityInspectionRecord = components["schemas"]["QualityInspectionRecord"];
 export type QualitySignal = components["schemas"]["QualitySignal"];
+export type SavedLabelCreateRequest = components["schemas"]["SavedLabelCreateRequest"];
+export type SavedLabelDuplicateRequest = components["schemas"]["SavedLabelDuplicateRequest"];
+export type SavedLabelPatchRequest = components["schemas"]["SavedLabelPatchRequest"];
+export type SavedLabelPreviewRequest = components["schemas"]["SavedLabelPreviewRequest"];
+export type SavedLabelRecord = components["schemas"]["SavedLabelRecord"];
 export type TaskCommentCreateRequest = components["schemas"]["TaskCommentCreateRequest"];
 export type TaskCommentRecord = components["schemas"]["TaskCommentRecord"];
 export type TaskCommentUpdateRequest = components["schemas"]["TaskCommentUpdateRequest"];
@@ -22,6 +29,13 @@ export type ThroughputPoint = components["schemas"]["ThroughputPoint"];
 export type WorkOrderRecord = components["schemas"]["WorkOrderRecord"];
 
 const DEFAULT_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+const DEFAULT_TASK_MANAGER_EMAIL = process.env.NEXT_PUBLIC_PAILO_TASK_MANAGER_EMAIL ?? "milan@pailoshoes.com";
+
+type ApiActorOptions = {
+  baseUrl?: string;
+  userEmail?: string;
+  userId?: string;
+};
 
 export async function getDashboard(baseUrl = DEFAULT_BASE_URL): Promise<DashboardResponse> {
   return getJson<DashboardResponse>("/api/v1/reports/dashboard", baseUrl);
@@ -37,6 +51,61 @@ export async function listTasks(baseUrl = DEFAULT_BASE_URL): Promise<TaskRecord[
 
 export async function listMyTasks(baseUrl = DEFAULT_BASE_URL): Promise<TaskRecord[]> {
   return getJson<TaskRecord[]>("/api/v1/tasks/my-tasks", baseUrl);
+}
+
+export async function createTask(
+  payload: TaskCreateRequest,
+  options: ApiActorOptions = {},
+): Promise<TaskRecord> {
+  return sendJson<TaskRecord>(
+    "/api/v1/tasks",
+    "POST",
+    payload,
+    options.baseUrl,
+    actorHeaders({ userEmail: DEFAULT_TASK_MANAGER_EMAIL, ...options }),
+  );
+}
+
+export async function patchTask(
+  taskId: string,
+  payload: TaskPatchRequest,
+  options: ApiActorOptions = {},
+): Promise<TaskRecord> {
+  return sendJson<TaskRecord>(
+    `/api/v1/tasks/${taskId}`,
+    "PATCH",
+    payload,
+    options.baseUrl,
+    actorHeaders({ userEmail: DEFAULT_TASK_MANAGER_EMAIL, ...options }),
+  );
+}
+
+export async function updateTaskStatus(
+  taskId: string,
+  payload: TaskStatusUpdateRequest,
+  options: ApiActorOptions = {},
+): Promise<TaskRecord> {
+  return sendJson<TaskRecord>(
+    `/api/v1/tasks/${taskId}/updates`,
+    "POST",
+    payload,
+    options.baseUrl,
+    actorHeaders({ userEmail: DEFAULT_TASK_MANAGER_EMAIL, ...options }),
+  );
+}
+
+export async function createTaskComment(
+  taskId: string,
+  payload: TaskCommentCreateRequest,
+  options: ApiActorOptions = {},
+): Promise<TaskCommentRecord> {
+  return sendJson<TaskCommentRecord>(
+    `/api/v1/tasks/${taskId}/comments`,
+    "POST",
+    payload,
+    options.baseUrl,
+    actorHeaders(options),
+  );
 }
 
 export async function listWorkOrders(baseUrl = DEFAULT_BASE_URL): Promise<WorkOrderRecord[]> {
@@ -65,6 +134,68 @@ export async function listLabelTemplates(baseUrl = DEFAULT_BASE_URL): Promise<La
   return getJson<LabelTemplateRecord[]>("/api/v1/labels/templates", baseUrl);
 }
 
+export async function listSavedLabels(
+  includeArchived = false,
+  baseUrl = DEFAULT_BASE_URL,
+): Promise<SavedLabelRecord[]> {
+  return getJson<SavedLabelRecord[]>(`/api/v1/labels/saved?include_archived=${includeArchived}`, baseUrl);
+}
+
+export async function createSavedLabel(
+  payload: SavedLabelCreateRequest,
+  baseUrl = DEFAULT_BASE_URL,
+): Promise<SavedLabelRecord> {
+  return sendJson<SavedLabelRecord>("/api/v1/labels/saved", "POST", payload, baseUrl);
+}
+
+export async function patchSavedLabel(
+  savedLabelId: string,
+  payload: SavedLabelPatchRequest,
+  baseUrl = DEFAULT_BASE_URL,
+): Promise<SavedLabelRecord> {
+  return sendJson<SavedLabelRecord>(`/api/v1/labels/saved/${savedLabelId}`, "PATCH", payload, baseUrl);
+}
+
+export async function archiveSavedLabel(
+  savedLabelId: string,
+  version: number,
+  baseUrl = DEFAULT_BASE_URL,
+): Promise<SavedLabelRecord> {
+  return deleteJson<SavedLabelRecord>(`/api/v1/labels/saved/${savedLabelId}?version=${version}`, baseUrl);
+}
+
+export async function duplicateSavedLabel(
+  savedLabelId: string,
+  payload: SavedLabelDuplicateRequest = {},
+  baseUrl = DEFAULT_BASE_URL,
+): Promise<SavedLabelRecord> {
+  return sendJson<SavedLabelRecord>(`/api/v1/labels/saved/${savedLabelId}/duplicate`, "POST", payload, baseUrl);
+}
+
+export async function previewSavedLabel(
+  savedLabelId: string,
+  payload: SavedLabelPreviewRequest,
+  baseUrl = DEFAULT_BASE_URL,
+): Promise<LabelPreviewResponse> {
+  return sendJson<LabelPreviewResponse>(`/api/v1/labels/saved/${savedLabelId}/preview`, "POST", payload, baseUrl);
+}
+
+export async function listLabelPrintJobs(
+  savedLabelId?: string,
+  baseUrl = DEFAULT_BASE_URL,
+): Promise<LabelPrintJobRecord[]> {
+  const query = savedLabelId ? `?saved_label_id=${savedLabelId}` : "";
+  return getJson<LabelPrintJobRecord[]>(`/api/v1/labels/print-jobs${query}`, baseUrl);
+}
+
+export async function createLabelPrintJob(
+  savedLabelId: string,
+  payload: LabelPrintJobCreateRequest,
+  baseUrl = DEFAULT_BASE_URL,
+): Promise<LabelPrintJobRecord> {
+  return sendJson<LabelPrintJobRecord>(`/api/v1/labels/saved/${savedLabelId}/print-jobs`, "POST", payload, baseUrl);
+}
+
 export async function previewLabelSheet(
   templateId: string,
   payload: LabelPreviewRequest,
@@ -87,6 +218,47 @@ export async function previewLabelSheet(
   return response.json() as Promise<LabelPreviewResponse>;
 }
 
+async function sendJson<TResponse>(
+  path: string,
+  method: "PATCH" | "POST",
+  payload: unknown,
+  baseUrl = DEFAULT_BASE_URL,
+  headers: Record<string, string> = {},
+): Promise<TResponse> {
+  const response = await fetch(`${baseUrl}${path}`, {
+    body: JSON.stringify(payload),
+    cache: "no-store",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      ...headers,
+    },
+    method,
+  });
+
+  if (!response.ok) {
+    throw await apiError(response, path);
+  }
+
+  return response.json() as Promise<TResponse>;
+}
+
+async function deleteJson<TResponse>(path: string, baseUrl = DEFAULT_BASE_URL): Promise<TResponse> {
+  const response = await fetch(`${baseUrl}${path}`, {
+    cache: "no-store",
+    headers: {
+      accept: "application/json",
+    },
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw await apiError(response, path);
+  }
+
+  return response.json() as Promise<TResponse>;
+}
+
 async function getJson<TResponse>(path: string, baseUrl = DEFAULT_BASE_URL): Promise<TResponse> {
   const response = await fetch(`${baseUrl}${path}`, {
     cache: "no-store",
@@ -96,8 +268,28 @@ async function getJson<TResponse>(path: string, baseUrl = DEFAULT_BASE_URL): Pro
   });
 
   if (!response.ok) {
-    throw new Error(`${path} request failed with ${response.status}`);
+    throw await apiError(response, path);
   }
 
   return response.json() as Promise<TResponse>;
+}
+
+function actorHeaders(options: ApiActorOptions): Record<string, string> {
+  return {
+    ...(options.userEmail ? { "X-Pailo-User-Email": options.userEmail } : {}),
+    ...(options.userId ? { "X-Pailo-User-Id": options.userId } : {}),
+  };
+}
+
+async function apiError(response: Response, path: string) {
+  let detail = `${path} request failed with ${response.status}`;
+  try {
+    const payload = await response.json() as { detail?: unknown };
+    if (typeof payload.detail === "string" && payload.detail.trim()) {
+      detail = payload.detail;
+    }
+  } catch {
+    // Keep the status-based fallback when the response is not JSON.
+  }
+  return new Error(detail);
 }

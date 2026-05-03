@@ -40,6 +40,7 @@ def test_mvp_schema_metadata_includes_core_tables() -> None:
         "task_status_updates",
         "quality_inspections",
         "label_templates",
+        "saved_labels",
         "label_print_jobs",
         "audit_logs",
     }
@@ -55,3 +56,14 @@ def test_task_schema_supports_user_assignment_and_comments() -> None:
     assert "author_user_id" in comment_columns
     assert "client_message_id" in comment_columns
     assert "edited_at" in comment_columns
+
+
+def test_label_schema_supports_saved_labels_and_print_snapshots() -> None:
+    saved_label_columns = Base.metadata.tables["saved_labels"].columns
+    print_job_columns = Base.metadata.tables["label_print_jobs"].columns
+
+    assert "label_code" in saved_label_columns
+    assert "default_quantity" in saved_label_columns
+    assert "version" in saved_label_columns
+    assert "saved_label_id" in print_job_columns
+    assert "template_version" in print_job_columns

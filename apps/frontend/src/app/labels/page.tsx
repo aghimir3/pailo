@@ -7,7 +7,12 @@ export default async function LabelsPage() {
 
   return (
     <FactoryShell description="Print-ready label sheets with editable values, exact A4 preview, and browser print output." eyebrow="Label room" title="Label generator">
-      <LabelsWorkflow initialPreview={data.labelPreview} styles={data.catalog.styles} templates={data.catalog.label_templates} />
+      <LabelsWorkflow
+        initialPreview={data.labelPreview}
+        initialSavedLabels={data.savedLabels}
+        styles={data.catalog.styles}
+        templates={data.catalog.label_templates}
+      />
     </FactoryShell>
   );
 }

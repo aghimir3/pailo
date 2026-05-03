@@ -1,5 +1,6 @@
 import {
   getOperationsCatalog,
+  listSavedLabels,
   listMyTasks,
   listQualityInspections,
   listTasks,
@@ -7,6 +8,7 @@ import {
   type LabelPreviewResponse,
   type OperationsCatalogResponse,
   type QualityInspectionRecord,
+  type SavedLabelRecord,
   type TaskRecord,
 } from "@pailo/api-client";
 
@@ -18,6 +20,7 @@ export type OperationsData = {
   myTasks: TaskRecord[];
   qualityInspections: QualityInspectionRecord[];
   labelPreview: LabelPreviewResponse;
+  savedLabels: SavedLabelRecord[];
 };
 
 const fallbackTemplateId = "a0000000-0000-4000-8000-000000000001";
@@ -81,10 +84,11 @@ const fallbackLabelSlots: LabelPreviewResponse["slots"] = Array.from({ length: f
 export async function loadOperationsData(): Promise<OperationsData> {
   try {
     const catalog = await getOperationsCatalog();
-    const [tasks, myTasks, qualityInspections] = await Promise.all([
+    const [tasks, myTasks, qualityInspections, savedLabels] = await Promise.all([
       listTasks(),
       listMyTasks(),
       listQualityInspections(),
+      listSavedLabels(),
     ]);
     const template = catalog.label_templates[0];
     const labelPreview = template
@@ -98,7 +102,7 @@ export async function loadOperationsData(): Promise<OperationsData> {
           origin_text: "Made in Nepal",
         })
       : fallbackData.labelPreview;
-    return { catalog, tasks, myTasks, qualityInspections, labelPreview };
+    return { catalog, tasks, myTasks, qualityInspections, labelPreview, savedLabels };
   } catch {
     return fallbackData;
   }
@@ -205,6 +209,7 @@ const fallbackData: OperationsData = {
   qualityInspections: [
     { id: "90000000-0000-4000-8000-000000000001", inspection_code: "QC-2026-000001", work_order_code: "WO-2026-000002", style_code: "PAI-2026-SCH-001", inspected_by: "Sita", inspected_at: "2026-05-02T10:00:00Z", inspected_quantity: 40, defect_quantity: 7, status: "rework_required", notes: "Glue marks found." },
   ],
+  savedLabels: [],
   labelPreview: {
     template: fallbackLabelTemplate,
     page_count: 1,

@@ -59,9 +59,10 @@ The high-value MVP experience should be simple and hard to misprint:
 	- Optional work order or batch reference when needed.
 4. User enters the number of labels to print.
 5. App shows a sheet preview using the real 24-slot A4 layout.
-6. App fills labels in row-major order: left to right across the top row, then the next row. If the user prints 3 labels, only the first row is filled. If the user prints 25 labels, the app creates a second page and fills the first slot on that page.
-7. User downloads or prints a PDF.
-8. App stores a print-job record with template version, field values, quantity, actor, work order or style, and timestamp.
+6. User can save the current label values as a reusable saved label, then load, duplicate, update, or archive that saved label later.
+7. App fills labels in row-major order: left to right across the top row, then the next row. If the user prints 3 labels, only the first row is filled. If the user prints 25 labels, the app creates a second page and fills the first slot on that page.
+8. User downloads or prints a PDF.
+9. App stores a print-job record with saved-label reference when available, template version, field values, quantity, actor, work order or style, and timestamp.
 
 For work orders with multiple sizes, the app should let the user enter quantities per size and then generate labels in the selected order. The preview should make page breaks and partially filled pages obvious before printing.
 
@@ -189,10 +190,17 @@ Made in {{made_in}}
 3. App loads product and production data.
 4. User enters print quantity.
 5. App previews labels exactly as they will print.
-6. User downloads or prints PDF.
-7. App records print history.
+6. User saves reusable label values when the same art/color/size/MRP combination will be printed again.
+7. User downloads or prints PDF.
+8. App records print history with a snapshot of the exact field values and template version.
 
 For the MVP 24-up A4 label workflow, the default screen should be even more direct: edit one sticker, enter quantity, preview the 24-up sheet, then print PDF.
+
+## Saved Label Storage
+
+Saved labels are reusable value sets for an approved template, not new template versions. They store the current art number, colour, size, MRP, manufacturer, origin text, default quantity, optional style reference, status, owner/update metadata, and optimistic `version`.
+
+Print jobs may reference a saved label, but they must also store a field-value snapshot. Updating or archiving a saved label must not rewrite old print history.
 
 ## Batch Printing Examples
 

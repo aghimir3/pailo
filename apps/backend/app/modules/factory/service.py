@@ -10,11 +10,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models import (
     Employee,
     InventoryStock,
+    LabelPrintJob,
     LabelTemplate,
     Material,
     ProductStyle,
     QualityInspection,
     Role,
+    SavedLabel,
     Supplier,
     Task,
     TaskComment,
@@ -30,7 +32,14 @@ from app.modules.factory.schemas import (
     Kpi,
     LabelPreviewRequest,
     LabelPreviewResponse,
+    LabelPrintJobCreateRequest,
+    LabelPrintJobRecord,
     LabelSlotRecord,
+    SavedLabelCreateRequest,
+    SavedLabelDuplicateRequest,
+    SavedLabelPatchRequest,
+    SavedLabelPreviewRequest,
+    SavedLabelRecord,
     LabelTemplateRecord,
     MaterialStockRecord,
     OperationsCatalogResponse,
@@ -498,6 +507,197 @@ async def list_label_templates(session: AsyncSession) -> list[LabelTemplateRecor
     return [_label_template_record(template) for template in templates]
 
 
+async def list_saved_labels(
+    session: AsyncSession,
+    include_archived: bool = False,
+) -> list[SavedLabelRecord]:
+    query = select(SavedLabel).order_by(
+        SavedLabel.status,
+        SavedLabel.updated_at.desc(),
+        SavedLabel.name,
+    )
+    if not include_archived:
+        query = query.where(SavedLabel.status == "active")
+    saved_labels = list((await session.scalars(query)).all())
+    return await _saved_label_records(session, saved_labels)
+
+
+async def get_saved_label(session: AsyncSession, saved_label_id: UUID) -> SavedLabelRecord:
+    saved_label = await _locked_saved_label(session, saved_label_id, lock=False)
+    return (await _saved_label_records(session, [saved_label]))[0]
+
+
+async def create_saved_label(
+    session: AsyncSession,
+    payload: SavedLabelCreateRequest,
+    actor: UserContext,
+) -> SavedLabelRecord:
+    template = await _label_template(session, payload.template_id)
+    product_style = await _optional_product_style(session, payload.product_style_id)
+    saved_label = SavedLabel(
+        label_code=await _next_saved_label_code(session),
+        name=_saved_label_name(payload.name, payload.art_no, payload.colour, payload.size),
+        template_id=template.id,
+        template_version=template.version,
+        product_style_id=product_style.id if product_style else None,
+        art_no=_clean_required_text(payload.art_no, "Art number"),
+        colour=_clean_required_text(payload.colour, "Colour"),
+        size=_clean_required_text(payload.size, "Size"),
+        mrp_npr=payload.mrp_npr,
+        manufactured_by=_clean_required_text(payload.manufactured_by, "Manufacturer"),
+        origin_text=_clean_required_text(payload.origin_text, "Origin"),
+        default_quantity=payload.default_quantity,
+        notes=_clean_text(payload.notes),
+        created_by_user_id=actor.id,
+        updated_by_user_id=actor.id,
+    )
+    session.add(saved_label)
+    await session.flush()
+    await session.refresh(saved_label)
+    return (await _saved_label_records(session, [saved_label]))[0]
+
+
+async def patch_saved_label(
+    session: AsyncSession,
+    saved_label_id: UUID,
+    payload: SavedLabelPatchRequest,
+    actor: UserContext,
+) -> SavedLabelRecord:
+    saved_label = await _locked_saved_label(session, saved_label_id)
+    _require_version(payload.version, saved_label.version)
+    if saved_label.status == "archived":
+        raise FactoryServiceError(409, "Archived saved labels cannot be edited.")
+
+    fields = payload.model_fields_set
+    if "template_id" in fields and payload.template_id is not None:
+        template = await _label_template(session, payload.template_id)
+        saved_label.template_id = template.id
+        saved_label.template_version = template.version
+    if "product_style_id" in fields:
+        product_style = await _optional_product_style(session, payload.product_style_id)
+        saved_label.product_style_id = product_style.id if product_style else None
+    if "name" in fields:
+        saved_label.name = _saved_label_name(payload.name, saved_label.art_no, saved_label.colour, saved_label.size)
+    if payload.art_no is not None:
+        saved_label.art_no = _clean_required_text(payload.art_no, "Art number")
+    if payload.colour is not None:
+        saved_label.colour = _clean_required_text(payload.colour, "Colour")
+    if payload.size is not None:
+        saved_label.size = _clean_required_text(payload.size, "Size")
+    if payload.mrp_npr is not None:
+        saved_label.mrp_npr = payload.mrp_npr
+    if payload.manufactured_by is not None:
+        saved_label.manufactured_by = _clean_required_text(payload.manufactured_by, "Manufacturer")
+    if payload.origin_text is not None:
+        saved_label.origin_text = _clean_required_text(payload.origin_text, "Origin")
+    if payload.default_quantity is not None:
+        saved_label.default_quantity = payload.default_quantity
+    if "notes" in fields:
+        saved_label.notes = _clean_text(payload.notes)
+
+    saved_label.updated_by_user_id = actor.id
+    saved_label.version += 1
+    await session.flush()
+    await session.refresh(saved_label)
+    return (await _saved_label_records(session, [saved_label]))[0]
+
+
+async def duplicate_saved_label(
+    session: AsyncSession,
+    saved_label_id: UUID,
+    payload: SavedLabelDuplicateRequest,
+    actor: UserContext,
+) -> SavedLabelRecord:
+    source = await _locked_saved_label(session, saved_label_id, lock=False)
+    duplicate = SavedLabel(
+        label_code=await _next_saved_label_code(session),
+        name=_saved_label_name(payload.name, source.art_no, source.colour, source.size),
+        template_id=source.template_id,
+        template_version=source.template_version,
+        product_style_id=source.product_style_id,
+        art_no=source.art_no,
+        colour=source.colour,
+        size=source.size,
+        mrp_npr=source.mrp_npr,
+        manufactured_by=source.manufactured_by,
+        origin_text=source.origin_text,
+        default_quantity=source.default_quantity,
+        notes=source.notes,
+        created_by_user_id=actor.id,
+        updated_by_user_id=actor.id,
+    )
+    session.add(duplicate)
+    await session.flush()
+    await session.refresh(duplicate)
+    return (await _saved_label_records(session, [duplicate]))[0]
+
+
+async def archive_saved_label(
+    session: AsyncSession,
+    saved_label_id: UUID,
+    version: int,
+    actor: UserContext,
+) -> SavedLabelRecord:
+    saved_label = await _locked_saved_label(session, saved_label_id)
+    _require_version(version, saved_label.version)
+    saved_label.status = "archived"
+    saved_label.updated_by_user_id = actor.id
+    saved_label.version += 1
+    await session.flush()
+    await session.refresh(saved_label)
+    return (await _saved_label_records(session, [saved_label]))[0]
+
+
+async def preview_saved_label(
+    session: AsyncSession,
+    saved_label_id: UUID,
+    payload: SavedLabelPreviewRequest,
+) -> LabelPreviewResponse:
+    saved_label = await _locked_saved_label(session, saved_label_id, lock=False)
+    return await preview_label_sheet(
+        session,
+        saved_label.template_id,
+        _preview_request_from_saved_label(saved_label, payload.quantity),
+    )
+
+
+async def create_label_print_job(
+    session: AsyncSession,
+    saved_label_id: UUID,
+    payload: LabelPrintJobCreateRequest,
+    actor: UserContext,
+) -> LabelPrintJobRecord:
+    saved_label = await _locked_saved_label(session, saved_label_id, lock=False)
+    preview_payload = _preview_request_from_saved_label(saved_label, payload.quantity)
+    preview = await preview_label_sheet(session, saved_label.template_id, preview_payload)
+    print_job = LabelPrintJob(
+        print_job_code=await _next_print_job_code(session),
+        saved_label_id=saved_label.id,
+        template_id=saved_label.template_id,
+        template_version=saved_label.template_version,
+        product_style_id=saved_label.product_style_id,
+        requested_quantity=preview_payload.quantity,
+        page_count=preview.page_count,
+        field_values=_label_field_snapshot(preview_payload, saved_label.template_version),
+        printed_by_user_id=actor.id,
+    )
+    session.add(print_job)
+    await session.flush()
+    await session.refresh(print_job)
+    return (await _label_print_job_records(session, [print_job]))[0]
+
+
+async def list_label_print_jobs(
+    session: AsyncSession,
+    saved_label_id: UUID | None = None,
+) -> list[LabelPrintJobRecord]:
+    query = select(LabelPrintJob).order_by(LabelPrintJob.created_at.desc())
+    if saved_label_id is not None:
+        query = query.where(LabelPrintJob.saved_label_id == saved_label_id)
+    print_jobs = list((await session.scalars(query)).all())
+    return await _label_print_job_records(session, print_jobs)
+
+
 async def preview_label_sheet(
     session: AsyncSession,
     template_id: UUID,
@@ -645,9 +845,52 @@ async def _locked_task(session: AsyncSession, task_id: UUID, lock: bool = True) 
     return task
 
 
+async def _locked_saved_label(
+    session: AsyncSession,
+    saved_label_id: UUID,
+    lock: bool = True,
+) -> SavedLabel:
+    query = select(SavedLabel).where(SavedLabel.id == saved_label_id)
+    if lock:
+        query = query.with_for_update()
+    saved_label = (await session.scalars(query)).first()
+    if saved_label is None:
+        raise FactoryServiceError(404, "Saved label was not found.")
+    return saved_label
+
+
+async def _label_template(session: AsyncSession, template_id: UUID) -> LabelTemplate:
+    template = await session.get(LabelTemplate, template_id)
+    if template is None:
+        raise FactoryServiceError(404, "Label template was not found.")
+    return template
+
+
+async def _optional_product_style(
+    session: AsyncSession,
+    product_style_id: UUID | None,
+) -> ProductStyle | None:
+    if product_style_id is None:
+        return None
+    product_style = await session.get(ProductStyle, product_style_id)
+    if product_style is None:
+        raise FactoryServiceError(404, "Product style was not found.")
+    return product_style
+
+
 async def _next_task_code(session: AsyncSession) -> str:
     task_count = await session.scalar(select(func.count()).select_from(Task))
     return f"TASK-2026-{int(task_count or 0) + 1:06d}"
+
+
+async def _next_saved_label_code(session: AsyncSession) -> str:
+    saved_label_count = await session.scalar(select(func.count()).select_from(SavedLabel))
+    return f"SLBL-2026-{int(saved_label_count or 0) + 1:06d}"
+
+
+async def _next_print_job_code(session: AsyncSession) -> str:
+    print_job_count = await session.scalar(select(func.count()).select_from(LabelPrintJob))
+    return f"LBL-2026-{int(print_job_count or 0) + 1:06d}"
 
 
 async def _roles_by_id(session: AsyncSession) -> dict[UUID, str]:
@@ -870,6 +1113,76 @@ def _label_template_record(template: LabelTemplate) -> LabelTemplateRecord:
     )
 
 
+async def _saved_label_records(
+    session: AsyncSession,
+    saved_labels: list[SavedLabel],
+) -> list[SavedLabelRecord]:
+    roles = await _roles_by_id(session)
+    users = await _users_by_id(session)
+    return [
+        SavedLabelRecord(
+            id=saved_label.id,
+            label_code=saved_label.label_code,
+            name=saved_label.name,
+            template_id=saved_label.template_id,
+            template_version=saved_label.template_version,
+            product_style_id=saved_label.product_style_id,
+            art_no=saved_label.art_no,
+            colour=saved_label.colour,
+            size=saved_label.size,
+            mrp_npr=saved_label.mrp_npr,
+            manufactured_by=saved_label.manufactured_by,
+            origin_text=saved_label.origin_text,
+            default_quantity=saved_label.default_quantity,
+            notes=saved_label.notes,
+            status=saved_label.status,
+            created_by=_optional_user_ref(saved_label.created_by_user_id, users, roles),
+            updated_by=_optional_user_ref(saved_label.updated_by_user_id, users, roles),
+            created_at=saved_label.created_at,
+            updated_at=saved_label.updated_at,
+            version=saved_label.version,
+        )
+        for saved_label in saved_labels
+    ]
+
+
+async def _label_print_job_records(
+    session: AsyncSession,
+    print_jobs: list[LabelPrintJob],
+) -> list[LabelPrintJobRecord]:
+    roles = await _roles_by_id(session)
+    users = await _users_by_id(session)
+    return [
+        LabelPrintJobRecord(
+            id=print_job.id,
+            print_job_code=print_job.print_job_code,
+            saved_label_id=print_job.saved_label_id,
+            template_id=print_job.template_id,
+            template_version=print_job.template_version,
+            product_style_id=print_job.product_style_id,
+            requested_quantity=print_job.requested_quantity,
+            page_count=print_job.page_count,
+            field_values=LabelPreviewRequest.model_validate(print_job.field_values),
+            printed_by=_optional_user_ref(print_job.printed_by_user_id, users, roles),
+            created_at=print_job.created_at,
+        )
+        for print_job in print_jobs
+    ]
+
+
+def _optional_user_ref(
+    user_id: UUID | None,
+    users: dict[UUID, User],
+    roles: dict[UUID, str],
+) -> UserRef | None:
+    if user_id is None:
+        return None
+    user = users.get(user_id)
+    if user is None:
+        return None
+    return _user_ref(user, roles)
+
+
 def _work_order_summary(order: WorkOrderRecord) -> WorkOrderSummary:
     colors = sorted({line.color for line in order.size_lines})
     return WorkOrderSummary(
@@ -988,6 +1301,51 @@ def _validate_priority(priority: str) -> str:
     if clean_priority not in VALID_PRIORITIES:
         raise FactoryServiceError(422, "Unsupported task priority.")
     return clean_priority
+
+
+def _preview_request_from_saved_label(
+    saved_label: SavedLabel,
+    quantity: int | None = None,
+) -> LabelPreviewRequest:
+    return LabelPreviewRequest(
+        quantity=quantity or saved_label.default_quantity,
+        art_no=saved_label.art_no,
+        colour=saved_label.colour,
+        size=saved_label.size,
+        mrp_npr=saved_label.mrp_npr,
+        manufactured_by=saved_label.manufactured_by,
+        origin_text=saved_label.origin_text,
+    )
+
+
+def _label_field_snapshot(
+    payload: LabelPreviewRequest,
+    template_version: int,
+) -> dict[str, object]:
+    return {
+        "quantity": payload.quantity,
+        "art_no": payload.art_no,
+        "colour": payload.colour,
+        "size": payload.size,
+        "mrp_npr": str(payload.mrp_npr),
+        "manufactured_by": payload.manufactured_by,
+        "origin_text": payload.origin_text,
+        "template_version": template_version,
+    }
+
+
+def _saved_label_name(name: str | None, art_no: str, colour: str, size: str) -> str:
+    cleaned_name = _clean_text(name)
+    if cleaned_name:
+        return cleaned_name
+    return f"{art_no.strip()} - {colour.strip()} - {size.strip()}"
+
+
+def _clean_required_text(value: str, field_label: str) -> str:
+    cleaned = value.strip()
+    if not cleaned:
+        raise FactoryServiceError(422, f"{field_label} is required.")
+    return cleaned
 
 
 def _clean_text(value: str | None) -> str | None:
