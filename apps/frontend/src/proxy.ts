@@ -14,9 +14,14 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("https://app.pailoshoes.com"));
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+
+  // Revalidate HTML on every navigation — fast 304 if unchanged, fresh content after deploy
+  response.headers.set("Cache-Control", "private, no-cache");
+
+  return response;
 }
 
 export const config = {
-  matcher: ["/", "/portal"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|landing/).*)"],
 };
