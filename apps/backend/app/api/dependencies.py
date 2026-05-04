@@ -2,6 +2,7 @@ from typing import Annotated
 from uuid import UUID
 
 import jwt
+import structlog
 from fastapi import Depends, Header, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,6 +11,7 @@ from app.core.config import get_settings
 from app.db.session import get_db_session
 from app.modules.factory.service import UserContext, resolve_current_user
 
+logger = structlog.get_logger()
 
 DbSession = Annotated[AsyncSession, Depends(get_db_session)]
 
@@ -40,13 +42,18 @@ async def get_current_user(
         try:
             claims = verify_cognito_token(token)
         except jwt.exceptions.PyJWTError as e:
+            logger.warning("jwt_verification_failed", error=str(e), pool_id=settings.cognito_user_pool_id)
             raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
 
-        return await resolve_current_user(
-            session,
-            cognito_sub=claims.sub,
-            user_email=claims.email,
-        )
+        try:
+            return await resolve_current_user(
+                session,
+                cognito_sub=claims.sub,
+                user_email=claims.email,
+            )
+        except Exception as e:
+            logger.warning("resolve_user_failed", error=str(e), sub=claims.sub, email=claims.email)
+            raise HTTPException(status_code=401, detail=str(e))
 
     # Dev mode: use header-based auth (for local development only)
     return await resolve_current_user(session, x_pailo_user_id, x_pailo_user_email)

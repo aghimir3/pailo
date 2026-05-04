@@ -29,8 +29,8 @@ function CallbackHandler() {
         const tokens = await exchangeCodeForTokens(code);
         storeTokens(tokens);
 
-        // Fetch and store the user session
-        const session = await fetchSession(tokens.access_token);
+        // Fetch and store the user session (use id_token which has email claim)
+        const session = await fetchSession(tokens.id_token);
         storeSession(session);
 
         router.replace("/dashboard");

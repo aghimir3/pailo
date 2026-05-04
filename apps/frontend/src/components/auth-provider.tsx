@@ -6,6 +6,7 @@ import {
   clearAuth,
   fetchSession,
   getAccessToken,
+  getIdToken,
   getLoginUrl,
   getLogoutUrl,
   getStoredSession,
@@ -50,9 +51,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
 
-    // Validate with backend
+    // Validate with backend (use ID token which has email claim)
     try {
-      const token = await getAccessToken();
+      const token = await getIdToken();
       if (!token) {
         setUser(null);
         setIsLoading(false);
@@ -85,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshSession = useCallback(async () => {
-    const token = await getAccessToken();
+    const token = await getIdToken();
     if (!token) {
       setUser(null);
       return;

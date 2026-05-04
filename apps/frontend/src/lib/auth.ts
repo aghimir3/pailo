@@ -174,12 +174,46 @@ export async function getAccessToken(): Promise<string | null> {
 }
 
 /**
- * Fetch the user session from the backend.
+ * Get the ID token (contains email claim, used for session validation).
+ * Refreshes if expired.
  */
-export async function fetchSession(accessToken: string): Promise<UserSession> {
+export async function getIdToken(): Promise<string | null> {
+  const tokens = getStoredTokens();
+  if (!tokens) return null;
+
+  // If token is still valid (with 60s buffer)
+  if (tokens.expires_at > Date.now() + 60000) {
+    return tokens.id_token;
+  }
+
+  // Try to refresh
+  if (tokens.refresh_token) {
+    try {
+      const newTokens = await refreshAccessToken(tokens.refresh_token);
+      if (!newTokens.refresh_token) {
+        newTokens.refresh_token = tokens.refresh_token;
+      }
+      storeTokens(newTokens);
+      return newTokens.id_token;
+    } catch {
+      clearAuth();
+      return null;
+    }
+  }
+
+  clearAuth();
+  return null;
+}
+
+/**
+ * Fetch the user session from the backend.
+ * Uses the ID token (which contains email claim) rather than access token,
+ * so the backend can auto-bootstrap users on first login.
+ */
+export async function fetchSession(token: string): Promise<UserSession> {
   const response = await fetch(`${API_BASE_URL}/api/v1/auth/session`, {
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${token}`,
       Accept: "application/json",
     },
   });
