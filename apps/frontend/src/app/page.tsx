@@ -167,12 +167,10 @@ export default async function LandingPage() {
             <Phone aria-hidden="true" size={14} />
             <span>{cfg.contact_phone}</span>
           </a>
-          <Button asChild variant="glass" className="lp-nav-cta">
-            <PartnerCTA>
-              Partner with us
-              <ArrowUpRight aria-hidden="true" size={15} />
-            </PartnerCTA>
-          </Button>
+          <PartnerCTA>
+            Partner with us
+            <ArrowUpRight aria-hidden="true" size={15} />
+          </PartnerCTA>
         </div>
       </header>
 
