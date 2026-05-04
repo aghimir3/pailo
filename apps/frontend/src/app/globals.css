@@ -3258,22 +3258,23 @@ button {
   }
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   LANDING PAGE â€” .lp-*
-   Buyer-focused Â· exciting Â· concise
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+
+/* ═══════════════════════════════════════════════════════════════
+   LANDING PAGE — .lp-*
+   Buyer-focused · exciting · concise
+   ═══════════════════════════════════════════════════════════════ */
 
 .lp {
   --lp-bg: #060e0b;
   --lp-ink: #f4faf7;
-  --lp-muted: rgba(244, 250, 247, 0.6);
+  --lp-muted: rgba(244, 250, 247, 0.65);
   --lp-subtle: rgba(244, 250, 247, 0.4);
   --lp-accent: #2ed0b7;
   --lp-accent-2: #e4a936;
   --lp-border: rgba(244, 250, 247, 0.08);
   --lp-glass: rgba(244, 250, 247, 0.04);
-  --lp-radius: 14px;
-  --lp-max: 1100px;
+  --lp-radius: 16px;
+  --lp-max: 1200px;
 
   min-height: 100svh;
   overflow-x: hidden;
@@ -3299,6 +3300,7 @@ button {
   background: rgba(244, 250, 247, 0.06);
   border-color: rgba(244, 250, 247, 0.14);
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .lp .ui-button:focus-visible {
@@ -3310,10 +3312,10 @@ button {
   width: 100%;
   max-width: var(--lp-max);
   margin: 0 auto;
-  padding: 0 clamp(20px, 5vw, 48px);
+  padding: 0 clamp(20px, 5vw, 56px);
 }
 
-/* â”€â”€â”€ Nav â”€â”€â”€ */
+/* ——— Nav ——— */
 .lp-nav {
   position: fixed;
   top: 0;
@@ -3324,9 +3326,10 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 12px clamp(20px, 5vw, 48px);
-  background: rgba(6, 14, 11, 0.7);
+  padding: 14px clamp(20px, 5vw, 56px);
+  background: rgba(6, 14, 11, 0.82);
   backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-bottom: 1px solid var(--lp-border);
 }
 
@@ -3401,14 +3404,16 @@ button {
 
 .lp-nav-cta { font-size: 0.78rem !important; min-height: 32px !important; }
 
-/* â”€â”€â”€ Hero â”€â”€â”€ */
+/* ——— Hero ——— */
 .lp-hero {
   position: relative;
   isolation: isolate;
   display: flex;
   align-items: center;
+  justify-content: center;
   min-height: 100svh;
-  padding-top: 58px;
+  padding-top: 64px;
+  padding-bottom: 48px;
 }
 
 .lp-hero-bg {
@@ -3419,17 +3424,17 @@ button {
 
 .lp-hero-img {
   object-fit: cover;
-  object-position: 60% center;
-  filter: saturate(1.15) brightness(0.8);
+  object-position: center 60%;
+  filter: saturate(1.05) brightness(0.45);
+  opacity: 0.5;
 }
 
 .lp-hero-overlay {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 70% 60% at 25% 60%, rgba(6,14,11,0.95), transparent 70%),
-    linear-gradient(180deg, rgba(6,14,11,0.35) 0%, rgba(6,14,11,0.15) 30%, rgba(6,14,11,0.7) 70%, rgba(6,14,11,0.97) 100%),
-    linear-gradient(90deg, rgba(6,14,11,0.9) 0%, rgba(6,14,11,0.3) 50%, transparent 100%);
+    radial-gradient(ellipse 80% 70% at 50% 50%, rgba(6,14,11,0.6), rgba(6,14,11,0.97) 75%),
+    linear-gradient(180deg, rgba(6,14,11,0.5) 0%, rgba(6,14,11,0.2) 35%, rgba(6,14,11,0.75) 75%, var(--lp-bg) 100%);
 }
 
 .lp-hero-inner {
@@ -3438,14 +3443,18 @@ button {
   width: 100%;
   max-width: var(--lp-max);
   margin: 0 auto;
-  padding: 0 clamp(20px, 5vw, 48px);
+  padding: 0 clamp(20px, 5vw, 56px);
+  display: flex;
+  justify-content: center;
 }
 
 .lp-hero-content {
   display: flex;
   flex-direction: column;
-  gap: 22px;
-  max-width: 620px;
+  align-items: center;
+  text-align: center;
+  gap: 24px;
+  max-width: 740px;
   animation: lp-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -3454,7 +3463,7 @@ button {
   align-items: center;
   gap: 7px;
   width: fit-content;
-  padding: 5px 12px;
+  padding: 6px 14px;
   background: rgba(46, 208, 183, 0.1);
   border: 1px solid rgba(46, 208, 183, 0.2);
   border-radius: 999px;
@@ -3462,15 +3471,16 @@ button {
   font-size: 0.72rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
 .lp-hero-title {
   margin: 0;
-  font-size: clamp(2.6rem, 6.5vw, 4.5rem);
-  font-weight: 850;
-  line-height: 1.08;
-  letter-spacing: -0.035em;
+  font-size: clamp(2.8rem, 7vw, 5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
 }
 
 .lp-hero-title em {
@@ -3482,27 +3492,28 @@ button {
 }
 
 .lp-hero-sub {
-  max-width: 480px;
+  max-width: 540px;
   margin: 0;
   color: var(--lp-muted);
-  font-size: clamp(0.95rem, 1.8vw, 1.1rem);
-  font-weight: 480;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  font-weight: 460;
   line-height: 1.7;
 }
 
 .lp-hero-actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
-  padding-top: 4px;
+  padding-top: 8px;
 }
 
 .lp-cta-primary { min-width: 170px; }
 
-/* â”€â”€â”€ Shared section styles â”€â”€â”€ */
+/* ——— Shared section styles ——— */
 .lp-section-header {
-  max-width: 560px;
-  margin-bottom: clamp(32px, 5vw, 52px);
+  max-width: 600px;
+  margin-bottom: clamp(36px, 5vw, 56px);
 }
 
 .lp-section-header.lp-center {
@@ -3515,12 +3526,12 @@ button {
   display: inline-flex;
   align-items: center;
   margin-bottom: 14px;
-  padding: 4px 12px;
+  padding: 5px 14px;
   background: rgba(46, 208, 183, 0.08);
   border: 1px solid rgba(46, 208, 183, 0.16);
   border-radius: 999px;
   color: var(--lp-accent);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -3529,9 +3540,9 @@ button {
 .lp-section-header h2,
 .lp-proof-content h2 {
   margin: 0 0 12px;
-  font-size: clamp(1.8rem, 4vw, 2.7rem);
-  font-weight: 850;
-  line-height: 1.12;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  line-height: 1.1;
   letter-spacing: -0.03em;
   text-wrap: balance;
 }
@@ -3544,39 +3555,40 @@ button {
   line-height: 1.65;
 }
 
-/* â”€â”€â”€ Why Pailo â”€â”€â”€ */
+/* ——— Why Pailo ——— */
 .lp-why {
-  padding: clamp(72px, 10vw, 120px) 0;
+  padding: clamp(80px, 12vw, 140px) 0;
   border-top: 1px solid var(--lp-border);
 }
 
 .lp-value-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 20px;
 }
 
 .lp-value-card {
   display: grid;
-  gap: 12px;
+  gap: 14px;
   align-content: start;
-  padding: 26px 22px;
+  padding: 32px 26px;
   background: var(--lp-glass);
   border: 1px solid var(--lp-border);
   border-radius: var(--lp-radius);
   text-align: center;
-  transition: border-color 200ms, transform 200ms;
+  transition: border-color 250ms, transform 250ms, box-shadow 250ms;
 }
 
 .lp-value-card:hover {
-  border-color: rgba(46, 208, 183, 0.2);
-  transform: translateY(-2px);
+  border-color: rgba(46, 208, 183, 0.22);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(46, 208, 183, 0.06);
 }
 
 .lp-value-icon {
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   place-items: center;
   margin: 0 auto;
   border-radius: 50%;
@@ -3587,52 +3599,53 @@ button {
 
 .lp-value-card h3 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 800;
 }
 
 .lp-value-card p {
   margin: 0;
   color: var(--lp-muted);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 480;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
-/* â”€â”€â”€ Buyers â”€â”€â”€ */
+/* ——— Buyers ——— */
 .lp-buyers {
-  padding: clamp(72px, 10vw, 120px) 0;
+  padding: clamp(80px, 12vw, 140px) 0;
   border-top: 1px solid var(--lp-border);
 }
 
 .lp-buyer-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 20px;
 }
 
 .lp-buyer-card {
   display: grid;
-  gap: 12px;
+  gap: 14px;
   align-content: start;
-  padding: 26px 22px;
+  padding: 32px 26px;
   background: var(--lp-glass);
   border: 1px solid var(--lp-border);
   border-radius: var(--lp-radius);
-  transition: border-color 200ms, transform 200ms;
+  transition: border-color 250ms, transform 250ms, box-shadow 250ms;
 }
 
 .lp-buyer-card:hover {
-  border-color: rgba(46, 208, 183, 0.2);
-  transform: translateY(-2px);
+  border-color: rgba(46, 208, 183, 0.22);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(46, 208, 183, 0.06);
 }
 
 .lp-buyer-icon {
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   place-items: center;
-  border-radius: 10px;
+  border-radius: 12px;
   background: rgba(46, 208, 183, 0.08);
   border: 1px solid rgba(46, 208, 183, 0.16);
   color: var(--lp-accent);
@@ -3640,23 +3653,23 @@ button {
 
 .lp-buyer-card h3 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 800;
 }
 
 .lp-buyer-card p {
   margin: 0;
   color: var(--lp-muted);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 480;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .lp-buyer-highlight {
   display: inline-flex;
   align-items: center;
   margin-top: 4px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   width: fit-content;
   border-radius: 999px;
   background: rgba(228, 169, 54, 0.1);
@@ -3667,31 +3680,31 @@ button {
   letter-spacing: 0.01em;
 }
 
-/* â”€â”€â”€ Proof â”€â”€â”€ */
+/* ——— Proof ——— */
 .lp-proof {
-  padding: clamp(72px, 10vw, 120px) 0;
+  padding: clamp(80px, 12vw, 140px) 0;
   border-top: 1px solid var(--lp-border);
 }
 
 .lp-proof-inner {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr 320px;
   align-items: center;
-  gap: clamp(36px, 5vw, 72px);
+  gap: clamp(40px, 6vw, 80px);
 }
 
-.lp-proof-content { max-width: 520px; }
+.lp-proof-content { max-width: 560px; }
 
 .lp-proof-list {
   display: grid;
-  gap: 14px;
-  margin-top: 24px;
+  gap: 16px;
+  margin-top: 28px;
 }
 
 .lp-proof-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .lp-proof-item svg {
@@ -3701,20 +3714,20 @@ button {
 
 .lp-proof-item span {
   color: var(--lp-muted);
-  font-size: 0.92rem;
+  font-size: 0.94rem;
   font-weight: 520;
   line-height: 1.5;
 }
 
-.lp-proof-cta { margin-top: 32px; }
+.lp-proof-cta { margin-top: 36px; }
 
 .lp-proof-visual { display: flex; justify-content: flex-end; }
 
 .lp-dispatch-card {
   display: grid;
-  gap: 12px;
-  width: min(290px, 100%);
-  padding: 24px 22px;
+  gap: 14px;
+  width: 100%;
+  padding: 28px 24px;
   background: linear-gradient(150deg, rgba(46, 208, 183, 0.07), rgba(228, 169, 54, 0.04));
   border: 1px solid rgba(46, 208, 183, 0.16);
   border-radius: var(--lp-radius);
@@ -3724,21 +3737,21 @@ button {
 .lp-dispatch-card svg { color: var(--lp-accent); }
 
 .lp-dispatch-card strong {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 800;
 }
 
 .lp-dispatch-card span {
   color: var(--lp-muted);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   font-weight: 480;
   line-height: 1.6;
 }
 
-/* â”€â”€â”€ Footer â”€â”€â”€ */
+/* ——— Footer ——— */
 .lp-footer {
   border-top: 1px solid var(--lp-border);
-  padding: 24px 0 32px;
+  padding: 28px 0 36px;
 }
 
 .lp-footer-inner {
@@ -3817,22 +3830,53 @@ button {
   background: rgba(244, 250, 247, 0.04);
 }
 
-/* â”€â”€â”€ Animation â”€â”€â”€ */
+/* ——— Animation ——— */
 @keyframes lp-fade-up {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* â”€â”€â”€ Responsive â”€â”€â”€ */
+/* ——— Responsive ——— */
+@media (max-width: 900px) {
+  .lp-proof-inner { grid-template-columns: 1fr; }
+  .lp-proof-visual { justify-content: flex-start; }
+  .lp-dispatch-card { max-width: 320px; }
+}
+
 @media (max-width: 768px) {
   .lp-nav-links { display: none; }
   .lp-nav-cta { display: none; }
 
-  .lp-value-grid,
-  .lp-buyer-grid { grid-template-columns: 1fr; }
+  .lp-hero { min-height: 90svh; padding-top: 72px; }
 
-  .lp-proof-inner { grid-template-columns: 1fr; }
-  .lp-proof-visual { justify-content: flex-start; }
+  .lp-hero-content { max-width: 100%; gap: 20px; }
+
+  .lp-hero-title { font-size: clamp(2.2rem, 10vw, 3.2rem); }
+
+  .lp-hero-sub { font-size: 0.95rem; }
+
+  .lp-hero-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .lp-hero-actions .ui-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .lp-value-grid,
+  .lp-buyer-grid { grid-template-columns: 1fr; gap: 12px; }
+
+  .lp-value-card,
+  .lp-buyer-card { padding: 24px 20px; }
+
+  .lp-section-header h2,
+  .lp-proof-content h2 {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+  }
 
   .lp-footer-inner {
     flex-direction: column;
@@ -3842,20 +3886,16 @@ button {
 }
 
 @media (max-width: 480px) {
-  .lp-hero-title { font-size: clamp(2.1rem, 9vw, 3rem); }
+  .lp-hero { min-height: 85svh; padding-top: 68px; padding-bottom: 32px; }
   .lp-hero-content { gap: 18px; }
+  .lp-hero-title { font-size: clamp(2rem, 9.5vw, 2.8rem); }
+  .lp-hero-badge { font-size: 0.66rem; padding: 5px 11px; }
 
-  .lp-hero-actions {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
+  .lp-why,
+  .lp-buyers,
+  .lp-proof { padding: clamp(56px, 10vw, 80px) 0; }
 
-  .lp-section-header h2,
-  .lp-proof-content h2 {
-    font-size: clamp(1.5rem, 6vw, 2rem);
-  }
-
-  .lp-dispatch-card { width: 100%; }
+  .lp-dispatch-card { width: 100%; max-width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3868,9 +3908,8 @@ button {
   }
 }
 
-/* ─── Partner Form Dialog ─── */
+/* ——— Partner Form Dialog ——— */
 .partner-cta-trigger {
-  all: unset;
   display: inline-flex;
   align-items: center;
   gap: inherit;
@@ -3879,6 +3918,28 @@ button {
   color: inherit;
   width: 100%;
   justify-content: center;
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+.lp-proof-cta .partner-cta-trigger {
+  gap: 8px;
+  width: auto;
+  min-width: 170px;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #060e0b;
+  background: linear-gradient(135deg, #eef9f4 0%, #2ed0b7 60%, #e4a936 100%);
+  box-shadow: 0 14px 36px rgba(46, 208, 183, 0.22);
+  border-radius: 8px;
+  transition: box-shadow 200ms, transform 150ms;
+}
+
+.lp-proof-cta .partner-cta-trigger:hover {
+  box-shadow: 0 18px 44px rgba(46, 208, 183, 0.32);
+  transform: translateY(-1px);
 }
 
 .partner-dialog-backdrop {
@@ -3890,6 +3951,7 @@ button {
   padding: 16px;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   animation: partner-fade-in 200ms ease-out;
 }
 
@@ -4139,6 +4201,8 @@ button {
     font-size: 1.2rem;
   }
 }
+
+
 
 /* ═══════════════════════════════════════════════════════════════
    CATALOG PAGE — .catalog-*

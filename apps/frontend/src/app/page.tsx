@@ -294,12 +294,10 @@ export default async function LandingPage() {
                 })}
               </div>
               <div className="lp-proof-cta">
-                <Button asChild className="lp-cta-primary">
-                  <PartnerCTA>
-                    {cfg.proof_cta}
-                    <ArrowRight aria-hidden="true" size={17} />
-                  </PartnerCTA>
-                </Button>
+                <PartnerCTA>
+                  {cfg.proof_cta}
+                  <ArrowRight aria-hidden="true" size={17} />
+                </PartnerCTA>
               </div>
             </div>
             <div className="lp-proof-visual" aria-hidden="true">
