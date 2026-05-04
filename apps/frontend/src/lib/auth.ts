@@ -7,7 +7,7 @@ const COGNITO_DOMAIN = process.env.NEXT_PUBLIC_COGNITO_DOMAIN || "";
 const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || "";
 const REDIRECT_URI = process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI || "http://localhost:3000/auth/callback";
 const LOGOUT_URI = process.env.NEXT_PUBLIC_COGNITO_LOGOUT_URI || "http://localhost:3000/auth/logout";
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
+const API_BASE_URL = "";
 
 export interface AuthTokens {
   access_token: string;

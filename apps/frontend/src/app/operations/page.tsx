@@ -79,12 +79,14 @@ export default async function OperationsPage() {
             <AlertTriangle aria-hidden="true" className="panel-icon" size={22} />
           </PanelHeader>
           <div className="ops-list">
-            {urgentTasks.map((task) => (
+            {urgentTasks.length > 0 ? urgentTasks.map((task) => (
               <Link className="ops-list-row" href="/tasks" key={task.id}>
                 <span><strong>{task.title}</strong><small>{task.work_order_code ?? "General"} / {task.assignee?.display_name ?? "Unassigned"}</small></span>
                 <Badge tone={task.status === "blocked" ? "red" : "amber"}>{task.status.replaceAll("_", " ")}</Badge>
               </Link>
-            ))}
+            )) : (
+              <p className="empty-state-description" style={{ padding: "20px", textAlign: "center" }}>No blocked or urgent tasks right now.</p>
+            )}
           </div>
         </GlassCard>
 
@@ -97,18 +99,20 @@ export default async function OperationsPage() {
             <Boxes aria-hidden="true" className="panel-icon" size={22} />
           </PanelHeader>
           <div className="ops-list">
-            {lowStock.map((material) => (
+            {lowStock.length > 0 ? lowStock.map((material) => (
               <Link className="ops-list-row" href="/inventory" key={material.id}>
                 <span><strong>{material.name}</strong><small>{material.current_quantity} {material.unit_of_measure} / min {material.minimum_stock}</small></span>
                 <Badge tone={riskTone(material.risk)}>{material.supplier ?? "No supplier"}</Badge>
               </Link>
-            ))}
+            )) : (
+              <p className="empty-state-description" style={{ padding: "20px", textAlign: "center" }}>No materials at risk. Stock levels are healthy.</p>
+            )}
           </div>
         </GlassCard>
       </section>
 
       <section className="ops-card-grid">
-        {data.catalog.work_orders.map((order) => (
+        {data.catalog.work_orders.length > 0 ? data.catalog.work_orders.map((order) => (
           <GlassCard className="ops-panel" key={order.id}>
             <div className="ops-row-head">
               <strong>{order.work_order_code}</strong>
@@ -120,7 +124,11 @@ export default async function OperationsPage() {
               <span style={{ width: `${percent(order.completed_pairs, order.planned_pairs)}%` }} />
             </div>
           </GlassCard>
-        ))}
+        )) : (
+          <GlassCard className="ops-panel">
+            <p className="empty-state-description" style={{ padding: "20px", textAlign: "center" }}>No work orders created yet. Start by adding product styles and creating a batch.</p>
+          </GlassCard>
+        )}
       </section>
     </FactoryShell>
   );

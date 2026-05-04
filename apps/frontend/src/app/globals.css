@@ -4133,3 +4133,34 @@ button {
   }
 }
 
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+  min-height: 120px;
+  gap: 8px;
+}
+.empty-state-icon {
+  color: var(--muted);
+  opacity: 0.6;
+  margin-bottom: 4px;
+}
+.empty-state-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.empty-state-description {
+  font-size: 0.82rem;
+  color: var(--muted);
+  max-width: 320px;
+  line-height: 1.4;
+}
+.empty-state-action {
+  margin-top: 12px;
+}
+

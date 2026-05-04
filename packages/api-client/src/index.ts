@@ -28,7 +28,10 @@ export type TaskStatusUpdateRequest = components["schemas"]["TaskStatusUpdateReq
 export type ThroughputPoint = components["schemas"]["ThroughputPoint"];
 export type WorkOrderRecord = components["schemas"]["WorkOrderRecord"];
 
-const DEFAULT_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+// Server-side: use internal URL (sidecar in same ECS task). Client-side: use relative URL (ALB routes /api/* to backend).
+const DEFAULT_BASE_URL = typeof window === "undefined"
+  ? (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000")
+  : "";
 const DEFAULT_TASK_MANAGER_EMAIL = process.env.NEXT_PUBLIC_PAILO_TASK_MANAGER_EMAIL ?? "milan@pailoshoes.com";
 const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN ?? "";
 

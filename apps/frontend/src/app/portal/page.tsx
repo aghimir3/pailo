@@ -18,6 +18,7 @@ import { FactoryShell } from "@/components/factory/factory-shell";
 import { ThroughputChart } from "@/components/throughput-chart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { GlassCard, PanelHeader } from "@/components/ui/glass-card";
 import { dashboardFallback } from "@/lib/sample-data";
 
@@ -84,14 +85,16 @@ export default async function Home() {
         </section>
 
         <section className="kpi-grid" aria-label="Factory metrics">
-          {dashboard.kpis.map((kpi) => (
+          {dashboard.kpis.length > 0 ? dashboard.kpis.map((kpi) => (
             <GlassCard className={`kpi-card tone-${kpi.tone}`} key={kpi.label}>
               <span>{kpi.label}</span>
               <strong>{kpi.value}</strong>
               <p>{kpi.detail}</p>
               <small>{kpi.trend}</small>
             </GlassCard>
-          ))}
+          )) : (
+            <GlassCard className="kpi-card"><EmptyState title="No metrics yet" description="Production data will appear here once work orders are running." /></GlassCard>
+          )}
         </section>
 
         <section className="dashboard-grid">
@@ -115,13 +118,15 @@ export default async function Home() {
               <AlertTriangle aria-hidden="true" className="panel-icon warning" size={20} />
             </PanelHeader>
             <div className="insight-list">
-              {dashboard.owner_insights.map((insight) => (
+              {dashboard.owner_insights.length > 0 ? dashboard.owner_insights.map((insight) => (
                 <div className={`insight tone-${insight.tone}`} key={insight.title}>
                   <strong>{insight.title}</strong>
                   <p>{insight.detail}</p>
                   <span>{insight.action}</span>
                 </div>
-              ))}
+              )) : (
+                <EmptyState title="No decisions pending" description="Insights will surface here when production is active." />
+              )}
             </div>
           </GlassCard>
 
@@ -134,7 +139,7 @@ export default async function Home() {
               <PackageCheck aria-hidden="true" className="panel-icon" size={20} />
             </PanelHeader>
             <div className="work-order-list">
-              {dashboard.work_orders.map((order) => {
+              {dashboard.work_orders.length > 0 ? dashboard.work_orders.map((order) => {
                 const progress = Math.round((order.completed_pairs / order.planned_pairs) * 100);
                 return (
                   <section className="work-order-card" key={order.code}>
@@ -153,7 +158,9 @@ export default async function Home() {
                     </div>
                   </section>
                 );
-              })}
+              }) : (
+                <EmptyState icon={<PackageCheck size={28} />} title="No active work orders" description="Create a work order to start tracking production batches." />
+              )}
             </div>
           </GlassCard>
 
@@ -166,7 +173,7 @@ export default async function Home() {
               <ClipboardList aria-hidden="true" className="panel-icon" size={20} />
             </PanelHeader>
             <div className="task-list">
-              {dashboard.my_tasks.map((task) => (
+              {dashboard.my_tasks.length > 0 ? dashboard.my_tasks.map((task) => (
                 <section className={task.blocker_reason ? "task-card task-card-alert" : "task-card"} key={task.code}>
                   <div className="task-main">
                     <div className="task-card-head">
@@ -192,7 +199,9 @@ export default async function Home() {
                     </Button>
                   </div>
                 </section>
-              ))}
+              )) : (
+                <EmptyState icon={<ClipboardList size={28} />} title="No tasks assigned" description="Tasks will appear here once you are assigned work." />
+              )}
             </div>
           </GlassCard>
 
@@ -205,7 +214,7 @@ export default async function Home() {
               <Boxes aria-hidden="true" className="panel-icon" size={20} />
             </PanelHeader>
             <div className="inventory-list">
-              {dashboard.inventory_alerts.map((item) => (
+              {dashboard.inventory_alerts.length > 0 ? dashboard.inventory_alerts.map((item) => (
                 <div className="inventory-row" key={item.code}>
                   <div>
                     <strong>{item.material}</strong>
@@ -217,7 +226,9 @@ export default async function Home() {
                   </div>
                   <p>{item.risk}</p>
                 </div>
-              ))}
+              )) : (
+                <EmptyState icon={<Boxes size={28} />} title="No stock alerts" description="Inventory warnings will surface here when materials run low." />
+              )}
             </div>
           </GlassCard>
 
@@ -230,13 +241,15 @@ export default async function Home() {
               <CheckCircle2 aria-hidden="true" className="panel-icon" size={20} />
             </PanelHeader>
             <div className="quality-grid">
-              {dashboard.quality_signals.map((signal) => (
+              {dashboard.quality_signals.length > 0 ? dashboard.quality_signals.map((signal) => (
                 <div className={`quality-card tone-${signal.tone}`} key={signal.label}>
                   <span>{signal.label}</span>
                   <strong>{signal.value}</strong>
                   <p>{signal.detail}</p>
                 </div>
-              ))}
+              )) : (
+                <EmptyState icon={<CheckCircle2 size={28} />} title="No quality data" description="QC signals will appear once inspections are recorded." />
+              )}
             </div>
           </GlassCard>
         </section>

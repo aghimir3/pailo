@@ -2,6 +2,7 @@ import { ShieldCheck } from "lucide-react";
 
 import { FactoryShell } from "@/components/factory/factory-shell";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { GlassCard, PanelHeader } from "@/components/ui/glass-card";
 import { loadOperationsData, shortDate } from "@/lib/operations-data";
 
@@ -12,6 +13,7 @@ export default async function QualityPage() {
     <FactoryShell description="Inspection outcomes stay visible before goods move to labels, dispatch, or finished stock." eyebrow="Quality gate" title="QC and rework">
       <GlassCard className="ops-panel">
         <PanelHeader><div><p className="eyebrow">Inspections</p><h2>Recent quality checks</h2></div><ShieldCheck aria-hidden="true" className="panel-icon" size={22} /></PanelHeader>
+        {data.qualityInspections.length > 0 ? (
         <div className="ops-card-grid">
           {data.qualityInspections.map((inspection) => (
             <section className="ops-order-card" key={inspection.id}>
@@ -22,6 +24,9 @@ export default async function QualityPage() {
             </section>
           ))}
         </div>
+        ) : (
+          <EmptyState icon={<ShieldCheck size={28} />} title="No inspections recorded" description="Quality checks will appear here once batches are inspected before dispatch." />
+        )}
       </GlassCard>
     </FactoryShell>
   );
