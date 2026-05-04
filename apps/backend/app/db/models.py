@@ -609,3 +609,27 @@ class SiteSetting(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     key: Mapped[str] = mapped_column(String(120), nullable=False)
     value: Mapped[str] = mapped_column(Text, nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
+
+
+class PartnerInquiry(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "partner_inquiries"
+    __table_args__ = (
+        CheckConstraint(
+            "partner_type in ('retail', 'supermarket', 'direct', 'wholesale', 'other')",
+            name="partner_inquiry_type",
+        ),
+        CheckConstraint(
+            "status in ('new', 'contacted', 'converted', 'declined')",
+            name="partner_inquiry_status",
+        ),
+        Index("ix_partner_inquiries_status_created", "status", "created_at"),
+    )
+
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    business_name: Mapped[str | None] = mapped_column(String(200))
+    phone: Mapped[str] = mapped_column(String(40), nullable=False)
+    email: Mapped[str | None] = mapped_column(String(256))
+    location: Mapped[str | None] = mapped_column(String(200))
+    partner_type: Mapped[str] = mapped_column(String(40), nullable=False, server_default="retail")
+    message: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(24), nullable=False, server_default="new")

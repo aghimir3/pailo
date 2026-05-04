@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { PartnerCTA } from "@/components/landing/partner-cta";
 
 export const dynamic = "force-dynamic";
 
@@ -167,10 +168,10 @@ export default async function LandingPage() {
             <span>{cfg.contact_phone}</span>
           </a>
           <Button asChild variant="glass" className="lp-nav-cta">
-            <Link href="#buyers">
+            <PartnerCTA>
               Partner with us
               <ArrowUpRight aria-hidden="true" size={15} />
-            </Link>
+            </PartnerCTA>
           </Button>
         </div>
       </header>
@@ -208,10 +209,10 @@ export default async function LandingPage() {
                 </Link>
               </Button>
               <Button asChild variant="glass">
-                <Link href="#buyers">
+                <PartnerCTA>
                   <Handshake aria-hidden="true" size={17} />
                   {cfg.hero_cta_secondary}
-                </Link>
+                </PartnerCTA>
               </Button>
               {catalogCount > 0 && (
                 <Button asChild variant="glass">
@@ -294,10 +295,10 @@ export default async function LandingPage() {
               </div>
               <div className="lp-proof-cta">
                 <Button asChild className="lp-cta-primary">
-                  <Link href="#buyers">
+                  <PartnerCTA>
                     {cfg.proof_cta}
                     <ArrowRight aria-hidden="true" size={17} />
-                  </Link>
+                  </PartnerCTA>
                 </Button>
               </div>
             </div>
