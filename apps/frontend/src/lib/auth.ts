@@ -5,8 +5,9 @@
 
 const COGNITO_DOMAIN = process.env.NEXT_PUBLIC_COGNITO_DOMAIN || "";
 const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || "";
-const REDIRECT_URI = process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI || "http://localhost:3000/auth/callback";
-const LOGOUT_URI = process.env.NEXT_PUBLIC_COGNITO_LOGOUT_URI || "http://localhost:3000/auth/logout";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const REDIRECT_URI = `${APP_URL}/auth/callback`;
+const LOGOUT_URI = `${APP_URL}/auth/logout`;
 const API_BASE_URL = "";
 
 export interface AuthTokens {
