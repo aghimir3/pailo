@@ -9,6 +9,35 @@ interface AuthGuardProps {
   requiredPermissions?: string[];
 }
 
+function AuthScreen({ children }: { children: ReactNode }) {
+  return (
+    <main className="auth-gate">
+      <div className="auth-gate-bg" />
+      <div className="auth-card">
+        <div className="auth-brand">
+          <span className="auth-brand-mark">P</span>
+          <span className="auth-brand-text">
+            <strong>Pailo</strong>
+            <small>Factory OS</small>
+          </span>
+        </div>
+        {children}
+      </div>
+    </main>
+  );
+}
+
+function AuthSpinner({ message }: { message: string }) {
+  return (
+    <AuthScreen>
+      <div className="auth-spinner-wrap">
+        <div className="auth-spinner" />
+        <p className="auth-message">{message}</p>
+      </div>
+    </AuthScreen>
+  );
+}
+
 export function AuthGuard({ children, requiredPermissions }: AuthGuardProps) {
   const { user, isLoading, isLoggedIn, login } = useAuth();
 
@@ -18,26 +47,12 @@ export function AuthGuard({ children, requiredPermissions }: AuthGuardProps) {
   }
 
   if (isLoading) {
-    return (
-      <main className="flex min-h-screen items-center justify-center p-4">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
-          <p className="text-sm text-gray-600 dark:text-gray-400">Loading...</p>
-        </div>
-      </main>
-    );
+    return <AuthSpinner message="Loading your session..." />;
   }
 
   if (!isLoggedIn) {
     login();
-    return (
-      <main className="flex min-h-screen items-center justify-center p-4">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
-          <p className="text-sm text-gray-600 dark:text-gray-400">Redirecting to sign in...</p>
-        </div>
-      </main>
-    );
+    return <AuthSpinner message="Redirecting to sign in..." />;
   }
 
   // Check permissions if required
@@ -45,14 +60,16 @@ export function AuthGuard({ children, requiredPermissions }: AuthGuardProps) {
     const hasAllPermissions = requiredPermissions.every((p) => user.permissions.includes(p));
     if (!hasAllPermissions) {
       return (
-        <main className="flex min-h-screen items-center justify-center p-4">
-          <div className="w-full max-w-sm rounded-lg border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-950">
-            <h1 className="mb-2 text-lg font-semibold text-amber-800 dark:text-amber-200">Access Denied</h1>
-            <p className="text-sm text-amber-700 dark:text-amber-300">
-              You don&apos;t have permission to access this page.
-            </p>
+        <AuthScreen>
+          <div className="auth-denied">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="m4.93 4.93 14.14 14.14" />
+            </svg>
+            <h2>Access Denied</h2>
+            <p>You don&apos;t have permission to access this page.</p>
           </div>
-        </main>
+        </AuthScreen>
       );
     }
   }

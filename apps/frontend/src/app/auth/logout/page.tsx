@@ -9,18 +9,28 @@ export default function AuthLogoutPage() {
   }, []);
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-sm rounded-lg border p-6 text-center">
-        <h1 className="mb-2 text-lg font-semibold">Signed Out</h1>
-        <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-          You have been signed out of Pailo.
-        </p>
-        <a
-          href="/auth/login"
-          className="inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Sign in again
-        </a>
+    <main className="auth-gate">
+      <div className="auth-gate-bg" />
+      <div className="auth-card">
+        <div className="auth-brand">
+          <span className="auth-brand-mark">P</span>
+          <span className="auth-brand-text">
+            <strong>Pailo</strong>
+            <small>Factory OS</small>
+          </span>
+        </div>
+        <div className="auth-signedout">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" x2="9" y1="12" y2="12" />
+          </svg>
+          <h2>Signed Out</h2>
+          <p>You have been signed out of Pailo.</p>
+          <a href="/auth/login" className="auth-btn">
+            Sign in again
+          </a>
+        </div>
       </div>
     </main>
   );

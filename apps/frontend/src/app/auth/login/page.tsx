@@ -12,22 +12,40 @@ export default function AuthLoginPage() {
 
   if (!isAuthConfigured()) {
     return (
-      <main className="flex min-h-screen items-center justify-center p-4">
-        <div className="w-full max-w-sm rounded-lg border p-6 text-center">
-          <h1 className="mb-2 text-lg font-semibold">Auth Not Configured</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Cognito domain and client ID environment variables are not set.
-          </p>
+      <main className="auth-gate">
+        <div className="auth-gate-bg" />
+        <div className="auth-card">
+          <div className="auth-brand">
+            <span className="auth-brand-mark">P</span>
+            <span className="auth-brand-text">
+              <strong>Pailo</strong>
+              <small>Factory OS</small>
+            </span>
+          </div>
+          <div className="auth-denied">
+            <h2>Auth Not Configured</h2>
+            <p>Cognito domain and client ID environment variables are not set.</p>
+          </div>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <div className="text-center">
-        <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
-        <p className="text-sm text-gray-600 dark:text-gray-400">Redirecting to sign in...</p>
+    <main className="auth-gate">
+      <div className="auth-gate-bg" />
+      <div className="auth-card">
+        <div className="auth-brand">
+          <span className="auth-brand-mark">P</span>
+          <span className="auth-brand-text">
+            <strong>Pailo</strong>
+            <small>Factory OS</small>
+          </span>
+        </div>
+        <div className="auth-spinner-wrap">
+          <div className="auth-spinner" />
+          <p className="auth-message">Redirecting to sign in...</p>
+        </div>
       </div>
     </main>
   );
