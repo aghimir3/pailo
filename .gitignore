@@ -62,9 +62,10 @@ __pycache__/
 htmlcov/
 *.egg-info/
 .tox/
+.uv/
 
 # Uploads (user-uploaded catalog images)
-uploads/
+apps/backend/uploads/
 
 # Terraform
 **/.terraform/
@@ -84,9 +85,17 @@ override.tf.json
 
 # Docker and local runtime data
 docker-compose.override.yml
+compose.override.yml
 *.pid
 *.seed
 
 # AWS and deployment tooling
 .aws-sam/
 cdk.out/
+
+# Generated API client (regenerated from OpenAPI)
+packages/api-client/src/generated/
+
+# Misc
+*.doc
+*.docx
