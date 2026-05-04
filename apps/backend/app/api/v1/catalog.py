@@ -4,6 +4,7 @@ import json
 import os
 import uuid
 from pathlib import Path
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, UploadFile
 from fastapi.responses import FileResponse
@@ -43,7 +44,7 @@ class CatalogListResponse(BaseModel):
 # --- Helpers ---
 
 
-async def _load_catalog(session: DbSession) -> list[dict]:
+async def _load_catalog(session: DbSession) -> list[dict[str, Any]]:
     result = await session.execute(
         select(SiteSetting).where(SiteSetting.key == "catalog_items")
     )
@@ -51,12 +52,12 @@ async def _load_catalog(session: DbSession) -> list[dict]:
     if setting is None:
         return []
     try:
-        return json.loads(setting.value)
+        return json.loads(setting.value)  # type: ignore[no-any-return]
     except (json.JSONDecodeError, TypeError):
         return []
 
 
-async def _save_catalog(session: DbSession, items: list[dict]) -> None:
+async def _save_catalog(session: DbSession, items: list[dict[str, Any]]) -> None:
     result = await session.execute(
         select(SiteSetting).where(SiteSetting.key == "catalog_items")
     )

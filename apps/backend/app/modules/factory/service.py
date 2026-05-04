@@ -4,7 +4,7 @@ from decimal import Decimal
 from math import ceil
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import Row, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import (
@@ -148,7 +148,7 @@ async def _bootstrap_owner_admin(
     session: AsyncSession,
     cognito_sub: str,
     email: str,
-) -> tuple | None:
+) -> Row[tuple[User, str]] | None:
     """Auto-create the first owner_admin user if none exists."""
     # Check if any owner_admin already exists
     owner_role_query = select(Role).where(Role.name == "owner_admin")
