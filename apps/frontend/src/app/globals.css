@@ -264,6 +264,96 @@ button {
   margin-bottom: 12px;
 }
 
+/* Coming Soon Modal */
+.coming-soon-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(8, 17, 14, 0.54);
+  backdrop-filter: blur(16px) saturate(135%);
+  animation: fade-in 0.15s ease-out;
+}
+
+.coming-soon-modal {
+  position: relative;
+  width: min(100%, 380px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 24px 24px;
+  text-align: center;
+  color: var(--ink);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.18);
+  animation: scale-in 0.2s ease-out;
+}
+
+.coming-soon-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--ink-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.coming-soon-close:hover {
+  background: var(--glass-border);
+}
+
+.coming-soon-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--tint);
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.coming-soon-modal h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.coming-soon-description {
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.coming-soon-status {
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 500;
+  margin: 4px 0 8px;
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .kpi-grid,
 .dashboard-grid,
 .quality-grid {

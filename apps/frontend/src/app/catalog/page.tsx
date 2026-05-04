@@ -106,7 +106,7 @@ export default async function CatalogPage() {
             <span className="catalog-brand-mark">P</span>
             <strong>Pailo Shoes</strong>
           </Link>
-          <Link className="catalog-staff-link" href="/portal">
+          <Link className="catalog-staff-link" href="/dashboard">
             Staff portal
           </Link>
         </div>

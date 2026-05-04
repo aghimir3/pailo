@@ -331,7 +331,7 @@ export default async function LandingPage() {
               {cfg.contact_phone}
             </a>
           </nav>
-          <Link className="lp-staff-link" href="/portal">
+          <Link className="lp-staff-link" href="/dashboard">
             <LockKeyhole aria-hidden="true" size={13} />
             Staff portal
           </Link>

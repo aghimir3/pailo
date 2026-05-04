@@ -340,7 +340,7 @@ export default function LandingPageEditor() {
       <FactoryShell eyebrow="Settings" title="Landing Page Editor">
         <div style={{ padding: 32 }}>
           <p>Failed to load config. Is the backend running?</p>
-          <Link href="/portal">Back to portal</Link>
+          <Link href="/dashboard">Back to dashboard</Link>
         </div>
       </FactoryShell>
     );

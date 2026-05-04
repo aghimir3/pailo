@@ -7,7 +7,6 @@ import {
   ClipboardList,
   MessageSquare,
   PackageCheck,
-  Printer,
   ScanLine,
   TrendingUp,
 } from "lucide-react";
@@ -15,6 +14,7 @@ import Link from "next/link";
 import { getDashboard } from "@pailo/api-client";
 
 import { FactoryShell } from "@/components/factory/factory-shell";
+import { CommandRibbon } from "@/components/factory/command-ribbon";
 import { ThroughputChart } from "@/components/throughput-chart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -69,20 +69,7 @@ export default async function Home() {
       eyebrow="Factory cockpit"
       title="Today's factory control"
     >
-        <section className="command-ribbon" aria-label="Factory actions">
-          <Button type="button" variant="glass">
-            <ScanLine aria-hidden="true" size={17} />
-            Scan batch
-          </Button>
-          <Button type="button" variant="glass">
-            <Boxes aria-hidden="true" size={17} />
-            Receive material
-          </Button>
-          <Button type="button" variant="glass">
-            <Printer aria-hidden="true" size={17} />
-            Print labels
-          </Button>
-        </section>
+        <CommandRibbon />
 
         <section className="kpi-grid" aria-label="Factory metrics">
           {dashboard.kpis.length > 0 ? dashboard.kpis.map((kpi) => (

@@ -32,7 +32,7 @@ function CallbackHandler() {
         const session = await fetchSession(tokens.access_token);
         storeSession(session);
 
-        router.replace("/portal");
+        router.replace("/dashboard");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Authentication failed");
       }
