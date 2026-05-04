@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "@/components/auth-provider";
+import { AuthGuard } from "@/components/auth-guard";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,7 @@ export function FactoryShell({ actions, children, description, eyebrow, title }:
   const { user, logout, isLoggedIn } = useAuth();
 
   return (
+    <AuthGuard>
     <main className="factory-shell">
       <aside className="factory-sidebar" aria-label="Factory navigation">
         <Link className="factory-brand" href="/portal">
@@ -142,5 +144,6 @@ export function FactoryShell({ actions, children, description, eyebrow, title }:
         })}
       </nav>
     </main>
+    </AuthGuard>
   );
 }
