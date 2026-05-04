@@ -14,6 +14,7 @@ function CallbackHandler() {
     const errorParam = searchParams.get("error");
 
     if (errorParam) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronous early-return for error display
       setError(errorParam);
       return;
     }
