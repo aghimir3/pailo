@@ -172,43 +172,19 @@ export function taskProgressWidth(task: TaskRecord) {
 
 const fallbackData: OperationsData = {
   catalog: {
-    users: [
-      { id: "20000000-0000-4000-8000-000000000001", display_name: "Asha", email: "owner@pailoshoes.com", role: "owner_admin" },
-      { id: "20000000-0000-4000-8000-000000000002", display_name: "Milan", email: "milan@pailoshoes.com", role: "factory_manager" },
-      { id: "20000000-0000-4000-8000-000000000003", display_name: "Ram", email: "ram.pailo@gmail.com", role: "worker" },
-    ],
-    employees: [
-      { id: "10000000-0000-4000-8000-000000000001", employee_code: "EMP-0001", full_name: "Asha Gurung", department: "Management", job_title: "Owner Admin" },
-      { id: "10000000-0000-4000-8000-000000000002", employee_code: "EMP-0002", full_name: "Milan Shrestha", department: "Production", job_title: "Factory Manager" },
-      { id: "10000000-0000-4000-8000-000000000003", employee_code: "EMP-0003", full_name: "Ram BK", department: "Cutting", job_title: "Cutting Worker" },
-    ],
-    styles: [
-      { id: "40000000-0000-4000-8000-000000000001", style_code: "PAI-2026-SNK-001", name: "Pailo City Runner", category: "Sneaker", sample_status: "approved", target_cost_npr: "900", target_mrp_npr: "2499", notes: null },
-      { id: "40000000-0000-4000-8000-000000000002", style_code: "PAI-2026-SCH-001", name: "Pailo School Classic", category: "School shoe", sample_status: "approved", target_cost_npr: "760", target_mrp_npr: "1899", notes: null },
-    ],
-    suppliers: [
-      { id: "30000000-0000-4000-8000-000000000001", supplier_code: "SUP-0001", name: "Kathmandu Threads", contact_person: "Bikash", phone: "+977-9811111111", material_categories: ["thread"], usual_lead_time_days: 2, notes: null },
-      { id: "30000000-0000-4000-8000-000000000002", supplier_code: "SUP-0002", name: "Birat Sole Works", contact_person: "Prakash", phone: "+977-9822222222", material_categories: ["outsole"], usual_lead_time_days: 5, notes: null },
-    ],
-    materials: [
-      { id: "50000000-0000-4000-8000-000000000001", material_code: "MAT-THR-BLK", name: "Black thread", category: "thread", unit_of_measure: "rolls", supplier: "Kathmandu Threads", current_quantity: "2", minimum_stock: "8", average_cost_npr: "120", location: "Rack B2", risk: "Below minimum and can block production" },
-      { id: "50000000-0000-4000-8000-000000000002", material_code: "MAT-OUT-TR42", name: "TR outsole size 42", category: "outsole", unit_of_measure: "pairs", supplier: "Birat Sole Works", current_quantity: "18", minimum_stock: "40", average_cost_npr: "330", location: "Rack C4", risk: "Below minimum and can block production" },
-    ],
-    work_orders: [
-      { id: "60000000-0000-4000-8000-000000000001", work_order_code: "WO-2026-000001", style_code: "PAI-2026-SNK-001", style_name: "Pailo City Runner", status: "in_progress", priority: "high", planned_pairs: 120, completed_pairs: 86, current_stage: "Stitching", due_date: "2026-05-02", cost_snapshot_npr: "934", version: 1, blocker: "Delivery not confirmed", size_lines: [{ id: "61000000-0000-4000-8000-000000000001", color: "Black", size: "40", planned_pairs: 60, completed_pairs: 44 }] },
-    ],
+    users: [],
+    employees: [],
+    styles: [],
+    suppliers: [],
+    materials: [],
+    work_orders: [],
     label_templates: [
       fallbackLabelTemplate,
     ],
   },
-  tasks: [
-    { id: "80000000-0000-4000-8000-000000000001", task_code: "TASK-2026-000041", title: "Cut upper material for City Runner", description: null, status: "in_progress", priority: "high", assignee: { id: "20000000-0000-4000-8000-000000000003", display_name: "Ram", email: "ram.pailo@gmail.com", role: "worker" }, assigned_employee: null, assigned_team: "Cutting", work_order_id: "60000000-0000-4000-8000-000000000001", work_order_code: "WO-2026-000001", product_style_code: "PAI-2026-SNK-001", due_at: "2026-05-02T13:00:00Z", estimated_quantity: "120", completed_quantity: "86", unit_of_measure: "pairs", blocked_reason: null, requires_review: false, started_at: null, completed_at: null, reviewed_at: null, version: 1, comments: [{ id: "82000000-0000-4000-8000-000000000001", task_id: "80000000-0000-4000-8000-000000000001", author_user_id: "20000000-0000-4000-8000-000000000003", author_name: "Ram", comment_text: "Cutting is moving, but thread stock needs attention before stitching.", client_message_id: "seed-ram-001", created_at: "2026-05-02T09:30:00Z", updated_at: "2026-05-02T09:30:00Z", edited_at: null, version: 1 }] },
-    { id: "80000000-0000-4000-8000-000000000003", task_code: "TASK-2026-000043", title: "Call outsole supplier", description: null, status: "blocked", priority: "urgent", assignee: { id: "20000000-0000-4000-8000-000000000002", display_name: "Milan", email: "milan@pailoshoes.com", role: "factory_manager" }, assigned_employee: null, assigned_team: "Management", work_order_id: "60000000-0000-4000-8000-000000000001", work_order_code: "WO-2026-000001", product_style_code: "PAI-2026-SNK-001", due_at: "2026-05-02T09:30:00Z", estimated_quantity: "40", completed_quantity: "0", unit_of_measure: "pairs", blocked_reason: "Delivery not confirmed", requires_review: false, started_at: null, completed_at: null, reviewed_at: null, version: 1, comments: [] },
-  ],
+  tasks: [],
   myTasks: [],
-  qualityInspections: [
-    { id: "90000000-0000-4000-8000-000000000001", inspection_code: "QC-2026-000001", work_order_code: "WO-2026-000002", style_code: "PAI-2026-SCH-001", inspected_by: "Sita", inspected_at: "2026-05-02T10:00:00Z", inspected_quantity: 40, defect_quantity: 7, status: "rework_required", notes: "Glue marks found." },
-  ],
+  qualityInspections: [],
   savedLabels: [],
   labelPreview: {
     template: fallbackLabelTemplate,
@@ -217,8 +193,6 @@ const fallbackData: OperationsData = {
     values: { quantity: 24, art_no: defaultLabelArtNo, colour: "White", size: "39", mrp_npr: "1899", manufactured_by: "AB Fashion & Wears", origin_text: "Made in Nepal" },
   },
 };
-
-fallbackData.myTasks = fallbackData.tasks.filter((task) => task.assignee?.display_name === "Ram");
 
 function fallbackMm(value: string) {
   const parsed = Number.parseFloat(value);

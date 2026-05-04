@@ -327,7 +327,7 @@ export default function UserManagementPage() {
           <Users aria-hidden="true" className="panel-icon" size={22} />
         </PanelHeader>
         <div className="ops-list">
-          {users.map((u) => (
+          {users.length > 0 ? users.map((u) => (
             <div className="ops-list-row" key={u.id}>
               <span className="flex-1 min-w-0">
                 <strong className="block truncate">{u.display_name}</strong>
@@ -344,7 +344,9 @@ export default function UserManagementPage() {
                 )}
               </div>
             </div>
-          ))}
+          )) : (
+            <p style={{ padding: "24px", textAlign: "center", color: "var(--muted)", fontSize: "0.85rem" }}>No users yet. Invite team members to get started.</p>
+          )}
         </div>
       </GlassCard>
     </FactoryShell>
