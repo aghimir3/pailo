@@ -1,52 +1,44 @@
-# ─── GitHub Setup Required ───────────────────────────────────────────────────
-# Repository Variables (Settings → Secrets and variables → Actions → Variables):
-#   AWS_ROLE_ARN             – IAM role ARN for GitHub OIDC (terraform output: github_actions_role_arn)
-#   AWS_REGION               – (optional, defaults to ap-south-1)
-#   BACKEND_ECR_REPOSITORY   – (optional, defaults to pailo-prod/backend)
-#   BACKEND_LOG_GROUP        – (optional, defaults to /ecs/pailo-prod/backend)
-#   ECS_CLUSTER              – (optional, defaults to pailo-prod-cluster)
-#   ECS_SERVICE              – (optional, defaults to pailo-prod-app)
-#   FRONTEND_ECR_REPOSITORY  – (optional, defaults to pailo-prod/frontend)
+# ─────────────────────────────────────────────────────────────────────────────
+# Production Deploy
 #
-# OIDC Identity Provider:
-#   Create an IAM OIDC provider for token.actions.githubusercontent.com
-#   in your AWS account (the bootstrap Terraform module does this).
+# Triggered automatically after CI passes on main, or manually via dispatch.
+# Builds Docker images, runs DB migrations, deploys to ECS, and verifies health.
 #
-# ECR Repositories:
-#   The frontend and backend ECR repos must exist before first deploy
-#   (created by the main Terraform apply).
+# Required Repository Variables (Settings → Secrets and variables → Variables):
+#   AWS_ROLE_ARN  – IAM role ARN for GitHub OIDC (terraform output: github_actions_role_arn)
 # ─────────────────────────────────────────────────────────────────────────────
 
-name: Pailo Production ECS Image Build And Deploy
+name: Deploy
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [main]
-    paths:
-      - apps/**
-      - packages/**
-      - package.json
-      - pnpm-lock.yaml
-      - pnpm-workspace.yaml
-      - .github/workflows/deploy.yml
   workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
 
 permissions:
   contents: read
   id-token: write
 
 env:
-  AWS_REGION: ${{ vars.AWS_REGION || 'ap-south-1' }}
-  BACKEND_ECR_REPOSITORY: ${{ vars.BACKEND_ECR_REPOSITORY || 'pailo-prod/backend' }}
-  BACKEND_LOG_GROUP: ${{ vars.BACKEND_LOG_GROUP || '/ecs/pailo-prod/backend' }}
-  ECS_CLUSTER: ${{ vars.ECS_CLUSTER || 'pailo-prod-cluster' }}
-  ECS_SERVICE: ${{ vars.ECS_SERVICE || 'pailo-prod-app' }}
-  FRONTEND_ECR_REPOSITORY: ${{ vars.FRONTEND_ECR_REPOSITORY || 'pailo-prod/frontend' }}
+  AWS_REGION: ap-south-1
+  ECS_CLUSTER: pailo-prod-cluster
+  ECS_SERVICE: pailo-prod-app
+  BACKEND_ECR_REPO: pailo-prod/backend
+  FRONTEND_ECR_REPO: pailo-prod/frontend
+  BACKEND_LOG_GROUP: /ecs/pailo-prod/backend
 
 jobs:
   deploy:
-    name: Build Frontend And Backend Images, Then Deploy ECS
+    name: Build, Migrate, Deploy
     runs-on: ubuntu-latest
+    # Only deploy if CI passed (workflow_run) or manual dispatch
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout
@@ -55,10 +47,10 @@ jobs:
       - name: Require AWS role
         if: ${{ vars.AWS_ROLE_ARN == '' }}
         run: |
-          echo "Set the AWS_ROLE_ARN repository variable to the github_actions_role_arn Terraform output."
+          echo "::error::Set the AWS_ROLE_ARN repository variable to the IAM role ARN from 'terraform output github_actions_role_arn'."
           exit 1
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
@@ -71,83 +63,159 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Fetch Cognito config from SSM
-        id: cognito
+      # ── Fetch config from SSM (single source of truth) ──────────────────────
+      - name: Fetch app config from SSM
+        id: config
         run: |
-          echo "user_pool_id=$(aws ssm get-parameter --name /pailo-prod/cognito/user-pool-id --query Parameter.Value --output text)" >> "$GITHUB_OUTPUT"
-          echo "client_id=$(aws ssm get-parameter --name /pailo-prod/cognito/client-id --query Parameter.Value --output text)" >> "$GITHUB_OUTPUT"
-          echo "domain=$(aws ssm get-parameter --name /pailo-prod/app/domain --query Parameter.Value --output text)" >> "$GITHUB_OUTPUT"
-          echo "cognito_domain_prefix=$(aws cognito-idp describe-user-pool --user-pool-id $(aws ssm get-parameter --name /pailo-prod/cognito/user-pool-id --query Parameter.Value --output text) --query UserPool.Domain --output text)" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          USER_POOL_ID=$(aws ssm get-parameter --name /pailo-prod/cognito/user-pool-id --query Parameter.Value --output text)
+          CLIENT_ID=$(aws ssm get-parameter --name /pailo-prod/cognito/client-id --query Parameter.Value --output text)
+          APP_DOMAIN=$(aws ssm get-parameter --name /pailo-prod/app/domain --query Parameter.Value --output text)
+          COGNITO_DOMAIN=$(aws cognito-idp describe-user-pool --user-pool-id "$USER_POOL_ID" --query UserPool.Domain --output text)
 
-      - name: Build and push frontend image
+          echo "user_pool_id=$USER_POOL_ID" >> "$GITHUB_OUTPUT"
+          echo "client_id=$CLIENT_ID" >> "$GITHUB_OUTPUT"
+          echo "app_domain=$APP_DOMAIN" >> "$GITHUB_OUTPUT"
+          echo "cognito_domain=${COGNITO_DOMAIN}.auth.${AWS_REGION}.amazoncognito.com" >> "$GITHUB_OUTPUT"
+
+      # ── Build images ────────────────────────────────────────────────────────
+      - name: Build & push frontend
         uses: docker/build-push-action@v6
         with:
           context: .
           file: apps/frontend/Dockerfile
           platforms: linux/amd64
           push: true
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
           build-args: |
-            NEXT_PUBLIC_COGNITO_USER_POOL_ID=${{ steps.cognito.outputs.user_pool_id }}
-            NEXT_PUBLIC_COGNITO_CLIENT_ID=${{ steps.cognito.outputs.client_id }}
-            NEXT_PUBLIC_COGNITO_DOMAIN=${{ steps.cognito.outputs.cognito_domain_prefix }}.auth.${{ env.AWS_REGION }}.amazoncognito.com
-            NEXT_PUBLIC_APP_URL=https://${{ steps.cognito.outputs.domain }}
+            NEXT_PUBLIC_COGNITO_USER_POOL_ID=${{ steps.config.outputs.user_pool_id }}
+            NEXT_PUBLIC_COGNITO_CLIENT_ID=${{ steps.config.outputs.client_id }}
+            NEXT_PUBLIC_COGNITO_DOMAIN=${{ steps.config.outputs.cognito_domain }}
+            NEXT_PUBLIC_APP_URL=https://${{ steps.config.outputs.app_domain }}
           tags: |
-            ${{ steps.ecr.outputs.registry }}/${{ env.FRONTEND_ECR_REPOSITORY }}:${{ github.sha }}
-            ${{ steps.ecr.outputs.registry }}/${{ env.FRONTEND_ECR_REPOSITORY }}:latest
+            ${{ steps.ecr.outputs.registry }}/${{ env.FRONTEND_ECR_REPO }}:${{ github.sha }}
+            ${{ steps.ecr.outputs.registry }}/${{ env.FRONTEND_ECR_REPO }}:latest
 
-      - name: Build and push backend image
+      - name: Build & push backend
         uses: docker/build-push-action@v6
         with:
           context: .
           file: apps/backend/Dockerfile
           platforms: linux/amd64
           push: true
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
           tags: |
-            ${{ steps.ecr.outputs.registry }}/${{ env.BACKEND_ECR_REPOSITORY }}:${{ github.sha }}
-            ${{ steps.ecr.outputs.registry }}/${{ env.BACKEND_ECR_REPOSITORY }}:latest
+            ${{ steps.ecr.outputs.registry }}/${{ env.BACKEND_ECR_REPO }}:${{ github.sha }}
+            ${{ steps.ecr.outputs.registry }}/${{ env.BACKEND_ECR_REPO }}:latest
 
-      - name: Run backend database migrations on ECS
+      # ── Run database migrations ─────────────────────────────────────────────
+      - name: Run database migrations
         run: |
           set -euo pipefail
 
+          # Get current service network config to launch migration task
           service_json="$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE")"
           task_definition="$(echo "$service_json" | jq -r '.services[0].taskDefinition')"
-          assign_public_ip="$(echo "$service_json" | jq -r '.services[0].networkConfiguration.awsvpcConfiguration.assignPublicIp')"
-          network_configuration="$(echo "$service_json" | jq -c --arg assign_public_ip "$assign_public_ip" '{awsvpcConfiguration:{subnets:.services[0].networkConfiguration.awsvpcConfiguration.subnets,securityGroups:.services[0].networkConfiguration.awsvpcConfiguration.securityGroups,assignPublicIp:$assign_public_ip}}')"
-          overrides='{"containerOverrides":[{"name":"backend","command":["alembic","-c","alembic.ini","upgrade","head"]}]}'
+          network_configuration="$(echo "$service_json" | jq -c '{awsvpcConfiguration:{subnets:.services[0].networkConfiguration.awsvpcConfiguration.subnets,securityGroups:.services[0].networkConfiguration.awsvpcConfiguration.securityGroups,assignPublicIp:.services[0].networkConfiguration.awsvpcConfiguration.assignPublicIp}}')"
+
+          echo "::group::Starting migration task"
+          echo "Task definition: $task_definition"
 
           task_arn="$(aws ecs run-task \
             --cluster "$ECS_CLUSTER" \
             --launch-type FARGATE \
             --task-definition "$task_definition" \
             --network-configuration "$network_configuration" \
-            --overrides "$overrides" \
+            --overrides '{"containerOverrides":[{"name":"backend","command":["alembic","-c","alembic.ini","upgrade","head"]}]}' \
             --query 'tasks[0].taskArn' \
             --output text)"
 
           if [ -z "$task_arn" ] || [ "$task_arn" = "None" ]; then
-            echo "Failed to start migration task."
+            echo "::error::Failed to start migration task"
             exit 1
           fi
 
+          echo "Migration task: $task_arn"
+          echo "::endgroup::"
+
+          echo "::group::Waiting for migration to complete"
           aws ecs wait tasks-stopped --cluster "$ECS_CLUSTER" --tasks "$task_arn"
-          exit_code="$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$task_arn" --query 'tasks[0].containers[?name==`backend`].exitCode | [0]' --output text)"
+
+          exit_code="$(aws ecs describe-tasks \
+            --cluster "$ECS_CLUSTER" \
+            --tasks "$task_arn" \
+            --query 'tasks[0].containers[?name==`backend`].exitCode | [0]' \
+            --output text)"
 
           if [ "$exit_code" != "0" ]; then
-            echo "Migration task failed with backend exit code $exit_code. Recent backend logs:"
-            aws logs tail "$BACKEND_LOG_GROUP" --since 15m || true
+            echo "::endgroup::"
+            echo "::error::Migration failed with exit code $exit_code"
+            echo "::group::Recent backend logs"
+            aws logs tail "$BACKEND_LOG_GROUP" --since 15m 2>/dev/null || true
+            echo "::endgroup::"
             exit 1
           fi
 
-      - name: Force ECS deployment
+          echo "Migrations completed successfully"
+          echo "::endgroup::"
+
+      # ── Deploy ──────────────────────────────────────────────────────────────
+      - name: Deploy to ECS
         run: |
           aws ecs update-service \
             --cluster "$ECS_CLUSTER" \
             --service "$ECS_SERVICE" \
-            --force-new-deployment
+            --force-new-deployment \
+            --query 'service.deployments[0].id' \
+            --output text
 
       - name: Wait for ECS stability
         run: |
+          echo "Waiting for service to stabilize (healthy targets, old tasks drained)..."
           aws ecs wait services-stable \
             --cluster "$ECS_CLUSTER" \
             --services "$ECS_SERVICE"
+          echo "Service stable."
+
+      # ── Verify ──────────────────────────────────────────────────────────────
+      - name: Health check
+        run: |
+          set -euo pipefail
+          APP_URL="https://${{ steps.config.outputs.app_domain }}"
+
+          echo "Checking backend health..."
+          for i in 1 2 3 4 5; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL/api/v1/health" || true)
+            if [ "$status" = "200" ]; then
+              echo "Backend healthy (HTTP 200)"
+              break
+            fi
+            echo "Attempt $i: HTTP $status, retrying in 10s..."
+            sleep 10
+          done
+
+          if [ "$status" != "200" ]; then
+            echo "::error::Backend health check failed after 5 attempts (last: HTTP $status)"
+            exit 1
+          fi
+
+          echo "Checking frontend..."
+          status=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL/" || true)
+          if [ "$status" != "200" ]; then
+            echo "::error::Frontend returned HTTP $status"
+            exit 1
+          fi
+          echo "Frontend healthy (HTTP 200)"
+
+      - name: Deployment summary
+        run: |
+          echo "## Deployment Complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| | |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Commit** | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **App URL** | https://${{ steps.config.outputs.app_domain }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Cluster** | ${{ env.ECS_CLUSTER }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Service** | ${{ env.ECS_SERVICE }} |" >> "$GITHUB_STEP_SUMMARY"

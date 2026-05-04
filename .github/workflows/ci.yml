@@ -1,21 +1,76 @@
-# ─── GitHub Setup Required ───────────────────────────────────────────────────
-# Nothing extra needed. This workflow uses only public actions and a
-# Postgres service container. No secrets or repository variables required.
+# ─────────────────────────────────────────────────────────────────────────────
+# CI Quality Gates
+# Runs on every push and PR. All jobs must pass before deploy triggers.
+# No secrets or repository variables required.
 # ─────────────────────────────────────────────────────────────────────────────
 
-name: Pailo Monorepo Quality Gates
+name: CI
 
 on:
   pull_request:
   push:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
-  app:
-    name: Frontend, Backend, And API Contract Checks
+  lint-and-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(corepack pnpm store path)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-
+
+      - name: Install dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.10.9"
+
+      - name: Generate API client
+        run: corepack pnpm generate:api
+
+      - name: Lint frontend (ESLint)
+        run: corepack pnpm lint
+
+      - name: Typecheck frontend (tsc)
+        run: corepack pnpm typecheck
+
+      - name: Lint backend (ruff)
+        run: corepack pnpm lint:backend
+
+      - name: Typecheck backend (mypy)
+        run: corepack pnpm typecheck:backend
+
+  test-backend:
+    name: Backend Tests
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -35,84 +90,77 @@ jobs:
       DATABASE_URL: postgresql+asyncpg://pailo:pailo@127.0.0.1:5432/pailo
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
 
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Install pnpm dependencies
-        run: corepack pnpm install --frozen-lockfile
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "0.10.9"
 
-      - name: Generate API client
-        run: corepack pnpm generate:api
-
-      - name: Lint frontend
-        run: corepack pnpm lint
-
-      - name: Typecheck frontend
-        run: corepack pnpm typecheck
-
-      - name: Run database migrations
+      - name: Run migrations
         run: corepack pnpm db:migrate
 
       - name: Check migration drift
         run: corepack pnpm db:check
 
-      - name: Lint backend
-        run: corepack pnpm lint:backend
-
-      - name: Typecheck backend
-        run: corepack pnpm typecheck:backend
-
-      - name: Test backend
+      - name: Run tests
         run: corepack pnpm test:backend
 
-      - name: Build frontend
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(corepack pnpm store path)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-
+
+      - name: Install dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Build
         run: corepack pnpm build:frontend
 
-  terraform:
-    name: Terraform Static Checks
+  terraform-check:
+    name: Terraform Validate
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.15.1
+          terraform_version: "~> 1.15"
 
-      - name: Terraform fmt
+      - name: Format check
         run: terraform -chdir=infra/terraform fmt -check -recursive
 
-      - name: Terraform init
+      - name: Init (no backend)
         run: terraform -chdir=infra/terraform init -backend=false
 
-      - name: Terraform validate
+      - name: Validate
         run: terraform -chdir=infra/terraform validate
-
-      - name: Terraform bootstrap fmt
-        run: terraform -chdir=infra/terraform/bootstrap fmt -check
-
-      - name: Terraform bootstrap init
-        run: terraform -chdir=infra/terraform/bootstrap init -backend=false
-
-      - name: Terraform bootstrap validate
-        run: terraform -chdir=infra/terraform/bootstrap validate
