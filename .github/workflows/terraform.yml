@@ -1,3 +1,17 @@
+# ─── GitHub Setup Required ───────────────────────────────────────────────────
+# Repository Variables (Settings → Secrets and variables → Actions → Variables):
+#   AWS_ROLE_ARN   – IAM role ARN for GitHub OIDC (terraform output: github_actions_role_arn)
+#   AWS_REGION     – (optional, defaults to ap-south-1)
+#
+# OIDC Identity Provider:
+#   Create an IAM OIDC provider for token.actions.githubusercontent.com
+#   in your AWS account (the bootstrap Terraform module does this).
+#
+# Terraform State Backend:
+#   The S3 bucket and DynamoDB table referenced in infra/terraform/backend.tf
+#   must already exist (created via infra/terraform/bootstrap/).
+# ─────────────────────────────────────────────────────────────────────────────
+
 name: Pailo AWS Infrastructure Terraform Plan And Apply
 
 on:

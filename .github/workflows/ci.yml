@@ -1,3 +1,8 @@
+# ─── GitHub Setup Required ───────────────────────────────────────────────────
+# Nothing extra needed. This workflow uses only public actions and a
+# Postgres service container. No secrets or repository variables required.
+# ─────────────────────────────────────────────────────────────────────────────
+
 name: Pailo Monorepo Quality Gates
 
 on:

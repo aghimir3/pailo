@@ -1,3 +1,22 @@
+# ─── GitHub Setup Required ───────────────────────────────────────────────────
+# Repository Variables (Settings → Secrets and variables → Actions → Variables):
+#   AWS_ROLE_ARN             – IAM role ARN for GitHub OIDC (terraform output: github_actions_role_arn)
+#   AWS_REGION               – (optional, defaults to ap-south-1)
+#   BACKEND_ECR_REPOSITORY   – (optional, defaults to pailo-prod/backend)
+#   BACKEND_LOG_GROUP        – (optional, defaults to /ecs/pailo-prod/backend)
+#   ECS_CLUSTER              – (optional, defaults to pailo-prod-cluster)
+#   ECS_SERVICE              – (optional, defaults to pailo-prod-app)
+#   FRONTEND_ECR_REPOSITORY  – (optional, defaults to pailo-prod/frontend)
+#
+# OIDC Identity Provider:
+#   Create an IAM OIDC provider for token.actions.githubusercontent.com
+#   in your AWS account (the bootstrap Terraform module does this).
+#
+# ECR Repositories:
+#   The frontend and backend ECR repos must exist before first deploy
+#   (created by the main Terraform apply).
+# ─────────────────────────────────────────────────────────────────────────────
+
 name: Pailo Production ECS Image Build And Deploy
 
 on:
