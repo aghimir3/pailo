@@ -4,7 +4,7 @@
 
 Pailo is a factory and operations platform for Pailo Shoes, a Nepal-based shoe factory growing from about 100 pairs/day toward 1000 pairs/day. The app is an internal factory operating system first: products, BOM/costing, tasks, work orders, inventory, employees, suppliers, labels, QC, reporting, and dispatch. Do not treat the first product as ecommerce or a public marketing site.
 
-The current repository is planning-docs-first. Treat [docs/README.md](docs/README.md) as the map and the numbered docs as the source of truth until implementation files exist. When docs and code disagree, call out the mismatch and update the relevant docs as part of the change.
+The repository is a working monorepo with a deployed MVP at `app.pailoshoes.com`. Planning docs in [docs/](docs/) remain the source of truth for design intent. When docs and code disagree, call out the mismatch and update the relevant docs as part of the change.
 
 ## Source Documents
 
@@ -20,6 +20,10 @@ The current repository is planning-docs-first. Treat [docs/README.md](docs/READM
 - [docs/10-database-implementation-plan.md](docs/10-database-implementation-plan.md): PostgreSQL schema strategy, constraints, indexes, migrations, backup, privacy.
 - [docs/11-aws-ecs-deployment-cost-plan.md](docs/11-aws-ecs-deployment-cost-plan.md): AWS ECS/Fargate launch architecture, cost controls, CI/CD, environments.
 - [docs/12-api-integration-quality-plan.md](docs/12-api-integration-quality-plan.md): OpenAPI contract, generated clients, tests, CI gates, release plan.
+- [docs/13-implementation-execution-plan.md](docs/13-implementation-execution-plan.md): phased execution plan for implementation.
+- [docs/14-mvp-scope.md](docs/14-mvp-scope.md): current MVP feature scope and boundaries.
+- [docs/15-mvp-build-plan.md](docs/15-mvp-build-plan.md): build phases and implementation order.
+- [docs/16-public-landing-page-plan.md](docs/16-public-landing-page-plan.md): public landing page at pailoshoes.com with partner inquiry form.
 
 ## Product Rules
 
@@ -28,7 +32,7 @@ The current repository is planning-docs-first. Treat [docs/README.md](docs/READM
 - Preserve one source of truth for stock, costs, production status, labels, employee records, and audit history.
 - Use NPR for money unless another currency is explicitly required. Keep Nepal-ready details such as local phone/address fields and optional Nepali date/language support in mind.
 - Keep competitor trademarks, logos, and brand names out of generated labels, product names, packaging, invoices, catalog exports, and customer-facing outputs. Store inspiration only as internal reference notes/photos when needed.
-- Use `app.pailoshoes.com` for the internal factory app. Reserve `pailoshoes.com` and `www.pailoshoes.com` for future public brand/catalog/verification experiences.
+- Use `app.pailoshoes.com` for the internal factory app. `pailoshoes.com` and `www.pailoshoes.com` serve the public landing page with partner inquiry form.
 - Labels should use Pailo branding, Pailo style codes, immutable template versions, PDF output, and print-job history. Treat the root Word label document as a visual reference to recreate, not as a binary file to edit in production.
 
 ## Architecture
@@ -36,12 +40,12 @@ The current repository is planning-docs-first. Treat [docs/README.md](docs/READM
 - Use one monorepo with clear boundaries:
 
 ```text
-apps/frontend/
-apps/backend/
-packages/api-client/
-packages/config/
-infra/
-docs/
+apps/frontend/       Next.js App Router factory cockpit
+apps/backend/        FastAPI modular monolith
+packages/api-client/ Generated TypeScript client from OpenAPI
+infra/terraform/     AWS infrastructure as code
+docs/                Planning and design documents
+.github/workflows/   CI, deploy, and Terraform pipelines
 ```
 
 - Build a modular monolith backend and a separate frontend. Do not introduce microservices at launch.
@@ -52,10 +56,10 @@ docs/
 ## Frontend Guidelines
 
 - Target stack: Next.js App Router, React, TypeScript, Tailwind CSS, shadcn/ui, lucide-react, TanStack Query, TanStack Table, React Hook Form, Zod, Recharts, Sonner, `@zxing/browser`, Playwright, Vitest, and MSW.
-- The first authenticated screen should be the operating dashboard, not a landing page.
+- The first authenticated screen is the operating dashboard at `/dashboard`.
 - Use a `factory cockpit` design direction: polished, dense, operational, dark/light capable, status-rich, and practical. Avoid marketing-style hero sections for the internal app.
 - Design phone-first, then enhance for tablets and desktop. The app must be usable around 390px width without horizontal page scroll.
-- Supported browser/device targets include Chrome, Safari, Brave with default Shields, Huawei phones without Google Mobile Services, Samsung Galaxy S/Ultra phones, and iPhone 15 or newer.
+- Supported browser/device targets include Chrome, Safari, Brave with default Shields, Huawei phones without Google Mobile Services, Samsung Galaxy S/Ultra phones, Honor Magic 6 RSR, and iPhone 15 or newer.
 - Do not depend on Google Play Services, Firebase, Google Sign-In, Google Fonts from remote Google domains, reCAPTCHA, third-party cookies, tracker-like scripts, hosted social embeds, Samsung-only services, or Apple-only native services for core workflows.
 - Self-host fonts and critical UI assets. Prefer same-origin `/api/*` at launch to reduce CORS and privacy-browser issues.
 - Always provide manual entry/photo-upload fallback for QR/barcode scanning.
@@ -87,23 +91,42 @@ docs/
 
 ## Build And Test
 
-This repo currently contains planning docs only. Do not invent successful build/test results before package files and lockfiles exist.
+The repo is fully scaffolded with working builds. Use `corepack pnpm` for frontend and `uv` for backend:
 
-When implementation is scaffolded, prefer the documented toolchain:
+```powershell
+corepack pnpm install              # Install frontend/api-client deps
+corepack pnpm dev:frontend          # Next.js dev server
+corepack pnpm dev:backend           # FastAPI dev server (uvicorn --reload)
+corepack pnpm build:frontend        # Production frontend build
+corepack pnpm lint                  # ESLint frontend
+corepack pnpm lint:backend          # ruff check backend
+corepack pnpm typecheck             # TypeScript type check
+corepack pnpm typecheck:backend     # mypy backend
+corepack pnpm test:backend          # pytest
+corepack pnpm generate:api          # Regenerate TS client from OpenAPI
+corepack pnpm db:start              # Start local PostgreSQL 18 via Docker
+corepack pnpm db:migrate            # Alembic upgrade head
+corepack pnpm db:check              # Verify migrations current
+corepack pnpm db:revision           # Generate new Alembic migration
+```
 
-- Frontend: pnpm workspace commands for install, typecheck, lint, unit tests, OpenAPI client generation, and Playwright tests.
-- Backend: uv or pip-tools-managed Python environment, ruff, mypy, pytest, pytest-asyncio, Testcontainers, and Alembic migration checks.
+- Frontend: pnpm workspace, Next.js App Router, TypeScript strict, ESLint.
+- Backend: uv-managed Python 3.13, ruff, mypy, pytest, pytest-asyncio, Alembic migrations.
 - Contracts: regenerate the TypeScript API client from `/openapi.json`; CI should fail if generated client changes are missing.
-- Containers: build frontend and backend Docker images before deployment.
-- Release gates: type checks, lint, backend tests, frontend tests, OpenAPI client freshness, Docker builds, Alembic migration in staging, health checks, and critical smoke tests.
+- Containers: build frontend and backend Docker images (`docker compose up --build` for local full-stack).
+- Release gates: type checks, lint, backend tests, frontend tests, OpenAPI client freshness, Docker builds, Alembic migration check, health checks, and critical smoke tests.
 
 Critical scenarios to test include task permissions, blocked-task reasons, manager review, inventory transaction correctness, no negative stock without override, QC-before-dispatch, label print-job history, and work-order completion updating finished goods.
 
 ## Deployment Guidelines
 
-- Launch target is AWS `ap-south-1` unless latency/cost checks choose otherwise.
-- Use Route 53, ACM TLS, ALB, ECS Fargate, ECR, RDS PostgreSQL, private S3, Cognito, CloudWatch, and SSM Parameter Store/Secrets Manager.
-- Launch cheaply: one ECS service, one task definition with frontend/backend containers, desired count 1, one shared ALB, RDS single-AZ, no NAT Gateway unless required, 14-day CloudWatch log retention, AWS Budgets alert.
+- Production is live on AWS `ap-south-1` at `app.pailoshoes.com`.
+- Infrastructure: Route 53, ACM TLS, ALB, ECS Fargate (X86_64), ECR, RDS PostgreSQL, private S3, Cognito, CloudWatch, SSM Parameter Store/Secrets Manager.
+- Current setup: one ECS service (`pailo-prod-app`), one task definition with frontend + backend containers, desired count 1, one shared ALB, RDS single-AZ, 14-day CloudWatch log retention, AWS Budgets alert.
+- Terraform in `infra/terraform/` manages all infrastructure. Apply with `terraform plan` then `terraform apply`.
+- Container images are built with `docker build --platform linux/amd64` and pushed to ECR (`767397751806.dkr.ecr.ap-south-1.amazonaws.com/pailo-prod/`).
+- Deploy by pushing new images and running `aws ecs update-service --force-new-deployment`.
+- GitHub Actions workflows: `ci.yml` (lint/test), `deploy.yml` (build+deploy), `terraform.yml` (infra changes).
 - Keep S3 buckets private with Block Public Access and ACLs disabled. Use IAM task roles for AWS access.
 - Add Multi-AZ RDS, split ECS services, workers, Redis/Valkey, WAF, or CloudFront only when operational need justifies it.
 
