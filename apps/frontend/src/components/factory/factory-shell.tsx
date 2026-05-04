@@ -10,12 +10,14 @@ import {
   Factory,
   Gauge,
   Globe,
+  LogOut,
   PackageCheck,
   Printer,
   ShieldCheck,
   Users,
 } from "lucide-react";
 
+import { useAuth } from "@/components/auth-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -43,6 +45,7 @@ type FactoryShellProps = {
 
 export function FactoryShell({ actions, children, description, eyebrow, title }: FactoryShellProps) {
   const pathname = usePathname();
+  const { user, logout, isLoggedIn } = useAuth();
 
   return (
     <main className="factory-shell">
@@ -68,11 +71,31 @@ export function FactoryShell({ actions, children, description, eyebrow, title }:
         </nav>
 
         <div className="factory-sidebar-footer">
-          <span className="status-dot" />
-          <div>
-            <strong>Floor online</strong>
-            <span>Live database</span>
-          </div>
+          {isLoggedIn && user ? (
+            <>
+              <span className="status-dot" />
+              <div className="flex-1 min-w-0">
+                <strong className="block truncate text-xs">{user.display_name}</strong>
+                <span className="block truncate text-xs opacity-70">{user.role}</span>
+              </div>
+              <button
+                onClick={logout}
+                className="ml-auto p-1 opacity-60 hover:opacity-100 transition-opacity"
+                title="Sign out"
+                aria-label="Sign out"
+              >
+                <LogOut size={16} />
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="status-dot" />
+              <div>
+                <strong>Floor online</strong>
+                <span>Live database</span>
+              </div>
+            </>
+          )}
         </div>
       </aside>
 

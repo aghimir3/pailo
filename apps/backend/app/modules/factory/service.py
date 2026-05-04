@@ -99,21 +99,90 @@ async def resolve_current_user(
     session: AsyncSession,
     user_id: UUID | None = None,
     user_email: str | None = None,
+    cognito_sub: str | None = None,
 ) -> UserContext:
     query = select(User, Role.name).join(Role, User.role_id == Role.id)
-    if user_id is not None:
+
+    if cognito_sub:
+        # First try to find by cognito_sub
+        sub_query = query.where(User.cognito_sub == cognito_sub)
+        row = (await session.execute(sub_query)).first()
+
+        if row is None and user_email:
+            # Try to find by email and link the cognito_sub
+            email_query = query.where(User.email == user_email)
+            row = (await session.execute(email_query)).first()
+            if row is not None:
+                user_obj = row[0]
+                user_obj.cognito_sub = cognito_sub
+                await session.commit()
+                await session.refresh(user_obj)
+
+        if row is None and user_email:
+            # Auto-bootstrap: if this email matches initial_owner_admin_email and no owner exists
+            from app.core.config import get_settings
+            settings = get_settings()
+            if settings.initial_owner_admin_email and user_email.lower() == settings.initial_owner_admin_email.lower():
+                row = await _bootstrap_owner_admin(session, cognito_sub, user_email)
+
+        if row is None:
+            raise FactoryServiceError(401, "No active Pailo app user matched the request.")
+    elif user_id is not None:
         query = query.where(User.id == user_id)
+        row = (await session.execute(query)).first()
+        if row is None:
+            raise FactoryServiceError(401, "No active Pailo app user matched the request.")
     else:
         query = query.where(User.email == (user_email or DEFAULT_USER_EMAIL))
-
-    row = (await session.execute(query)).first()
-    if row is None:
-        raise FactoryServiceError(401, "No active Pailo app user matched the request.")
+        row = (await session.execute(query)).first()
+        if row is None:
+            raise FactoryServiceError(401, "No active Pailo app user matched the request.")
 
     user, role_name = row
     if user.status != "active":
         raise FactoryServiceError(403, "This Pailo app user is disabled.")
     return UserContext(id=user.id, display_name=user.display_name, email=user.email, role=role_name)
+
+
+async def _bootstrap_owner_admin(
+    session: AsyncSession,
+    cognito_sub: str,
+    email: str,
+) -> tuple | None:
+    """Auto-create the first owner_admin user if none exists."""
+    # Check if any owner_admin already exists
+    owner_role_query = select(Role).where(Role.name == "owner_admin")
+    owner_role = (await session.execute(owner_role_query)).scalar_one_or_none()
+    if owner_role is None:
+        return None
+
+    existing_owner = (
+        await session.execute(
+            select(User).where(User.role_id == owner_role.id)
+        )
+    ).scalar_one_or_none()
+
+    if existing_owner is not None:
+        return None  # Don't auto-bootstrap if an owner already exists
+
+    from datetime import UTC, datetime
+
+    new_user = User(
+        cognito_sub=cognito_sub,
+        email=email,
+        display_name=email.split("@")[0].replace(".", " ").title(),
+        role_id=owner_role.id,
+        invite_status="accepted",
+        status="active",
+        accepted_invite_at=datetime.now(UTC),
+        last_login_at=datetime.now(UTC),
+    )
+    session.add(new_user)
+    await session.commit()
+    await session.refresh(new_user)
+
+    query = select(User, Role.name).join(Role, User.role_id == Role.id).where(User.id == new_user.id)
+    return (await session.execute(query)).first()
 
 
 async def list_users(session: AsyncSession) -> list[UserRef]:

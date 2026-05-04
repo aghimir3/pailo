@@ -31,6 +31,26 @@ resource "aws_ecs_task_definition" "app" {
           value = "http://127.0.0.1:8000"
         },
         {
+          name  = "NEXT_PUBLIC_COGNITO_DOMAIN"
+          value = var.cognito_domain_prefix != "" ? "${var.cognito_domain_prefix}.auth.${var.aws_region}.amazoncognito.com" : ""
+        },
+        {
+          name  = "NEXT_PUBLIC_COGNITO_CLIENT_ID"
+          value = aws_cognito_user_pool_client.web.id
+        },
+        {
+          name  = "NEXT_PUBLIC_COGNITO_REDIRECT_URI"
+          value = "https://${local.app_domain_name}/auth/callback"
+        },
+        {
+          name  = "NEXT_PUBLIC_COGNITO_LOGOUT_URI"
+          value = "https://${local.app_domain_name}/auth/logout"
+        },
+        {
+          name  = "INTERNAL_SERVICE_TOKEN"
+          value = random_password.internal_service_token.result
+        },
+        {
           name  = "PORT"
           value = "3000"
         }
@@ -93,6 +113,10 @@ resource "aws_ecs_task_definition" "app" {
         {
           name  = "S3_FILES_BUCKET"
           value = aws_s3_bucket.files.bucket
+        },
+        {
+          name  = "INTERNAL_SERVICE_TOKEN"
+          value = random_password.internal_service_token.result
         }
       ])
       essential = true

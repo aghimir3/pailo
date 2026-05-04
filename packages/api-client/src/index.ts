@@ -30,6 +30,7 @@ export type WorkOrderRecord = components["schemas"]["WorkOrderRecord"];
 
 const DEFAULT_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 const DEFAULT_TASK_MANAGER_EMAIL = process.env.NEXT_PUBLIC_PAILO_TASK_MANAGER_EMAIL ?? "milan@pailoshoes.com";
+const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN ?? "";
 
 type ApiActorOptions = {
   baseUrl?: string;
@@ -260,11 +261,17 @@ async function deleteJson<TResponse>(path: string, baseUrl = DEFAULT_BASE_URL): 
 }
 
 async function getJson<TResponse>(path: string, baseUrl = DEFAULT_BASE_URL): Promise<TResponse> {
+  const headers: Record<string, string> = {
+    accept: "application/json",
+  };
+  // For server-side rendering: use internal service token if available
+  if (INTERNAL_SERVICE_TOKEN) {
+    headers["X-Internal-Token"] = INTERNAL_SERVICE_TOKEN;
+  }
+
   const response = await fetch(`${baseUrl}${path}`, {
     cache: "no-store",
-    headers: {
-      accept: "application/json",
-    },
+    headers,
   });
 
   if (!response.ok) {

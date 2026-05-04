@@ -93,3 +93,8 @@ resource "aws_vpc_security_group_ingress_rule" "database_postgres" {
   security_group_id            = aws_security_group.database.id
   to_port                      = 5432
 }
+
+resource "random_password" "internal_service_token" {
+  length  = 48
+  special = false
+}

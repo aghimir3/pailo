@@ -15,6 +15,29 @@ class Settings(BaseSettings):
     database_password: str = "pailo"
     initial_owner_admin_email: str = ""
 
+    # Cognito settings
+    cognito_user_pool_id: str = ""
+    cognito_client_id: str = ""
+    aws_region: str = "ap-south-1"
+
+    # Auth mode: "cognito" for production JWT verification, "dev" for header-based dev auth
+    auth_mode: str = "cognito"
+
+    # Internal service token for server-to-server calls within ECS task
+    internal_service_token: str = ""
+
+    # App domain for CORS
+    app_domain: str = ""
+    cors_origins: str = ""
+
+    @property
+    def cognito_issuer(self) -> str:
+        return f"https://cognito-idp.{self.aws_region}.amazonaws.com/{self.cognito_user_pool_id}"
+
+    @property
+    def cognito_jwks_url(self) -> str:
+        return f"{self.cognito_issuer}/.well-known/jwks.json"
+
     @property
     def sqlalchemy_database_url(self) -> str:
         if self.database_url:

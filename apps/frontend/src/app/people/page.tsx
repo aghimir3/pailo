@@ -1,7 +1,9 @@
 import { Users } from "lucide-react";
+import Link from "next/link";
 
 import { FactoryShell } from "@/components/factory/factory-shell";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { GlassCard, PanelHeader } from "@/components/ui/glass-card";
 import { loadOperationsData } from "@/lib/operations-data";
 
@@ -9,7 +11,16 @@ export default async function PeoplePage() {
   const data = await loadOperationsData();
 
   return (
-    <FactoryShell description="Users, roles, and employee references are managed as part of the factory app, not a separate admin portal." eyebrow="Access and people" title="People">
+    <FactoryShell
+      description="Users, roles, and employee references are managed as part of the factory app, not a separate admin portal."
+      eyebrow="Access and people"
+      title="People"
+      actions={
+        <Button asChild variant="glass">
+          <Link href="/people/users">Manage Users</Link>
+        </Button>
+      }
+    >
       <section className="ops-two-column">
         <GlassCard className="ops-panel">
           <PanelHeader><div><p className="eyebrow">App users</p><h2>Access roles</h2></div><Users aria-hidden="true" className="panel-icon" size={22} /></PanelHeader>
