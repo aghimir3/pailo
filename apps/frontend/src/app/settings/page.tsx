@@ -148,14 +148,20 @@ export default function LandingPageEditor() {
 
   useEffect(() => {
     fetch(`${API_BASE}/api/v1/settings/landing-page`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((data) => setConfig(data))
-      .catch(() => setError("Failed to load landing page config"))
+      .catch(() => setError("Failed to load config. Is the backend running?"))
       .finally(() => setLoading(false));
 
     // Load catalog items
     fetch(`${API_BASE}/api/v1/catalog`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((data) => setCatalogItems(data.items ?? []))
       .catch(() => {});
   }, []);
