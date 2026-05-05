@@ -229,12 +229,14 @@ async function sendJson<TResponse>(
   baseUrl = DEFAULT_BASE_URL,
   headers: Record<string, string> = {},
 ): Promise<TResponse> {
+  const authHeaders = getClientAuthHeaders();
   const response = await fetch(`${baseUrl}${path}`, {
     body: JSON.stringify(payload),
     cache: "no-store",
     headers: {
       accept: "application/json",
       "content-type": "application/json",
+      ...authHeaders,
       ...headers,
     },
     method,
@@ -248,10 +250,12 @@ async function sendJson<TResponse>(
 }
 
 async function deleteJson<TResponse>(path: string, baseUrl = DEFAULT_BASE_URL): Promise<TResponse> {
+  const authHeaders = getClientAuthHeaders();
   const response = await fetch(`${baseUrl}${path}`, {
     cache: "no-store",
     headers: {
       accept: "application/json",
+      ...authHeaders,
     },
     method: "DELETE",
   });
@@ -302,4 +306,23 @@ async function apiError(response: Response, path: string) {
     // Keep the status-based fallback when the response is not JSON.
   }
   return new Error(detail);
+}
+
+/**
+ * Get auth headers for client-side (browser) requests.
+ * Reads the access token from localStorage if available.
+ */
+function getClientAuthHeaders(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  try {
+    const stored = localStorage.getItem("pailo_auth_tokens");
+    if (!stored) return {};
+    const tokens = JSON.parse(stored) as { access_token?: string; expires_at?: number };
+    if (!tokens.access_token) return {};
+    // Skip if expired (with 60s buffer)
+    if (tokens.expires_at && tokens.expires_at < Date.now() + 60000) return {};
+    return { Authorization: `Bearer ${tokens.access_token}` };
+  } catch {
+    return {};
+  }
 }
