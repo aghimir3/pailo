@@ -21,7 +21,7 @@ const hubNavigationItems = [
   { href: "/quality", label: "Quality", icon: ShieldCheck },
   { href: "/labels", label: "Labels", icon: Printer },
   { href: "/reports", label: "Reports", icon: BarChart3 },
-  { href: "/people/users", label: "Users", icon: Users },
+  { href: "/people", label: "People", icon: Users },
   { href: "/settings", label: "Settings", icon: Globe },
 ];
 

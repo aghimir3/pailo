@@ -35,7 +35,7 @@ const navigationItems = [
   { href: "/inventory", label: "Inventory", icon: Boxes },
   { href: "/quality", label: "Quality", icon: ShieldCheck },
   { href: "/labels", label: "Labels", icon: Printer },
-  { href: "/people/users", label: "Users", icon: Users },
+  { href: "/people", label: "People", icon: Users },
   { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/settings", label: "Landing Page", icon: Globe },
 ];
