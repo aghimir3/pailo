@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -10,6 +11,7 @@ import {
   Factory,
   Gauge,
   Globe,
+  Grid3X3,
   LogOut,
   PackageCheck,
   Printer,
@@ -20,8 +22,10 @@ import {
 import { useAuth } from "@/components/auth-provider";
 import { AuthGuard } from "@/components/auth-guard";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { HubSheet } from "@/components/factory/hub-sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useScrollDirection } from "@/lib/use-scroll-direction";
 
 const navigationItems = [
   { href: "/dashboard", label: "Dashboard", icon: Gauge, exact: true },
@@ -36,6 +40,15 @@ const navigationItems = [
   { href: "/settings", label: "Landing Page", icon: Globe },
 ];
 
+// Bottom nav: 4 primary destinations + center hub
+const mobileNavItems = [
+  { href: "/dashboard", label: "Home", icon: Gauge, exact: true },
+  { href: "/tasks", label: "Tasks", icon: ClipboardList },
+  // hub button inserted between these
+  { href: "/work-orders", label: "Orders", icon: PackageCheck },
+  { href: "/inventory", label: "Stock", icon: Boxes },
+];
+
 type FactoryShellProps = {
   eyebrow: string;
   title: string;
@@ -47,6 +60,8 @@ type FactoryShellProps = {
 export function FactoryShell({ actions, children, description, eyebrow, title }: FactoryShellProps) {
   const pathname = usePathname();
   const { user, logout, isLoggedIn } = useAuth();
+  const [hubOpen, setHubOpen] = useState(false);
+  const navHidden = useScrollDirection();
 
   return (
     <AuthGuard>
@@ -117,23 +132,12 @@ export function FactoryShell({ actions, children, description, eyebrow, title }:
           </div>
         </header>
 
-        <nav className="factory-section-nav" aria-label="All factory sections">
-          {navigationItems.map((item) => {
-            const isActive = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return (
-              <Link className={cn("factory-section-nav-item", isActive && "active")} href={item.href} key={item.href}>
-                <item.icon aria-hidden="true" size={16} />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
         {children}
       </section>
 
-      <nav className="factory-mobile-nav" aria-label="Mobile navigation">
-        {navigationItems.slice(0, 5).map((item) => {
+      {/* Mobile bottom nav: 4 items + center hub button */}
+      <nav className={cn("factory-mobile-nav", navHidden && "nav-hidden")} aria-label="Mobile navigation">
+        {mobileNavItems.slice(0, 2).map((item) => {
           const isActive = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link className={cn("factory-mobile-nav-item", isActive && "active")} href={item.href} key={item.href}>
@@ -142,7 +146,29 @@ export function FactoryShell({ actions, children, description, eyebrow, title }:
             </Link>
           );
         })}
+
+        <button
+          className={cn("factory-mobile-nav-hub", hubOpen && "active")}
+          onClick={() => setHubOpen(true)}
+          type="button"
+          aria-label="Open navigation hub"
+          aria-expanded={hubOpen}
+        >
+          <Grid3X3 aria-hidden="true" size={20} />
+        </button>
+
+        {mobileNavItems.slice(2).map((item) => {
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          return (
+            <Link className={cn("factory-mobile-nav-item", isActive && "active")} href={item.href} key={item.href}>
+              <item.icon aria-hidden="true" size={19} />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
+
+      <HubSheet open={hubOpen} onClose={() => setHubOpen(false)} />
     </main>
     </AuthGuard>
   );
