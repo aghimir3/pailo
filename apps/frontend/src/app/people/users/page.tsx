@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Shield, UserPlus, Users } from "lucide-react";
+import { Shield, Trash2, UserPlus, Users } from "lucide-react";
 
 import { useAuth } from "@/components/auth-provider";
 import { FactoryShell } from "@/components/factory/factory-shell";
@@ -175,6 +175,32 @@ export default function UserManagementPage() {
     setFormError(null);
   };
 
+  const handleDelete = async (u: UserRecord) => {
+    if (!confirm(`Delete user "${u.display_name}" (${u.email})? This will remove them from the system and revoke access.`)) {
+      return;
+    }
+
+    try {
+      const token = await getAccessToken();
+      const headers: Record<string, string> = { Accept: "application/json" };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch(`${API_BASE_URL}/api/v1/users/${u.id}`, {
+        method: "DELETE",
+        headers,
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || `Delete failed: ${res.status}`);
+      }
+
+      await fetchUsers();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Delete failed");
+    }
+  };
+
   const isAdmin = currentUser?.role === "owner_admin";
 
   if (loading) {
@@ -341,6 +367,11 @@ export default function UserManagementPage() {
                 {isAdmin && (
                   <Button size="sm" variant="ghost" onClick={() => startEdit(u)}>
                     Edit
+                  </Button>
+                )}
+                {isAdmin && u.id !== currentUser?.id && (
+                  <Button size="sm" variant="ghost" onClick={() => handleDelete(u)} className="text-red-600 hover:text-red-700">
+                    <Trash2 size={14} />
                   </Button>
                 )}
               </div>

@@ -136,6 +136,20 @@ async def create_user(
 
     from datetime import UTC, datetime
 
+    from app.core.cognito import CognitoError, admin_create_user as cognito_create
+
+    # Create the user in Cognito first (sends invite email with temp password)
+    try:
+        cognito_sub = cognito_create(email=payload.email, display_name=payload.display_name)
+    except CognitoError as e:
+        if e.code == "UsernameExistsException":
+            raise HTTPException(
+                status_code=409, detail="This email already has a Cognito account"
+            ) from e
+        raise HTTPException(
+            status_code=502, detail=f"Failed to create user in identity provider: {e.message}"
+        ) from e
+
     new_user = User(
         email=payload.email,
         display_name=payload.display_name,
@@ -144,6 +158,7 @@ async def create_user(
         status="active",
         invited_at=datetime.now(UTC),
         invited_by_user_id=user.id,
+        cognito_sub=cognito_sub or None,
     )
     session.add(new_user)
     await session.commit()
@@ -187,6 +202,22 @@ async def update_user(
     if payload.status is not None:
         if payload.status not in ("active", "disabled"):
             raise HTTPException(status_code=400, detail="Status must be 'active' or 'disabled'")
+
+        # Sync status change with Cognito
+        if payload.status != target.status and target.email:
+            from app.core.cognito import CognitoError, admin_disable_user, admin_enable_user
+
+            try:
+                if payload.status == "disabled":
+                    admin_disable_user(target.email)
+                else:
+                    admin_enable_user(target.email)
+            except CognitoError as e:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Failed to update user in identity provider: {e.message}",
+                ) from e
+
         target.status = payload.status
 
     await session.commit()
@@ -205,3 +236,38 @@ async def update_user(
         cognito_sub=target.cognito_sub,
         last_login_at=target.last_login_at.isoformat() if target.last_login_at else None,
     )
+
+
+@router.delete("/{user_id}", status_code=204)
+async def delete_user(
+    user_id: str,
+    session: DbSession,
+    user: CurrentUser,
+) -> None:
+    """Delete a user. Only owner_admin can delete users. Cannot delete yourself."""
+    if user.role != "owner_admin":
+        raise HTTPException(status_code=403, detail="Only owner_admin can delete users")
+
+    target = await session.get(User, UUID(user_id))
+    if target is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if target.id == user.id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+
+    # Remove from Cognito if the user has an email (they should)
+    if target.email:
+        from app.core.cognito import CognitoError, admin_delete_user
+
+        try:
+            admin_delete_user(target.email)
+        except CognitoError as e:
+            # If user doesn't exist in Cognito, proceed with DB deletion
+            if e.code != "UserNotFoundException":
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Failed to delete user from identity provider: {e.message}",
+                ) from e
+
+    await session.delete(target)
+    await session.commit()

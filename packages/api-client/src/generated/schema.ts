@@ -38,6 +38,110 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Session
+         * @description Validate the current token and return user session info.
+         */
+        get: operations["get_session_api_v1_auth_session_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Me
+         * @description Get the current authenticated user's profile and permissions.
+         */
+        get: operations["get_me_api_v1_users_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Roles
+         * @description List all available roles. Only owner_admin can manage users.
+         */
+        get: operations["list_roles_api_v1_users_roles_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Users
+         * @description List all users. Only owner_admin and factory_manager can view.
+         */
+        get: operations["list_users_api_v1_users_get"];
+        put?: never;
+        /**
+         * Create User
+         * @description Create a new user (admin invite). Only owner_admin can create users.
+         */
+        post: operations["create_user_api_v1_users_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update User
+         * @description Update a user's role, status, or display name. Only owner_admin.
+         */
+        patch: operations["update_user_api_v1_users__user_id__patch"];
+        trace?: never;
+    };
     "/api/v1/reports/dashboard": {
         parameters: {
             query?: never;
@@ -515,10 +619,168 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Catalog
+         * @description Public - returns all catalog items.
+         */
+        get: operations["list_catalog_api_v1_catalog_get"];
+        put?: never;
+        /**
+         * Create Catalog Item
+         * @description Upload a new catalog item with image. Requires auth.
+         */
+        post: operations["create_catalog_item_api_v1_catalog_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/catalog/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Catalog Item
+         * @description Update caption, alt_text, or price for a catalog item. Requires auth.
+         */
+        put: operations["update_catalog_item_api_v1_catalog__item_id__put"];
+        post?: never;
+        /**
+         * Delete Catalog Item
+         * @description Delete a catalog item and its image. Requires auth.
+         */
+        delete: operations["delete_catalog_item_api_v1_catalog__item_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/catalog/{item_id}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Catalog Image
+         * @description Replace the image for a catalog item. Requires auth.
+         */
+        put: operations["update_catalog_image_api_v1_catalog__item_id__image_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/catalog/images/{filename}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Serve Catalog Image
+         * @description Public - serve a catalog image file.
+         */
+        get: operations["serve_catalog_image_api_v1_catalog_images__filename__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partners": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Partner Inquiries
+         * @description Auth-protected — lists all partner inquiries for staff.
+         */
+        get: operations["list_partner_inquiries_api_v1_partners_get"];
+        put?: never;
+        /**
+         * Create Partner Inquiry
+         * @description Public endpoint — no auth required. Creates a new partner inquiry.
+         */
+        post: operations["create_partner_inquiry_api_v1_partners_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** Body_create_catalog_item_api_v1_catalog_post */
+        Body_create_catalog_item_api_v1_catalog_post: {
+            /** Image */
+            image: string;
+        };
+        /** Body_update_catalog_image_api_v1_catalog__item_id__image_put */
+        Body_update_catalog_image_api_v1_catalog__item_id__image_put: {
+            /** Image */
+            image: string;
+        };
+        /** CatalogItem */
+        CatalogItem: {
+            /** Id */
+            id: string;
+            /** Image Filename */
+            image_filename: string;
+            /**
+             * Caption
+             * @default
+             */
+            caption: string;
+            /**
+             * Alt Text
+             * @default
+             */
+            alt_text: string;
+            /**
+             * Price
+             * @default
+             */
+            price: string;
+        };
+        /** CatalogItemUpdate */
+        CatalogItemUpdate: {
+            /** Caption */
+            caption?: string | null;
+            /** Alt Text */
+            alt_text?: string | null;
+            /** Price */
+            price?: string | null;
+        };
+        /** CatalogListResponse */
+        CatalogListResponse: {
+            /** Items */
+            items: components["schemas"]["CatalogItem"][];
+        };
         /** DashboardResponse */
         DashboardResponse: {
             /** Production Date */
@@ -929,6 +1191,19 @@ export interface components {
             /** Risk */
             risk: string;
         };
+        /** MeResponse */
+        MeResponse: {
+            /** Id */
+            id: string;
+            /** Email */
+            email: string | null;
+            /** Display Name */
+            display_name: string;
+            /** Role */
+            role: string;
+            /** Permissions */
+            permissions: string[];
+        };
         /** OperationsCatalogResponse */
         OperationsCatalogResponse: {
             /** Users */
@@ -956,6 +1231,50 @@ export interface components {
             action: string;
             /** Tone */
             tone: string;
+        };
+        /** PartnerInquiryCreate */
+        PartnerInquiryCreate: {
+            /** Name */
+            name: string;
+            /** Business Name */
+            business_name?: string | null;
+            /** Phone */
+            phone: string;
+            /** Email */
+            email?: string | null;
+            /** Location */
+            location?: string | null;
+            /**
+             * Partner Type
+             * @default retail
+             */
+            partner_type: string;
+            /** Message */
+            message?: string | null;
+        };
+        /** PartnerInquiryResponse */
+        PartnerInquiryResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Business Name */
+            business_name: string | null;
+            /** Phone */
+            phone: string;
+            /** Email */
+            email: string | null;
+            /** Location */
+            location: string | null;
+            /** Partner Type */
+            partner_type: string;
+            /** Message */
+            message: string | null;
+            /** Status */
+            status: string;
         };
         /** ProductStyleRecord */
         ProductStyleRecord: {
@@ -1018,6 +1337,15 @@ export interface components {
             detail: string;
             /** Tone */
             tone: string;
+        };
+        /** RoleRecord */
+        RoleRecord: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string | null;
         };
         /** SavedLabelCreateRequest */
         SavedLabelCreateRequest: {
@@ -1395,6 +1723,39 @@ export interface components {
             /** Completed */
             completed: number;
         };
+        /** UserCreateRequest */
+        UserCreateRequest: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Display Name */
+            display_name: string;
+            /** Role Id */
+            role_id: string;
+        };
+        /** UserRecord */
+        UserRecord: {
+            /** Id */
+            id: string;
+            /** Email */
+            email: string | null;
+            /** Display Name */
+            display_name: string;
+            /** Role Name */
+            role_name: string;
+            /** Role Id */
+            role_id: string;
+            /** Status */
+            status: string;
+            /** Invite Status */
+            invite_status: string;
+            /** Cognito Sub */
+            cognito_sub: string | null;
+            /** Last Login At */
+            last_login_at: string | null;
+        };
         /** UserRef */
         UserRef: {
             /**
@@ -1408,6 +1769,15 @@ export interface components {
             email?: string | null;
             /** Role */
             role: string;
+        };
+        /** UserUpdateRequest */
+        UserUpdateRequest: {
+            /** Display Name */
+            display_name?: string | null;
+            /** Role Id */
+            role_id?: string | null;
+            /** Status */
+            status?: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -1544,6 +1914,220 @@ export interface operations {
             };
         };
     };
+    get_session_api_v1_auth_session_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_me_api_v1_users_me_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_roles_api_v1_users_roles_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleRecord"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_users_api_v1_users_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRecord"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_user_api_v1_users_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_user_api_v1_users__user_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
+            };
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_dashboard_api_v1_reports_dashboard_get: {
         parameters: {
             query?: never;
@@ -1644,8 +2228,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -1680,8 +2266,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -1743,8 +2331,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path: {
                 task_id: string;
@@ -1781,8 +2371,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path: {
                 task_id: string;
@@ -1819,8 +2411,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path: {
                 task_id: string;
@@ -1857,8 +2451,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path: {
                 task_id: string;
@@ -2113,8 +2709,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -2182,8 +2780,10 @@ export interface operations {
                 version: number;
             };
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path: {
                 saved_label_id: string;
@@ -2216,8 +2816,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path: {
                 saved_label_id: string;
@@ -2254,8 +2856,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path: {
                 saved_label_id: string;
@@ -2358,8 +2962,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path: {
                 saved_label_id: string;
@@ -2436,8 +3042,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -2472,8 +3080,10 @@ export interface operations {
         parameters: {
             query?: never;
             header?: {
+                authorization?: string | null;
                 "X-Pailo-User-Id"?: string | null;
                 "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
             };
             path: {
                 key: string;
@@ -2493,6 +3103,280 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SiteSettingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_catalog_api_v1_catalog_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogListResponse"];
+                };
+            };
+        };
+    };
+    create_catalog_item_api_v1_catalog_post: {
+        parameters: {
+            query?: {
+                caption?: string;
+                alt_text?: string;
+                price?: string;
+            };
+            header?: {
+                authorization?: string | null;
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_create_catalog_item_api_v1_catalog_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_catalog_item_api_v1_catalog__item_id__put: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
+            };
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogItemUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_catalog_item_api_v1_catalog__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
+            };
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_catalog_image_api_v1_catalog__item_id__image_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
+            };
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_update_catalog_image_api_v1_catalog__item_id__image_put"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    serve_catalog_image_api_v1_catalog_images__filename__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                filename: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_partner_inquiries_api_v1_partners_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+                "X-Pailo-User-Id"?: string | null;
+                "X-Pailo-User-Email"?: string | null;
+                "X-Internal-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnerInquiryResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_partner_inquiry_api_v1_partners_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PartnerInquiryCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnerInquiryResponse"];
                 };
             };
             /** @description Validation Error */

@@ -113,8 +113,15 @@ async def resolve_current_user(
             email_query = query.where(User.email == user_email)
             row = (await session.execute(email_query)).first()
             if row is not None:
+                from datetime import UTC, datetime
+
                 user_obj = row[0]
                 user_obj.cognito_sub = cognito_sub
+                # Mark invite as accepted on first login
+                if user_obj.invite_status == "invited":
+                    user_obj.invite_status = "accepted"
+                    user_obj.accepted_invite_at = datetime.now(UTC)
+                user_obj.last_login_at = datetime.now(UTC)
                 await session.commit()
                 await session.refresh(user_obj)
 
