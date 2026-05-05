@@ -2,6 +2,7 @@
   color-scheme: light;
   --bg: #edf3ef;
   --bg-grid: rgba(25, 39, 32, 0.075);
+  --surface: #ffffff;
   --glass: rgba(255, 255, 255, 0.68);
   --glass-strong: rgba(255, 255, 255, 0.82);
   --glass-nested: rgba(255, 255, 255, 0.5);
@@ -28,6 +29,7 @@
   color-scheme: dark;
   --bg: #0c1410;
   --bg-grid: rgba(203, 224, 213, 0.08);
+  --surface: #1b2822;
   --glass: rgba(23, 33, 28, 0.62);
   --glass-strong: rgba(27, 40, 34, 0.78);
   --glass-nested: rgba(255, 255, 255, 0.055);
@@ -4928,8 +4930,8 @@ button {
   padding: 4px;
   border-radius: 8px;
   border: 1px solid var(--border);
-  background: var(--glass);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
 }
@@ -4976,8 +4978,8 @@ button {
   overflow-y: auto;
   border-radius: 14px;
   border: 1px solid var(--border);
-  background: var(--glass);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  background: var(--surface);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.04);
   animation: scaleIn 0.2s ease-out;
 }
 

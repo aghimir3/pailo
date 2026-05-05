@@ -93,6 +93,26 @@ def admin_enable_user(email: str) -> None:
         raise CognitoError(message=error_msg, code=error_code) from e
 
 
+def admin_resend_invite(email: str) -> None:
+    """Resend the invitation email with a new temporary password."""
+    settings = get_settings()
+    client = _get_client()
+
+    try:
+        client.admin_create_user(
+            UserPoolId=settings.cognito_user_pool_id,
+            Username=email,
+            MessageAction="RESEND",
+            DesiredDeliveryMediums=["EMAIL"],
+        )
+        logger.info("cognito_invite_resent", email=email)
+    except ClientError as e:
+        error_code = e.response["Error"]["Code"]
+        error_msg = e.response["Error"]["Message"]
+        logger.error("cognito_resend_invite_failed", email=email, code=error_code, msg=error_msg)
+        raise CognitoError(message=error_msg, code=error_code) from e
+
+
 def admin_delete_user(email: str) -> None:
     """Delete a user from Cognito permanently."""
     settings = get_settings()

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertTriangle, CheckCircle2, Mail, MoreVertical, Pencil, Shield, Trash2, UserPlus, Users, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Mail, MoreVertical, Pencil, RotateCw, Shield, Trash2, UserPlus, Users, X } from "lucide-react";
 
 import { useAuth } from "@/components/auth-provider";
 import { FactoryShell } from "@/components/factory/factory-shell";
@@ -92,7 +92,7 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 
 // ─── Action Menu ────────────────────────────────────────────────────────
 
-function ActionMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
+function ActionMenu({ onEdit, onDelete, onResend, canResend }: { onEdit: () => void; onDelete: () => void; onResend: () => void; canResend: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -115,6 +115,11 @@ function ActionMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => 
           <button onClick={() => { onEdit(); setOpen(false); }}>
             <Pencil size={14} /> Edit
           </button>
+          {canResend && (
+            <button onClick={() => { onResend(); setOpen(false); }}>
+              <RotateCw size={14} /> Resend Invite
+            </button>
+          )}
           <button className="destructive" onClick={() => { onDelete(); setOpen(false); }}>
             <Trash2 size={14} /> Remove
           </button>
@@ -278,6 +283,29 @@ export default function UserManagementPage() {
     }
   };
 
+  const handleResend = async (u: UserRecord) => {
+    try {
+      const token = await getAccessToken();
+      const headers: Record<string, string> = { Accept: "application/json" };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch(`${API_BASE_URL}/api/v1/users/${u.id}/resend-invite`, {
+        method: "POST",
+        headers,
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || `Resend failed: ${res.status}`);
+      }
+
+      showToast(`Invitation resent to ${u.email}`, "success");
+      await fetchUsers();
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Resend failed", "error");
+    }
+  };
+
   const handleDelete = async () => {
     if (modal.type !== "delete") return;
     setFormSubmitting(true);
@@ -410,7 +438,14 @@ export default function UserManagementPage() {
                   </div>
                   {isAdmin && (
                     <div className="user-col-actions">
-                      {!isSelf && <ActionMenu onEdit={() => openEdit(u)} onDelete={() => openDelete(u)} />}
+                      {!isSelf && (
+                        <ActionMenu
+                          onEdit={() => openEdit(u)}
+                          onDelete={() => openDelete(u)}
+                          onResend={() => handleResend(u)}
+                          canResend={u.invite_status === "invited"}
+                        />
+                      )}
                     </div>
                   )}
                 </div>

@@ -253,6 +253,54 @@ async def update_user(
     )
 
 
+@router.post("/{user_id}/resend-invite", status_code=204)
+async def resend_invite(
+    user_id: str,
+    session: DbSession,
+    user: CurrentUser,
+) -> None:
+    """Resend the invitation email. Only works for users who haven't logged in yet."""
+    if user.role != "owner_admin":
+        raise HTTPException(status_code=403, detail="Only owner_admin can resend invitations")
+
+    target = await session.get(User, UUID(user_id))
+    if target is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if target.invite_status != "invited":
+        raise HTTPException(status_code=400, detail="User has already accepted their invitation")
+
+    if not target.email:
+        raise HTTPException(status_code=400, detail="User has no email address")
+
+    from app.core.cognito import CognitoError, admin_resend_invite
+
+    try:
+        admin_resend_invite(target.email)
+    except CognitoError as e:
+        if e.code == "UserNotFoundException":
+            # User doesn't exist in Cognito (orphan) - create them fresh
+            from app.core.cognito import admin_create_user as cognito_create
+
+            try:
+                cognito_sub = cognito_create(
+                    email=target.email, display_name=target.display_name
+                )
+                if cognito_sub:
+                    target.cognito_sub = cognito_sub
+                    await session.commit()
+            except CognitoError as create_err:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Failed to send invitation: {create_err.message}",
+                ) from create_err
+        else:
+            raise HTTPException(
+                status_code=502,
+                detail=f"Failed to resend invitation: {e.message}",
+            ) from e
+
+
 @router.delete("/{user_id}", status_code=204)
 async def delete_user(
     user_id: str,
