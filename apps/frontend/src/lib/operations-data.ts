@@ -90,18 +90,15 @@ export async function loadOperationsData(): Promise<OperationsData> {
       listQualityInspections(),
       listSavedLabels(),
     ]);
-    const template = catalog.label_templates[0];
-    const labelPreview = template
-      ? await previewLabelSheet(template.id, {
-          quantity: 24,
-          art_no: defaultLabelArtNo,
-          colour: "White",
-          size: "39",
-          mrp_npr: "1899",
-          manufactured_by: "AB Fashion & Wears",
-          origin_text: "Made in Nepal",
-        })
-      : fallbackData.labelPreview;
+    const labelPreview = await previewLabelSheet(fallbackTemplateId, {
+      quantity: 24,
+      art_no: defaultLabelArtNo,
+      colour: "White",
+      size: "39",
+      mrp_npr: "1899",
+      manufactured_by: "AB Fashion & Wears",
+      origin_text: "Made in Nepal",
+    }).catch(() => fallbackData.labelPreview);
     return { catalog, tasks, myTasks, qualityInspections, labelPreview, savedLabels };
   } catch {
     return fallbackData;

@@ -11,7 +11,6 @@ export default async function LabelsPage() {
         initialPreview={data.labelPreview}
         initialSavedLabels={data.savedLabels}
         styles={data.catalog.styles}
-        templates={data.catalog.label_templates}
       />
     </FactoryShell>
   );

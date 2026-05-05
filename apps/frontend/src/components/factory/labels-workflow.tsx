@@ -30,7 +30,6 @@ type LabelsWorkflowProps = {
   initialPreview: LabelPreviewResponse;
   initialSavedLabels: SavedLabelRecord[];
   styles: ProductStyle[];
-  templates: LabelTemplateRecord[];
 };
 
 type LabelFormState = {
@@ -61,7 +60,7 @@ const defaultQuantity = "24";
 const defaultArtNo = "AFL 02";
 const labelFormStorageKey = "pailo:label-generator:last-values:v1";
 
-export function LabelsWorkflow({ initialPreview, initialSavedLabels, styles, templates }: LabelsWorkflowProps) {
+export function LabelsWorkflow({ initialPreview, initialSavedLabels, styles }: LabelsWorkflowProps) {
   const [preview, setPreview] = useState(initialPreview);
   const [form, setForm] = useState<LabelFormState>(() => createInitialForm(initialPreview));
   const [savedLabels, setSavedLabels] = useState(initialSavedLabels);
@@ -76,7 +75,7 @@ export function LabelsWorkflow({ initialPreview, initialSavedLabels, styles, tem
   const canPersistForm = useRef(false);
   const [isPending, startTransition] = useTransition();
 
-  const selectedTemplate = templates.find((template) => template.id === form.templateId) ?? preview.template;
+  const selectedTemplate = preview.template;
   const geometryDetails = templateGeometryDetails(selectedTemplate);
   const pages = useMemo(() => buildSheetPages(preview), [preview]);
   const filledCount = preview.slots.length;
@@ -101,14 +100,14 @@ export function LabelsWorkflow({ initialPreview, initialSavedLabels, styles, tem
     if (hasLoadedSavedForm.current) return;
     hasLoadedSavedForm.current = true;
 
-    const savedForm = readSavedForm(templates, initialPreview);
+    const savedForm = readSavedForm(initialPreview);
     if (!savedForm) {
       canPersistForm.current = true;
       return;
     }
 
     const timerId = window.setTimeout(() => {
-      const template = templates.find((candidate) => candidate.id === savedForm.templateId) ?? initialPreview.template;
+      const template = initialPreview.template;
       const payload = formPayload(savedForm);
       setForm(savedForm);
       setPreview(buildLocalPreview(template, payload));
@@ -127,7 +126,7 @@ export function LabelsWorkflow({ initialPreview, initialSavedLabels, styles, tem
     }, 0);
 
     return () => window.clearTimeout(timerId);
-  }, [initialPreview, templates]);
+  }, [initialPreview]);
 
   useEffect(() => {
     if (!canPersistForm.current) return;
@@ -155,7 +154,7 @@ export function LabelsWorkflow({ initialPreview, initialSavedLabels, styles, tem
 
   function applySavedLabel(savedLabel: SavedLabelRecord) {
     const nextForm = formFromSavedLabel(savedLabel);
-    const template = templates.find((candidate) => candidate.id === savedLabel.template_id) ?? selectedTemplate;
+    const template = selectedTemplate;
     const payload = formPayload(nextForm);
     setForm(nextForm);
     setActiveSavedLabelId(savedLabel.id);
@@ -293,15 +292,6 @@ export function LabelsWorkflow({ initialPreview, initialSavedLabels, styles, tem
         </PanelHeader>
 
         <form className="label-editor-form" onSubmit={handleSubmit}>
-          <label>
-            Template
-            <select value={form.templateId} onChange={(event) => setField("templateId", event.target.value)}>
-              {templates.map((template) => (
-                <option key={template.id} value={template.id}>{templateDisplayName(template)}</option>
-              ))}
-            </select>
-          </label>
-
           <label>
             Style
             <select defaultValue="" onChange={(event) => applyStyle(event.target.value)}>
@@ -597,13 +587,13 @@ function filterSavedLabels(savedLabels: SavedLabelRecord[], search: string) {
   ));
 }
 
-function readSavedForm(templates: LabelTemplateRecord[], initialPreview: LabelPreviewResponse): LabelFormState | null {
+function readSavedForm(initialPreview: LabelPreviewResponse): LabelFormState | null {
   try {
     const rawValue = window.localStorage.getItem(labelFormStorageKey);
     if (!rawValue) return null;
     const parsedValue: unknown = JSON.parse(rawValue);
     if (!isRecord(parsedValue)) return null;
-    return normalizeSavedForm(parsedValue, templates, initialPreview);
+    return normalizeSavedForm(parsedValue, initialPreview);
   } catch {
     return null;
   }
@@ -619,14 +609,11 @@ function writeSavedForm(form: LabelFormState) {
 
 function normalizeSavedForm(
   value: Record<string, unknown>,
-  templates: LabelTemplateRecord[],
   initialPreview: LabelPreviewResponse,
 ): LabelFormState {
   const initialForm = createInitialForm(initialPreview);
-  const savedTemplateId = stringFromRecord(value, "templateId", initialForm.templateId);
-  const hasSavedTemplate = templates.some((template) => template.id === savedTemplateId);
   return {
-    templateId: hasSavedTemplate ? savedTemplateId : initialForm.templateId,
+    templateId: initialForm.templateId,
     quantity: String(clampQuantity(stringFromRecord(value, "quantity", defaultQuantity))),
     art_no: stringFromRecord(value, "art_no", initialForm.art_no),
     colour: stringFromRecord(value, "colour", initialForm.colour),
