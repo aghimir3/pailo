@@ -25,66 +25,117 @@ export function FormField({ label, error, required, children, hint, className }:
   );
 }
 
-interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  error?: boolean;
-}
-
-export function FormInput({ error, className, ...props }: FormInputProps) {
-  return (
-    <input
-      className={cn("form-input", error && "form-input-error", className)}
-      {...props}
-    />
-  );
-}
-
-interface FormSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  error?: boolean;
-  options: { value: string; label: string }[];
+interface FormInputProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  required?: boolean;
+  type?: string;
   placeholder?: string;
+  disabled?: boolean;
+  hint?: string;
 }
 
-export function FormSelect({ error, className, options, placeholder, ...props }: FormSelectProps) {
+export function FormInput({ label, value, onChange, error, required, type, placeholder, disabled, hint }: FormInputProps) {
   return (
-    <select
-      className={cn("form-input form-select", error && "form-input-error", className)}
-      {...props}
-    >
-      {placeholder && <option value="">{placeholder}</option>}
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
+    <FormField label={label} error={error} required={required} hint={hint}>
+      <input
+        className={cn("form-input", error && "form-input-error")}
+        type={type ?? "text"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        required={required}
+      />
+    </FormField>
   );
 }
 
-interface FormTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  error?: boolean;
+interface FormSelectProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+  error?: string;
+  required?: boolean;
+  placeholder?: string;
+  disabled?: boolean;
 }
 
-export function FormTextarea({ error, className, ...props }: FormTextareaProps) {
+export function FormSelect({ label, value, onChange, options, error, required, placeholder, disabled }: FormSelectProps) {
   return (
-    <textarea
-      className={cn("form-input form-textarea", error && "form-input-error", className)}
-      {...props}
-    />
+    <FormField label={label} error={error} required={required}>
+      <select
+        className={cn("form-input form-select", error && "form-input-error")}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        required={required}
+      >
+        {placeholder && <option value="">{placeholder}</option>}
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    </FormField>
   );
 }
 
-interface FormNumberInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
-  error?: boolean;
+interface FormTextareaProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  required?: boolean;
+  placeholder?: string;
+  disabled?: boolean;
+  rows?: number;
 }
 
-export function FormNumberInput({ error, className, ...props }: FormNumberInputProps) {
+export function FormTextarea({ label, value, onChange, error, required, placeholder, disabled, rows }: FormTextareaProps) {
   return (
-    <input
-      type="text"
-      inputMode="numeric"
-      pattern="[0-9]*\.?[0-9]*"
-      className={cn("form-input", error && "form-input-error", className)}
-      {...props}
-    />
+    <FormField label={label} error={error} required={required}>
+      <textarea
+        className={cn("form-input form-textarea", error && "form-input-error")}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        required={required}
+        rows={rows ?? 3}
+      />
+    </FormField>
+  );
+}
+
+interface FormNumberInputProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  required?: boolean;
+  placeholder?: string;
+  disabled?: boolean;
+}
+
+export function FormNumberInput({ label, value, onChange, error, required, placeholder, disabled }: FormNumberInputProps) {
+  return (
+    <FormField label={label} error={error} required={required}>
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*\.?[0-9]*"
+        className={cn("form-input", error && "form-input-error")}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        required={required}
+      />
+    </FormField>
   );
 }

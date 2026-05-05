@@ -4883,6 +4883,111 @@ button {
   text-transform: uppercase;
   background: var(--border);
   color: var(--muted);
+}
+
+/* ─── Style Detail ─── */
+.style-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.style-detail-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+.style-detail-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background: var(--glass-nested);
+  border-radius: 0.5rem;
+}
+.style-detail-meta div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+.style-detail-bom {
+  margin-bottom: 1.5rem;
+}
+.style-detail-bom h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.bom-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.bom-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.bom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: var(--glass-nested);
+  border-radius: 0.375rem;
+  font-size: 0.82rem;
+}
+.style-detail-actions {
+  margin-top: 1rem;
+}
+.empty-text {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ─── Button variants ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--cyan);
+  color: var(--button-ink);
+}
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+.btn-secondary {
+  background: var(--glass-strong);
+  color: var(--ink);
+  border: 1px solid var(--glass-border);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--glass);
+}
+.btn-danger {
+  background: var(--red);
+  color: var(--button-ink);
+}
+.btn-sm {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.78rem;
+}
   padding: 1px 5px;
   border-radius: 4px;
 }
