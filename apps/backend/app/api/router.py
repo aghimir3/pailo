@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1 import auth, catalog, employees, health, inventory, labels, operations, partners, quality, reports, settings, tasks, users, work_orders
+from app.api.v1 import admin, auth, catalog, employees, health, inventory, labels, operations, partners, quality, reports, settings, styles, suppliers, tasks, users, work_orders
 
 api_router = APIRouter()
 api_router.include_router(health.router, tags=["health"])
@@ -17,3 +17,6 @@ api_router.include_router(labels.router, prefix="/labels", tags=["labels"])
 api_router.include_router(settings.router, prefix="/settings", tags=["settings"])
 api_router.include_router(catalog.router, prefix="/catalog", tags=["catalog"])
 api_router.include_router(partners.router, prefix="/partners", tags=["partners"])
+api_router.include_router(styles.router, prefix="/styles", tags=["styles"])
+api_router.include_router(suppliers.router, prefix="/suppliers", tags=["suppliers"])
+api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
