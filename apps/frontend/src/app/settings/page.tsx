@@ -22,6 +22,7 @@ import Link from "next/link";
 import { FactoryShell } from "@/components/factory/factory-shell";
 import { Button } from "@/components/ui/button";
 import { GlassCard, PanelHeader } from "@/components/ui/glass-card";
+import { getAccessToken } from "@/lib/auth";
 
 const API_BASE = "";
 
@@ -198,10 +199,12 @@ export default function LandingPageEditor() {
   async function uploadCatalogItem(file: File) {
     setCatalogLoading(true);
     try {
+      const token = await getAccessToken();
       const formData = new FormData();
       formData.append("image", file);
       const res = await fetch(`${API_BASE}/api/v1/catalog`, {
         method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       });
       if (!res.ok) {
@@ -228,9 +231,10 @@ export default function LandingPageEditor() {
     if (!item) return;
     setUploadingId(itemId);
     try {
+      const token = await getAccessToken();
       const res = await fetch(`${API_BASE}/api/v1/catalog/${itemId}`, {
         method: "PUT",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ caption: item.caption, alt_text: item.alt_text, price: item.price }),
       });
       if (!res.ok) setError(`Failed to save item (${res.status})`);
@@ -243,7 +247,11 @@ export default function LandingPageEditor() {
 
   async function deleteCatalogItem(itemId: string) {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/catalog/${itemId}`, { method: "DELETE" });
+      const token = await getAccessToken();
+      const res = await fetch(`${API_BASE}/api/v1/catalog/${itemId}`, {
+        method: "DELETE",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (!res.ok) {
         setError(`Delete failed (${res.status})`);
         return;
@@ -257,10 +265,12 @@ export default function LandingPageEditor() {
   async function replaceCatalogImage(itemId: string, file: File) {
     setUploadingId(itemId);
     try {
+      const token = await getAccessToken();
       const formData = new FormData();
       formData.append("image", file);
       const res = await fetch(`${API_BASE}/api/v1/catalog/${itemId}/image`, {
         method: "PUT",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       });
       if (!res.ok) {
