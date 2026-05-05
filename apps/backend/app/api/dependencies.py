@@ -1,6 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
+import hmac
 import jwt
 import structlog
 from fastapi import Depends, Header, HTTPException
@@ -25,16 +26,20 @@ async def get_current_user(
 ) -> UserContext:
     settings = get_settings()
 
-    # Internal service token for SSR calls within ECS task
+    # Internal service token for SSR calls within ECS task (timing-safe comparison)
     if (
         x_internal_token
         and settings.internal_service_token
-        and x_internal_token == settings.internal_service_token
+        and hmac.compare_digest(x_internal_token, settings.internal_service_token)
     ):
         return await resolve_current_user(session, user_email=settings.initial_owner_admin_email or None)
 
     # Production: verify JWT from Authorization header
-    if settings.auth_mode == "cognito" and settings.cognito_user_pool_id:
+    if settings.auth_mode == "cognito":
+        if not settings.cognito_user_pool_id:
+            logger.error("cognito_not_configured", auth_mode="cognito")
+            raise HTTPException(status_code=503, detail="Authentication service not configured")
+
         if not authorization or not authorization.startswith("Bearer "):
             raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
 
@@ -42,8 +47,8 @@ async def get_current_user(
         try:
             claims = verify_cognito_token(token)
         except jwt.exceptions.PyJWTError as e:
-            logger.warning("jwt_verification_failed", error=str(e), pool_id=settings.cognito_user_pool_id)
-            raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
+            logger.warning("jwt_verification_failed", error=str(e))
+            raise HTTPException(status_code=401, detail="Invalid or expired token")
 
         try:
             return await resolve_current_user(
@@ -53,9 +58,11 @@ async def get_current_user(
             )
         except Exception as e:
             logger.warning("resolve_user_failed", error=str(e), sub=claims.sub, email=claims.email)
-            raise HTTPException(status_code=401, detail=str(e))
+            raise HTTPException(status_code=401, detail="User not found or inactive")
 
     # Dev mode: use header-based auth (for local development only)
+    if settings.auth_mode != "dev":
+        raise HTTPException(status_code=401, detail="Authentication required")
     return await resolve_current_user(session, x_pailo_user_id, x_pailo_user_email)
 
 
