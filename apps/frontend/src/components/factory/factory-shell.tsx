@@ -14,8 +14,10 @@ import {
   Grid3X3,
   LogOut,
   PackageCheck,
+  Palette,
   Printer,
   ShieldCheck,
+  Truck,
   Users,
 } from "lucide-react";
 
@@ -31,7 +33,9 @@ const navigationItems = [
   { href: "/operations", label: "Operations", icon: Factory },
   { href: "/tasks", label: "Tasks", icon: ClipboardList },
   { href: "/work-orders", label: "Work orders", icon: PackageCheck },
+  { href: "/styles", label: "Styles & BOM", icon: Palette },
   { href: "/inventory", label: "Inventory", icon: Boxes },
+  { href: "/suppliers", label: "Suppliers", icon: Truck },
   { href: "/quality", label: "Quality", icon: ShieldCheck },
   { href: "/labels", label: "Labels", icon: Printer },
   { href: "/people", label: "People", icon: Users },
