@@ -117,6 +117,18 @@ resource "aws_ecs_task_definition" "app" {
         {
           name  = "INTERNAL_SERVICE_TOKEN"
           value = random_password.internal_service_token.result
+        },
+        {
+          name  = "WHATSAPP_ENABLED"
+          value = "false"
+        },
+        {
+          name  = "WHATSAPP_API_VERSION"
+          value = "v21.0"
+        },
+        {
+          name  = "WHATSAPP_DEFAULT_COUNTRY_CODE"
+          value = "+977"
         }
       ])
       essential = true
@@ -142,6 +154,14 @@ resource "aws_ecs_task_definition" "app" {
         {
           name      = "DATABASE_PASSWORD"
           valueFrom = "${aws_db_instance.main.master_user_secret[0].secret_arn}:password::"
+        },
+        {
+          name      = "WHATSAPP_ACCESS_TOKEN"
+          valueFrom = aws_ssm_parameter.whatsapp_access_token.arn
+        },
+        {
+          name      = "WHATSAPP_PHONE_NUMBER_ID"
+          valueFrom = aws_ssm_parameter.whatsapp_phone_number_id.arn
         }
       ]
     }

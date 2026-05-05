@@ -33,3 +33,24 @@ resource "aws_ssm_parameter" "database_name" {
   type  = "String"
   value = var.database_name
 }
+
+# WhatsApp Business Cloud API
+resource "aws_ssm_parameter" "whatsapp_access_token" {
+  name  = "/${local.name_prefix}/whatsapp/access-token"
+  type  = "SecureString"
+  value = "PLACEHOLDER"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "whatsapp_phone_number_id" {
+  name  = "/${local.name_prefix}/whatsapp/phone-number-id"
+  type  = "String"
+  value = "PLACEHOLDER"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
