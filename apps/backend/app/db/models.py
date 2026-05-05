@@ -136,9 +136,11 @@ class Supplier(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
         server_default=text("'[]'::jsonb"),
     )
+    payment_terms: Mapped[str | None] = mapped_column(String(120))
     usual_lead_time_days: Mapped[int | None] = mapped_column(Integer)
     rating: Mapped[Decimal | None] = mapped_column(Numeric(3, 2))
     notes: Mapped[str | None] = mapped_column(Text)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
 
 
 class ProductStyle(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -148,10 +150,13 @@ class ProductStyle(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     style_code: Mapped[str] = mapped_column(String(48), nullable=False, unique=True)
     name: Mapped[str] = mapped_column(String(180), nullable=False)
     category: Mapped[str] = mapped_column(String(80), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    size_range: Mapped[str | None] = mapped_column(String(120))
     sample_status: Mapped[str] = mapped_column(String(40), nullable=False, server_default="draft")
     target_cost_npr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
     target_mrp_npr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
     notes: Mapped[str | None] = mapped_column(Text)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
 
 
 class ProductVariant(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -203,6 +208,7 @@ class BomVersion(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     version: Mapped[int] = mapped_column(Integer, nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False, server_default="draft")
+    notes: Mapped[str | None] = mapped_column(Text)
     approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     approved_by_user_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL")
@@ -247,6 +253,7 @@ class WorkOrder(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     current_stage: Mapped[str | None] = mapped_column(String(80))
     due_date: Mapped[date | None] = mapped_column(Date)
     cost_snapshot_npr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    notes: Mapped[str | None] = mapped_column(Text)
     version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
 
 
