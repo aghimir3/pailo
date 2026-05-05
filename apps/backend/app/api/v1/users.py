@@ -17,12 +17,14 @@ router = APIRouter()
 class UserRecord(BaseModel):
     id: str
     email: str | None
+    phone: str | None = None
     display_name: str
     role_name: str
     role_id: str
     status: str
     invite_status: str
     cognito_sub: str | None
+    employee_id: str | None = None
     last_login_at: str | None
 
 
@@ -42,6 +44,8 @@ class UserUpdateRequest(BaseModel):
     display_name: str | None = None
     role_id: str | None = None
     status: str | None = None
+    phone: str | None = None
+    employee_id: str | None = None
 
 
 class MeResponse(BaseModel):
@@ -100,12 +104,14 @@ async def list_users(session: DbSession, user: CurrentUser) -> list[UserRecord]:
         UserRecord(
             id=str(u.id),
             email=u.email,
+            phone=u.phone,
             display_name=u.display_name,
             role_name=role_name,
             role_id=str(u.role_id),
             status=u.status,
             invite_status=u.invite_status,
             cognito_sub=u.cognito_sub,
+            employee_id=str(u.employee_id) if u.employee_id else None,
             last_login_at=u.last_login_at.isoformat() if u.last_login_at else None,
         )
         for u, role_name in rows
@@ -167,12 +173,14 @@ async def create_user(
     return UserRecord(
         id=str(new_user.id),
         email=new_user.email,
+        phone=new_user.phone,
         display_name=new_user.display_name,
         role_name=role.name,
         role_id=str(new_user.role_id),
         status=new_user.status,
         invite_status=new_user.invite_status,
         cognito_sub=new_user.cognito_sub,
+        employee_id=str(new_user.employee_id) if new_user.employee_id else None,
         last_login_at=None,
     )
 
@@ -220,6 +228,11 @@ async def update_user(
 
         target.status = payload.status
 
+    if "phone" in payload.model_fields_set:
+        target.phone = payload.phone.strip() if payload.phone else None
+    if "employee_id" in payload.model_fields_set:
+        target.employee_id = UUID(payload.employee_id) if payload.employee_id else None
+
     await session.commit()
     await session.refresh(target)
 
@@ -228,12 +241,14 @@ async def update_user(
     return UserRecord(
         id=str(target.id),
         email=target.email,
+        phone=target.phone,
         display_name=target.display_name,
         role_name=role.name if role else "unknown",
         role_id=str(target.role_id),
         status=target.status,
         invite_status=target.invite_status,
         cognito_sub=target.cognito_sub,
+        employee_id=str(target.employee_id) if target.employee_id else None,
         last_login_at=target.last_login_at.isoformat() if target.last_login_at else None,
     )
 

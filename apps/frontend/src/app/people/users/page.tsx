@@ -15,12 +15,14 @@ const API_BASE_URL = "";
 interface UserRecord {
   id: string;
   email: string | null;
+  phone: string | null;
   display_name: string;
   role_name: string;
   role_id: string;
   status: string;
   invite_status: string;
   cognito_sub: string | null;
+  employee_id: string | null;
   last_login_at: string | null;
 }
 
@@ -136,6 +138,7 @@ export default function UserManagementPage() {
   // Form state
   const [formEmail, setFormEmail] = useState("");
   const [formName, setFormName] = useState("");
+  const [formPhone, setFormPhone] = useState("");
   const [formRoleId, setFormRoleId] = useState("");
   const [formStatus, setFormStatus] = useState("active");
   const [formSubmitting, setFormSubmitting] = useState(false);
@@ -185,6 +188,7 @@ export default function UserManagementPage() {
 
   const openEdit = (u: UserRecord) => {
     setFormName(u.display_name);
+    setFormPhone(u.phone ?? "");
     setFormRoleId(u.role_id);
     setFormStatus(u.status);
     setFormError(null);
@@ -253,6 +257,7 @@ export default function UserManagementPage() {
         headers,
         body: JSON.stringify({
           display_name: formName || undefined,
+          phone: formPhone || null,
           role_id: formRoleId || undefined,
           status: formStatus || undefined,
         }),
@@ -486,6 +491,16 @@ export default function UserManagementPage() {
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
             />
+          </label>
+          <label className="user-field">
+            <span>Phone (WhatsApp)</span>
+            <input
+              type="tel"
+              value={formPhone}
+              onChange={(e) => setFormPhone(e.target.value)}
+              placeholder="9852030953"
+            />
+            <small className="text-xs text-gray-400">Used for WhatsApp task notifications</small>
           </label>
           <label className="user-field">
             <span>Role</span>

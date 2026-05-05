@@ -30,6 +30,13 @@ class Settings(BaseSettings):
     app_domain: str = ""
     cors_origins: str = ""
 
+    # WhatsApp Business Cloud API
+    whatsapp_enabled: bool = False
+    whatsapp_phone_number_id: str = ""
+    whatsapp_access_token: str = ""
+    whatsapp_api_version: str = "v21.0"
+    whatsapp_default_country_code: str = "+977"
+
     @property
     def cognito_issuer(self) -> str:
         return f"https://cognito-idp.{self.aws_region}.amazonaws.com/{self.cognito_user_pool_id}"

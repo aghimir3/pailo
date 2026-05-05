@@ -4,6 +4,7 @@ from decimal import Decimal
 from math import ceil
 from uuid import UUID
 
+import asyncio
 from sqlalchemy import Row, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -356,6 +357,14 @@ async def create_task(
     session.add(task)
     await session.flush()
     await session.refresh(task)
+
+    if task.assigned_to_employee_id or task.assigned_to_user_id:
+        from app.modules.whatsapp.service import notify_task_assigned
+
+        asyncio.create_task(
+            notify_task_assigned(session, task, actor.display_name)
+        )
+
     return await get_task_record(session, task.id)
 
 
@@ -368,6 +377,9 @@ async def patch_task(
     _require_task_manager(actor)
     task = await _locked_task(session, task_id)
     _require_version(payload.version, task.version)
+
+    _old_employee_id = task.assigned_to_employee_id
+    _old_user_id = task.assigned_to_user_id
 
     if "title" in payload.model_fields_set and payload.title is not None:
         task.title = payload.title.strip()
@@ -393,8 +405,25 @@ async def patch_task(
         task.unit_of_measure = _clean_text(payload.unit_of_measure)
     if "requires_review" in payload.model_fields_set and payload.requires_review is not None:
         task.requires_review = payload.requires_review
+
+    # Detect assignment changes for WhatsApp notification
+    assignment_changed = (
+        ("assigned_to_employee_id" in payload.model_fields_set
+         and task.assigned_to_employee_id != _old_employee_id)
+        or ("assigned_to_user_id" in payload.model_fields_set
+            and task.assigned_to_user_id != _old_user_id)
+    )
+
     task.version += 1
     await session.flush()
+
+    if assignment_changed and (task.assigned_to_employee_id or task.assigned_to_user_id):
+        from app.modules.whatsapp.service import notify_task_assigned
+
+        asyncio.create_task(
+            notify_task_assigned(session, task, actor.display_name)
+        )
+
     return await get_task_record(session, task.id)
 
 
@@ -451,6 +480,17 @@ async def update_task_status(
         )
     )
     await session.flush()
+
+    if task.assigned_to_employee_id or task.assigned_to_user_id:
+        from app.modules.whatsapp.service import notify_task_status_change
+
+        asyncio.create_task(
+            notify_task_status_change(
+                session, task, old_status, new_status, actor.display_name,
+                blocker_reason=blocker_reason,
+            )
+        )
+
     return await get_task_record(session, task.id)
 
 
@@ -488,6 +528,16 @@ async def create_task_comment(
     session.add(comment)
     await session.flush()
     await session.refresh(comment)
+
+    # Notify assignee (skip if commenter is the assignee)
+    is_self_comment = task.assigned_to_user_id == actor.id
+    if not is_self_comment and (task.assigned_to_employee_id or task.assigned_to_user_id):
+        from app.modules.whatsapp.service import notify_task_comment
+
+        asyncio.create_task(
+            notify_task_comment(session, task, actor.display_name, comment_text)
+        )
+
     return (await _comment_records(session, [comment]))[0]
 
 

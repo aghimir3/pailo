@@ -1,4 +1,4 @@
-import { Users } from "lucide-react";
+import { HardHat, Users } from "lucide-react";
 import Link from "next/link";
 
 import { FactoryShell } from "@/components/factory/factory-shell";
@@ -13,13 +13,18 @@ export default async function PeoplePage() {
 
   return (
     <FactoryShell
-      description="Users, roles, and employee references are managed as part of the factory app, not a separate admin portal."
+      description="Manage app users and factory employees. Phone numbers here are used for WhatsApp task notifications."
       eyebrow="Access and people"
       title="People"
       actions={
-        <Button asChild variant="glass">
-          <Link href="/people/users">Manage Users</Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild variant="glass">
+            <Link href="/people/users">Manage Users</Link>
+          </Button>
+          <Button asChild variant="glass">
+            <Link href="/people/employees">Manage Employees</Link>
+          </Button>
+        </div>
       }
     >
       <section className="ops-two-column">
@@ -32,7 +37,7 @@ export default async function PeoplePage() {
           )}
         </GlassCard>
         <GlassCard className="ops-panel">
-          <PanelHeader><div><p className="eyebrow">Employees</p><h2>Factory staff</h2></div><Users aria-hidden="true" className="panel-icon" size={22} /></PanelHeader>
+          <PanelHeader><div><p className="eyebrow">Employees</p><h2>Factory staff</h2></div><HardHat aria-hidden="true" className="panel-icon" size={22} /></PanelHeader>
           {data.catalog.employees.length > 0 ? (
           <div className="ops-list">{data.catalog.employees.map((employee) => <div className="ops-list-row" key={employee.id}><span><strong>{employee.full_name}</strong><small>{employee.employee_code} / {employee.department ?? "No department"}</small></span><Badge tone="neutral">{employee.job_title ?? "Staff"}</Badge></div>)}</div>
           ) : (
