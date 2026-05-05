@@ -2,7 +2,7 @@
 
 import type { CSSProperties, FormEvent } from "react";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { AlertCircle, Archive, CheckCircle2, Copy, FolderOpen, Printer, RefreshCw, Ruler, Save, Search, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Copy, FolderOpen, Printer, RefreshCw, Ruler, Save, Search, X } from "lucide-react";
 
 import {
   archiveSavedLabel,
@@ -236,19 +236,26 @@ export function LabelsWorkflow({ initialPreview, initialSavedLabels, styles }: L
       void (async () => {
         const nextPreview = await requestPreview();
         const payload = savedLabelPayload(form, nextPreview.values, nextPreview.template.id);
+        const shouldUpdate = activeSavedLabel && !hasIdentityChanged(activeSavedLabel, nextPreview.values);
         try {
-          const savedLabel = activeSavedLabel
+          const savedLabel = shouldUpdate
             ? await patchSavedLabel(activeSavedLabel.id, { ...payload, version: activeSavedLabel.version })
             : await createSavedLabel(payload);
           setSavedLabels((current) => upsertSavedLabel(current, savedLabel));
           setActiveSavedLabelId(savedLabel.id);
           setIsDirty(false);
-          setStatus(`Saved ${savedLabel.name}`);
+          setStatus(shouldUpdate ? `Updated ${savedLabel.name}` : `Saved new: ${savedLabel.name}`);
         } catch {
           setStatus("Could not save label");
         }
       })();
     });
+  }
+
+  function handleNewLabel() {
+    setActiveSavedLabelId(null);
+    setIsDirty(true);
+    setStatus("New label — edit values and save");
   }
 
   function handleDuplicateSavedLabel(savedLabel: SavedLabelRecord) {
@@ -349,7 +356,7 @@ export function LabelsWorkflow({ initialPreview, initialSavedLabels, styles }: L
             </Button>
             <Button disabled={isPending} type="button" variant="glass" onClick={handleSaveLabel}>
               <Save aria-hidden="true" size={17} />
-              {activeSavedLabel ? "Update saved" : "Save label"}
+              {activeSavedLabel && !hasIdentityChanged(activeSavedLabel, formPayload(form)) ? "Update saved" : "Save as new"}
             </Button>
             <Button disabled={isPending} type="button" onClick={handlePrint}>
               <Printer aria-hidden="true" size={17} />
@@ -369,10 +376,18 @@ export function LabelsWorkflow({ initialPreview, initialSavedLabels, styles }: L
             <span>{activeSavedLabel ? "Loaded saved label" : "Saved label"}</span>
             <strong>{activeSavedLabel ? activeSavedLabel.name : "No saved label loaded"}</strong>
           </div>
-          <Button size="sm" type="button" variant="glass" onClick={() => setIsFindLabelOpen(true)}>
-            <Search aria-hidden="true" size={15} />
-            Find
-          </Button>
+          <div className="label-active-card-actions">
+            {activeSavedLabel ? (
+              <Button size="sm" type="button" variant="ghost" onClick={handleNewLabel}>
+                <X aria-hidden="true" size={15} />
+                New
+              </Button>
+            ) : null}
+            <Button size="sm" type="button" variant="glass" onClick={() => setIsFindLabelOpen(true)}>
+              <Search aria-hidden="true" size={15} />
+              Find
+            </Button>
+          </div>
         </div>
 
         <div className="label-status-row">
@@ -466,11 +481,11 @@ export function LabelsWorkflow({ initialPreview, initialSavedLabels, styles }: L
                   <span>{savedLabel.art_no} / {savedLabel.colour} / {savedLabel.size} / Rs {savedLabel.mrp_npr} / {savedLabel.default_quantity} labels</span>
                 </button>
                 <div className="label-saved-actions">
-                  <Button aria-label={`Duplicate ${savedLabel.name}`} disabled={isPending} size="icon" type="button" variant="glass" onClick={() => handleDuplicateSavedLabel(savedLabel)}>
+                  <Button aria-label={`Duplicate ${savedLabel.name}`} disabled={isPending} size="icon" title="Duplicate" type="button" variant="glass" onClick={() => handleDuplicateSavedLabel(savedLabel)}>
                     <Copy aria-hidden="true" size={15} />
                   </Button>
-                  <Button aria-label={`Archive ${savedLabel.name}`} disabled={isPending} size="icon" type="button" variant="ghost" onClick={() => handleArchiveSavedLabel(savedLabel)}>
-                    <Archive aria-hidden="true" size={15} />
+                  <Button aria-label={`Delete ${savedLabel.name}`} disabled={isPending} size="icon" title="Delete" type="button" variant="ghost" className="label-delete-btn" onClick={() => handleArchiveSavedLabel(savedLabel)}>
+                    <X aria-hidden="true" size={15} />
                   </Button>
                 </div>
               </article>
@@ -570,6 +585,15 @@ function savedLabelPayload(
 function upsertSavedLabel(current: SavedLabelRecord[], nextSavedLabel: SavedLabelRecord) {
   const withoutExisting = current.filter((savedLabel) => savedLabel.id !== nextSavedLabel.id);
   return [nextSavedLabel, ...withoutExisting];
+}
+
+function hasIdentityChanged(savedLabel: SavedLabelRecord, payload: LabelPreviewRequest): boolean {
+  return (
+    savedLabel.art_no !== payload.art_no ||
+    savedLabel.colour !== payload.colour ||
+    savedLabel.size !== payload.size ||
+    String(savedLabel.mrp_npr) !== String(payload.mrp_npr)
+  );
 }
 
 function filterSavedLabels(savedLabels: SavedLabelRecord[], search: string) {

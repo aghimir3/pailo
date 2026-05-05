@@ -2204,6 +2204,12 @@ button {
   box-shadow: var(--inner-line);
 }
 
+.label-active-card-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 .label-active-card div,
 .label-template-strip {
   min-width: 0;
@@ -2327,6 +2333,14 @@ button {
 .label-saved-actions {
   display: flex;
   gap: 5px;
+}
+
+.label-delete-btn {
+  color: var(--muted);
+}
+.label-delete-btn:hover {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
 }
 
 .label-library-empty {
