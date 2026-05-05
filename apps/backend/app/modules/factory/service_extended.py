@@ -207,14 +207,14 @@ def _style_response(s: ProductStyle) -> ProductStyleResponse:
         style_code=s.style_code,
         name=s.name,
         category=s.category,
-        description=getattr(s, "description", None),
-        size_range=getattr(s, "size_range", None),
+        description=s.description,
+        size_range=s.size_range,
         sample_status=s.sample_status,
         target_cost_npr=s.target_cost_npr,
         target_mrp_npr=s.target_mrp_npr,
         notes=s.notes,
         created_at=s.created_at,
-        version=getattr(s, "version", 1),
+        version=s.version,
     )
 
 
@@ -266,7 +266,7 @@ async def create_bom_version(
         if not material:
             raise FactoryServiceError(400, f"Material {item_input.material_id} not found.")
         cost_snapshot = material.average_cost_npr or Decimal("0")
-        qty_with_wastage = item_input.quantity_per_pair * (1 + item_input.wastage_percent / 100)
+        qty_with_wastage = item_input.quantity_per_pair * (1 + item_input.wastage_percent / Decimal("100"))
         line_cost = cost_snapshot * qty_with_wastage
         total_cost += line_cost
 
@@ -320,7 +320,7 @@ async def _bom_version_response(session: AsyncSession, bom: BomVersion) -> BomVe
     items = []
     total_cost = Decimal("0")
     for item, mat_name, mat_code in rows:
-        qty_with_wastage = item.quantity_per_pair * (1 + item.wastage_percent / 100)
+        qty_with_wastage = item.quantity_per_pair * (1 + item.wastage_percent / Decimal("100"))
         line_cost = (item.cost_snapshot_npr or Decimal("0")) * qty_with_wastage
         total_cost += line_cost
         items.append(BomItemResponse(
@@ -434,9 +434,7 @@ async def update_supplier(
         supplier.rating = data.rating
     if data.notes is not None:
         supplier.notes = data.notes
-    # Increment version if column exists
-    if hasattr(supplier, "version"):
-        supplier.version += 1
+    supplier.version += 1
     await session.flush()
     await write_audit(session, actor, "supplier.update", "supplier", supplier.id)
     return _supplier_response(supplier)
@@ -457,7 +455,7 @@ def _supplier_response(s: Supplier) -> SupplierResponse:
         rating=s.rating,
         notes=s.notes,
         created_at=s.created_at,
-        version=getattr(s, "version", 1),
+        version=s.version,
     )
 
 
@@ -583,6 +581,13 @@ async def generate_work_order_tasks(
     if not wo:
         raise FactoryServiceError(404, "Work order not found.")
 
+    # Idempotency: check if tasks already exist for this work order
+    existing_count = await session.scalar(
+        select(func.count()).select_from(Task).where(Task.work_order_id == wo_id)
+    )
+    if existing_count and existing_count > 0:
+        raise FactoryServiceError(409, "Tasks already generated for this work order.")
+
     style = await session.get(ProductStyle, wo.product_style_id)
     style_name = style.name if style else "Unknown"
 
@@ -647,7 +652,7 @@ async def get_material_requirements(
 
     requirements: list[dict[str, object]] = []
     for bom_item, material in rows:
-        qty_with_wastage = bom_item.quantity_per_pair * (1 + bom_item.wastage_percent / 100)
+        qty_with_wastage = bom_item.quantity_per_pair * (1 + bom_item.wastage_percent / Decimal("100"))
         required = qty_with_wastage * wo.planned_pairs
 
         # Get current stock
@@ -852,14 +857,11 @@ async def receive_stock(
 
     # Update material cost
     mat.last_purchase_cost_npr = data.unit_cost_npr
-    if mat.average_cost_npr:
-        # Simple moving average
+    if mat.average_cost_npr and stock.quantity > data.quantity:
+        # Simple moving average: weight old cost by old stock, new cost by new quantity
         current_stock = stock.quantity - data.quantity
-        if current_stock > 0:
-            total_value = mat.average_cost_npr * current_stock + data.unit_cost_npr * data.quantity
-            mat.average_cost_npr = total_value / stock.quantity
-        else:
-            mat.average_cost_npr = data.unit_cost_npr
+        total_value = mat.average_cost_npr * current_stock + data.unit_cost_npr * data.quantity
+        mat.average_cost_npr = total_value / stock.quantity
     else:
         mat.average_cost_npr = data.unit_cost_npr
 

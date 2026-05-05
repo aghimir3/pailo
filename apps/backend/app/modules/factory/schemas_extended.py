@@ -2,9 +2,10 @@
 
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Literal, Self
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 # =============================================================================
@@ -59,8 +60,8 @@ class ProductStyleDetail(ProductStyleResponse):
 
 class BomItemInput(BaseModel):
     material_id: UUID
-    quantity_per_pair: Decimal = Field(gt=0)
-    wastage_percent: Decimal = Field(ge=0, le=100, default=Decimal("5"))
+    quantity_per_pair: Decimal = Field(gt=0, max_digits=10, decimal_places=4)
+    wastage_percent: Decimal = Field(ge=0, le=100, default=Decimal("5"), max_digits=5, decimal_places=2)
 
 
 class BomVersionCreate(BaseModel):
@@ -150,10 +151,16 @@ class WorkOrderSizeLineInput(BaseModel):
 class WorkOrderCreate(BaseModel):
     product_style_id: UUID
     size_lines: list[WorkOrderSizeLineInput] = Field(min_length=1)
-    priority: str = Field(default="normal")
+    priority: Literal["low", "normal", "high", "urgent"] = "normal"
     planned_start_date: date | None = None
     due_date: date | None = None
     notes: str | None = None
+
+    @model_validator(mode="after")
+    def check_dates(self) -> Self:
+        if self.planned_start_date and self.due_date and self.planned_start_date > self.due_date:
+            raise ValueError("planned_start_date must be before due_date")
+        return self
 
 
 class WorkOrderUpdate(BaseModel):
@@ -193,7 +200,6 @@ class MaterialUpdate(BaseModel):
     supplier_id: UUID | None = None
     minimum_stock: Decimal | None = None
     location: str | None = None
-    version: int = Field(ge=1)
 
 
 class MaterialResponse(BaseModel):
@@ -214,18 +220,18 @@ class MaterialResponse(BaseModel):
 
 class ReceiveStockInput(BaseModel):
     material_id: UUID
-    quantity: Decimal = Field(gt=0)
-    unit_cost_npr: Decimal = Field(ge=0)
+    quantity: Decimal = Field(gt=0, max_digits=12, decimal_places=4)
+    unit_cost_npr: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
     supplier_id: UUID | None = None
-    lot_number: str | None = None
-    notes: str | None = None
+    lot_number: str | None = Field(None, max_length=50)
+    notes: str | None = Field(None, max_length=500)
 
 
 class IssueStockInput(BaseModel):
     material_id: UUID
-    quantity: Decimal = Field(gt=0)
+    quantity: Decimal = Field(gt=0, max_digits=12, decimal_places=4)
     work_order_id: UUID
-    notes: str | None = None
+    notes: str | None = Field(None, max_length=500)
 
 
 class AdjustStockInput(BaseModel):
@@ -266,8 +272,8 @@ class InspectionCreate(BaseModel):
 class DefectInput(BaseModel):
     defect_type: str = Field(min_length=1, max_length=50)
     quantity: int = Field(gt=0)
-    severity: str = Field(default="minor")
-    notes: str | None = None
+    severity: Literal["minor", "major", "critical"] = "minor"
+    notes: str | None = Field(None, max_length=500)
 
 
 class DefectResponse(BaseModel):

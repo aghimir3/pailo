@@ -63,5 +63,6 @@ async def generate_tasks(
 async def material_requirements(
     work_order_id: UUID,
     session: DbSession,
+    current_user: CurrentUser,
 ) -> list[dict[str, object]]:
     return await svc.get_material_requirements(session, work_order_id)

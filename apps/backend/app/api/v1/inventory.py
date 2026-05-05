@@ -35,7 +35,7 @@ async def list_materials_full(
     session: DbSession,
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
-    search: str | None = None,
+    search: str | None = Query(None, max_length=100),
 ) -> list[MaterialResponse]:
     return await svc.list_materials(session, page, page_size, search)
 
