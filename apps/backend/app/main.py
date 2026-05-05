@@ -12,6 +12,9 @@ def create_app() -> FastAPI:
         title="Pailo Factory API",
         version="0.1.0",
         description="Factory operations API for tasks, work orders, inventory, QC, and owner insights.",
+        docs_url="/api/v1/docs",
+        redoc_url="/api/v1/redoc",
+        openapi_url="/api/v1/openapi.json",
     )
 
     settings = get_settings()
