@@ -39,6 +39,19 @@ data "aws_iam_policy_document" "task_s3" {
   }
 }
 
+data "aws_iam_policy_document" "task_cognito" {
+  statement {
+    actions = [
+      "cognito-idp:AdminCreateUser",
+      "cognito-idp:AdminDeleteUser",
+      "cognito-idp:AdminDisableUser",
+      "cognito-idp:AdminEnableUser",
+      "cognito-idp:AdminGetUser",
+    ]
+    resources = [aws_cognito_user_pool.main.arn]
+  }
+}
+
 data "aws_iam_policy_document" "task_execution_secrets" {
   statement {
     actions   = ["secretsmanager:GetSecretValue"]
@@ -121,6 +134,12 @@ resource "aws_iam_role_policy" "task_execution_secrets" {
 resource "aws_iam_role_policy" "task_s3" {
   name   = "${local.name_prefix}-task-s3-ssm-secrets"
   policy = data.aws_iam_policy_document.task_s3.json
+  role   = aws_iam_role.task.id
+}
+
+resource "aws_iam_role_policy" "task_cognito" {
+  name   = "${local.name_prefix}-task-cognito"
+  policy = data.aws_iam_policy_document.task_cognito.json
   role   = aws_iam_role.task.id
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Shield, Trash2, UserPlus, Users } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AlertTriangle, CheckCircle2, Mail, MoreVertical, Pencil, Shield, Trash2, UserPlus, Users, X } from "lucide-react";
 
 import { useAuth } from "@/components/auth-provider";
 import { FactoryShell } from "@/components/factory/factory-shell";
@@ -30,18 +30,99 @@ interface RoleRecord {
   description: string | null;
 }
 
-function roleTone(role: string): "cyan" | "amber" | "green" | "neutral" | "red" {
+type ModalState =
+  | { type: "closed" }
+  | { type: "invite" }
+  | { type: "edit"; user: UserRecord }
+  | { type: "delete"; user: UserRecord };
+
+// ─── Helpers ───────────────────────────────────────────────────────────
+
+function roleTone(role: string): "cyan" | "amber" | "green" | "neutral" {
   if (role === "owner_admin") return "cyan";
   if (role === "factory_manager") return "amber";
   if (role === "worker") return "green";
   return "neutral";
 }
 
-function statusTone(status: string): "green" | "red" | "neutral" {
-  if (status === "active") return "green";
-  if (status === "disabled") return "red";
-  return "neutral";
+function roleLabel(role: string): string {
+  return role.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
+
+function statusIcon(status: string, inviteStatus: string, cognitoSub: string | null) {
+  if (status === "disabled") return { tone: "red" as const, label: "Disabled" };
+  if (inviteStatus === "invited" && !cognitoSub) return { tone: "amber" as const, label: "Pending" };
+  if (inviteStatus === "invited") return { tone: "amber" as const, label: "Invited" };
+  return { tone: "green" as const, label: "Active" };
+}
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "Never";
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+// ─── Modal Component ───────────────────────────────────────────────────
+
+function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
+  const backdropRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      ref={backdropRef}
+      className="user-modal-backdrop"
+      onClick={(e) => { if (e.target === backdropRef.current) onClose(); }}
+    >
+      <div className="user-modal" role="dialog" aria-modal="true">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─── Action Menu ────────────────────────────────────────────────────────
+
+function ActionMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="user-action-menu-wrap">
+      <button className="user-action-trigger" onClick={() => setOpen(!open)} aria-label="User actions">
+        <MoreVertical size={16} />
+      </button>
+      {open && (
+        <div className="user-action-dropdown">
+          <button onClick={() => { onEdit(); setOpen(false); }}>
+            <Pencil size={14} /> Edit
+          </button>
+          <button className="destructive" onClick={() => { onDelete(); setOpen(false); }}>
+            <Trash2 size={14} /> Remove
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Page ──────────────────────────────────────────────────────────
 
 export default function UserManagementPage() {
   const { user: currentUser } = useAuth();
@@ -49,8 +130,8 @@ export default function UserManagementPage() {
   const [roles, setRoles] = useState<RoleRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingUser, setEditingUser] = useState<UserRecord | null>(null);
+  const [modal, setModal] = useState<ModalState>({ type: "closed" });
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   // Form state
   const [formEmail, setFormEmail] = useState("");
@@ -59,6 +140,11 @@ export default function UserManagementPage() {
   const [formStatus, setFormStatus] = useState("active");
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const showToast = (message: string, type: "success" | "error") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -89,6 +175,31 @@ export default function UserManagementPage() {
     fetchUsers();
   }, [fetchUsers]);
 
+  const openInvite = () => {
+    setFormEmail("");
+    setFormName("");
+    setFormRoleId("");
+    setFormError(null);
+    setModal({ type: "invite" });
+  };
+
+  const openEdit = (u: UserRecord) => {
+    setFormName(u.display_name);
+    setFormRoleId(u.role_id);
+    setFormStatus(u.status);
+    setFormError(null);
+    setModal({ type: "edit", user: u });
+  };
+
+  const openDelete = (u: UserRecord) => {
+    setModal({ type: "delete", user: u });
+  };
+
+  const closeModal = () => {
+    setModal({ type: "closed" });
+    setFormError(null);
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormSubmitting(true);
@@ -105,25 +216,19 @@ export default function UserManagementPage() {
       const res = await fetch(`${API_BASE_URL}/api/v1/users`, {
         method: "POST",
         headers,
-        body: JSON.stringify({
-          email: formEmail,
-          display_name: formName,
-          role_id: formRoleId,
-        }),
+        body: JSON.stringify({ email: formEmail, display_name: formName, role_id: formRoleId }),
       });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || `Create failed: ${res.status}`);
+        throw new Error(data.detail || `Invite failed: ${res.status}`);
       }
 
-      setShowCreateForm(false);
-      setFormEmail("");
-      setFormName("");
-      setFormRoleId("");
+      closeModal();
+      showToast(`Invitation sent to ${formEmail}`, "success");
       await fetchUsers();
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Create failed");
+      setFormError(err instanceof Error ? err.message : "Invite failed");
     } finally {
       setFormSubmitting(false);
     }
@@ -131,7 +236,7 @@ export default function UserManagementPage() {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingUser) return;
+    if (modal.type !== "edit") return;
     setFormSubmitting(true);
     setFormError(null);
 
@@ -143,7 +248,7 @@ export default function UserManagementPage() {
       };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const res = await fetch(`${API_BASE_URL}/api/v1/users/${editingUser.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/users/${modal.user.id}`, {
         method: "PATCH",
         headers,
         body: JSON.stringify({
@@ -158,7 +263,8 @@ export default function UserManagementPage() {
         throw new Error(data.detail || `Update failed: ${res.status}`);
       }
 
-      setEditingUser(null);
+      closeModal();
+      showToast("User updated successfully", "success");
       await fetchUsers();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Update failed");
@@ -167,25 +273,16 @@ export default function UserManagementPage() {
     }
   };
 
-  const startEdit = (u: UserRecord) => {
-    setEditingUser(u);
-    setFormName(u.display_name);
-    setFormRoleId(u.role_id);
-    setFormStatus(u.status);
-    setFormError(null);
-  };
-
-  const handleDelete = async (u: UserRecord) => {
-    if (!confirm(`Delete user "${u.display_name}" (${u.email})? This will remove them from the system and revoke access.`)) {
-      return;
-    }
+  const handleDelete = async () => {
+    if (modal.type !== "delete") return;
+    setFormSubmitting(true);
 
     try {
       const token = await getAccessToken();
       const headers: Record<string, string> = { Accept: "application/json" };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const res = await fetch(`${API_BASE_URL}/api/v1/users/${u.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/users/${modal.user.id}`, {
         method: "DELETE",
         headers,
       });
@@ -195,9 +292,14 @@ export default function UserManagementPage() {
         throw new Error(data.detail || `Delete failed: ${res.status}`);
       }
 
+      closeModal();
+      showToast("User removed successfully", "success");
       await fetchUsers();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Delete failed");
+      showToast(err instanceof Error ? err.message : "Delete failed", "error");
+      closeModal();
+    } finally {
+      setFormSubmitting(false);
     }
   };
 
@@ -205,8 +307,8 @@ export default function UserManagementPage() {
 
   if (loading) {
     return (
-      <FactoryShell eyebrow="Access and people" title="User Management">
-        <div className="flex items-center justify-center p-8">
+      <FactoryShell eyebrow="People" title="Users">
+        <div className="flex items-center justify-center p-12">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
         </div>
       </FactoryShell>
@@ -215,10 +317,13 @@ export default function UserManagementPage() {
 
   if (error) {
     return (
-      <FactoryShell eyebrow="Access and people" title="User Management">
+      <FactoryShell eyebrow="People" title="Users">
         <GlassCard className="ops-panel">
-          <p className="text-red-600 dark:text-red-400">{error}</p>
-          <Button onClick={fetchUsers} variant="glass" className="mt-2">Retry</Button>
+          <div className="flex flex-col items-center gap-3 p-8 text-center">
+            <AlertTriangle size={28} className="text-amber-500" />
+            <p className="text-sm">{error}</p>
+            <Button onClick={fetchUsers} variant="glass">Retry</Button>
+          </div>
         </GlassCard>
       </FactoryShell>
     );
@@ -226,161 +331,230 @@ export default function UserManagementPage() {
 
   return (
     <FactoryShell
-      eyebrow="Access and people"
-      title="User Management"
-      description="Manage app users, roles, and access."
+      eyebrow="People"
+      title="Users"
+      description={`${users.length} team member${users.length !== 1 ? "s" : ""}`}
       actions={
         isAdmin ? (
-          <Button variant="glass" onClick={() => { setShowCreateForm(true); setFormError(null); }}>
-            <UserPlus size={16} className="mr-1" /> Invite User
+          <Button variant="glass" onClick={openInvite}>
+            <UserPlus size={16} className="mr-1.5" /> Invite
           </Button>
         ) : undefined
       }
     >
-      {/* Create User Form */}
-      {showCreateForm && (
-        <GlassCard className="ops-panel mb-4">
-          <PanelHeader>
-            <div><p className="eyebrow">New user</p><h2>Invite a user</h2></div>
-            <UserPlus aria-hidden="true" className="panel-icon" size={22} />
-          </PanelHeader>
-          <form onSubmit={handleCreate} className="space-y-3 p-4">
-            <div>
-              <label className="block text-xs font-medium mb-1">Email</label>
-              <input
-                type="email"
-                required
-                value={formEmail}
-                onChange={(e) => setFormEmail(e.target.value)}
-                className="w-full rounded border bg-transparent px-3 py-2 text-sm"
-                placeholder="user@pailoshoes.com"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium mb-1">Display Name</label>
-              <input
-                type="text"
-                required
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                className="w-full rounded border bg-transparent px-3 py-2 text-sm"
-                placeholder="Full Name"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium mb-1">Role</label>
-              <select
-                required
-                value={formRoleId}
-                onChange={(e) => setFormRoleId(e.target.value)}
-                className="w-full rounded border bg-transparent px-3 py-2 text-sm"
-              >
-                <option value="">Select role...</option>
-                {roles.map((r) => (
-                  <option key={r.id} value={r.id}>{r.name.replaceAll("_", " ")}</option>
-                ))}
-              </select>
-            </div>
-            {formError && <p className="text-sm text-red-600 dark:text-red-400">{formError}</p>}
-            <div className="flex gap-2">
-              <Button type="submit" variant="glass" disabled={formSubmitting}>
-                {formSubmitting ? "Creating..." : "Create User"}
-              </Button>
-              <Button type="button" variant="ghost" onClick={() => setShowCreateForm(false)}>
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </GlassCard>
+      {/* Toast */}
+      {toast && (
+        <div className={`user-toast ${toast.type}`}>
+          {toast.type === "success" ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+          <span>{toast.message}</span>
+        </div>
       )}
 
-      {/* Edit User Form */}
-      {editingUser && (
-        <GlassCard className="ops-panel mb-4">
-          <PanelHeader>
-            <div><p className="eyebrow">Edit</p><h2>{editingUser.display_name}</h2></div>
-            <Shield aria-hidden="true" className="panel-icon" size={22} />
-          </PanelHeader>
-          <form onSubmit={handleUpdate} className="space-y-3 p-4">
-            <div>
-              <label className="block text-xs font-medium mb-1">Display Name</label>
-              <input
-                type="text"
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                className="w-full rounded border bg-transparent px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium mb-1">Role</label>
-              <select
-                value={formRoleId}
-                onChange={(e) => setFormRoleId(e.target.value)}
-                className="w-full rounded border bg-transparent px-3 py-2 text-sm"
-              >
-                {roles.map((r) => (
-                  <option key={r.id} value={r.id}>{r.name.replaceAll("_", " ")}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium mb-1">Status</label>
-              <select
-                value={formStatus}
-                onChange={(e) => setFormStatus(e.target.value)}
-                className="w-full rounded border bg-transparent px-3 py-2 text-sm"
-              >
-                <option value="active">Active</option>
-                <option value="disabled">Disabled</option>
-              </select>
-            </div>
-            {formError && <p className="text-sm text-red-600 dark:text-red-400">{formError}</p>}
-            <div className="flex gap-2">
-              <Button type="submit" variant="glass" disabled={formSubmitting}>
-                {formSubmitting ? "Saving..." : "Save Changes"}
-              </Button>
-              <Button type="button" variant="ghost" onClick={() => setEditingUser(null)}>
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </GlassCard>
-      )}
-
-      {/* Users List */}
+      {/* Users Table */}
       <GlassCard className="ops-panel">
         <PanelHeader>
-          <div><p className="eyebrow">App users</p><h2>{users.length} users</h2></div>
+          <div><p className="eyebrow">Team</p><h2>All Users</h2></div>
           <Users aria-hidden="true" className="panel-icon" size={22} />
         </PanelHeader>
-        <div className="ops-list">
-          {users.length > 0 ? users.map((u) => (
-            <div className="ops-list-row" key={u.id}>
-              <span className="flex-1 min-w-0">
-                <strong className="block truncate">{u.display_name}</strong>
-                <small className="block truncate">{u.email ?? "No email"}</small>
-              </span>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <Badge tone={roleTone(u.role_name)}>{u.role_name.replaceAll("_", " ")}</Badge>
-                <Badge tone={statusTone(u.status)}>{u.status}</Badge>
-                {u.cognito_sub && <Badge tone="green">linked</Badge>}
-                {isAdmin && (
-                  <Button size="sm" variant="ghost" onClick={() => startEdit(u)}>
-                    Edit
-                  </Button>
-                )}
-                {isAdmin && u.id !== currentUser?.id && (
-                  <Button size="sm" variant="ghost" onClick={() => handleDelete(u)} className="text-red-600 hover:text-red-700">
-                    <Trash2 size={14} />
-                  </Button>
-                )}
-              </div>
+
+        <div className="user-table">
+          <div className="user-table-header">
+            <span className="user-col-name">User</span>
+            <span className="user-col-role">Role</span>
+            <span className="user-col-status">Status</span>
+            <span className="user-col-login">Last Login</span>
+            {isAdmin && <span className="user-col-actions" />}
+          </div>
+
+          {users.length === 0 ? (
+            <div className="user-table-empty">
+              <Users size={32} opacity={0.3} />
+              <p>No team members yet</p>
+              {isAdmin && (
+                <Button variant="glass" size="sm" onClick={openInvite}>
+                  <UserPlus size={14} className="mr-1" /> Invite your first user
+                </Button>
+              )}
             </div>
-          )) : (
-            <p style={{ padding: "24px", textAlign: "center", color: "var(--muted)", fontSize: "0.85rem" }}>No users yet. Invite team members to get started.</p>
+          ) : (
+            users.map((u) => {
+              const st = statusIcon(u.status, u.invite_status, u.cognito_sub);
+              const isSelf = u.id === currentUser?.id;
+              return (
+                <div className="user-table-row" key={u.id}>
+                  <div className="user-col-name">
+                    <div className="user-avatar">
+                      {u.display_name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="user-info">
+                      <span className="user-name">
+                        {u.display_name}
+                        {isSelf && <span className="user-you-badge">you</span>}
+                      </span>
+                      <span className="user-email">{u.email ?? "—"}</span>
+                    </div>
+                  </div>
+                  <div className="user-col-role">
+                    <Badge tone={roleTone(u.role_name)}>{roleLabel(u.role_name)}</Badge>
+                  </div>
+                  <div className="user-col-status">
+                    <Badge tone={st.tone}>{st.label}</Badge>
+                  </div>
+                  <div className="user-col-login">
+                    <span className="user-login-date">{formatDate(u.last_login_at)}</span>
+                  </div>
+                  {isAdmin && (
+                    <div className="user-col-actions">
+                      {!isSelf && <ActionMenu onEdit={() => openEdit(u)} onDelete={() => openDelete(u)} />}
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
       </GlassCard>
+
+      {/* Invite Modal */}
+      <Modal open={modal.type === "invite"} onClose={closeModal}>
+        <div className="user-modal-header">
+          <div>
+            <p className="eyebrow">New invitation</p>
+            <h2>Invite a team member</h2>
+          </div>
+          <button className="user-modal-close" onClick={closeModal} aria-label="Close"><X size={18} /></button>
+        </div>
+        <form onSubmit={handleCreate} className="user-modal-body">
+          <p className="user-modal-desc">
+            They&apos;ll receive an email with a temporary password to set up their account.
+          </p>
+          <label className="user-field">
+            <span>Email address</span>
+            <input
+              type="email"
+              required
+              value={formEmail}
+              onChange={(e) => setFormEmail(e.target.value)}
+              placeholder="name@pailoshoes.com"
+              autoFocus
+            />
+          </label>
+          <label className="user-field">
+            <span>Display name</span>
+            <input
+              type="text"
+              required
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              placeholder="Full Name"
+            />
+          </label>
+          <label className="user-field">
+            <span>Role</span>
+            <select required value={formRoleId} onChange={(e) => setFormRoleId(e.target.value)}>
+              <option value="">Select a role…</option>
+              {roles.map((r) => (
+                <option key={r.id} value={r.id}>{roleLabel(r.name)}</option>
+              ))}
+            </select>
+          </label>
+          {formError && <p className="user-form-error">{formError}</p>}
+          <div className="user-modal-actions">
+            <Button type="button" variant="ghost" onClick={closeModal}>Cancel</Button>
+            <Button type="submit" variant="glass" disabled={formSubmitting}>
+              <Mail size={14} className="mr-1.5" />
+              {formSubmitting ? "Sending…" : "Send Invitation"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Edit Modal */}
+      <Modal open={modal.type === "edit"} onClose={closeModal}>
+        <div className="user-modal-header">
+          <div>
+            <p className="eyebrow">Edit user</p>
+            <h2>{modal.type === "edit" ? modal.user.display_name : ""}</h2>
+          </div>
+          <button className="user-modal-close" onClick={closeModal} aria-label="Close"><X size={18} /></button>
+        </div>
+        <form onSubmit={handleUpdate} className="user-modal-body">
+          <label className="user-field">
+            <span>Display name</span>
+            <input
+              type="text"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+            />
+          </label>
+          <label className="user-field">
+            <span>Role</span>
+            <select value={formRoleId} onChange={(e) => setFormRoleId(e.target.value)}>
+              {roles.map((r) => (
+                <option key={r.id} value={r.id}>{roleLabel(r.name)}</option>
+              ))}
+            </select>
+          </label>
+          <label className="user-field">
+            <span>Status</span>
+            <select value={formStatus} onChange={(e) => setFormStatus(e.target.value)}>
+              <option value="active">Active</option>
+              <option value="disabled">Disabled</option>
+            </select>
+          </label>
+          {formError && <p className="user-form-error">{formError}</p>}
+          <div className="user-modal-actions">
+            <Button type="button" variant="ghost" onClick={closeModal}>Cancel</Button>
+            <Button type="submit" variant="glass" disabled={formSubmitting}>
+              <Shield size={14} className="mr-1.5" />
+              {formSubmitting ? "Saving…" : "Save Changes"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal open={modal.type === "delete"} onClose={closeModal}>
+        <div className="user-modal-header destructive">
+          <div>
+            <p className="eyebrow">Confirm removal</p>
+            <h2>Remove user</h2>
+          </div>
+          <button className="user-modal-close" onClick={closeModal} aria-label="Close"><X size={18} /></button>
+        </div>
+        <div className="user-modal-body">
+          {modal.type === "delete" && (
+            <>
+              <div className="user-delete-info">
+                <div className="user-avatar lg">
+                  {modal.user.display_name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <strong>{modal.user.display_name}</strong>
+                  <span>{modal.user.email}</span>
+                </div>
+              </div>
+              <p className="user-delete-warning">
+                This will permanently remove this user from the system and revoke their access.
+                This action cannot be undone.
+              </p>
+            </>
+          )}
+          <div className="user-modal-actions">
+            <Button type="button" variant="ghost" onClick={closeModal}>Cancel</Button>
+            <Button
+              type="button"
+              variant="glass"
+              className="destructive-btn"
+              onClick={handleDelete}
+              disabled={formSubmitting}
+            >
+              <Trash2 size={14} className="mr-1.5" />
+              {formSubmitting ? "Removing…" : "Remove User"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </FactoryShell>
   );
 }

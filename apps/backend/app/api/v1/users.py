@@ -255,8 +255,8 @@ async def delete_user(
     if target.id == user.id:
         raise HTTPException(status_code=400, detail="Cannot delete your own account")
 
-    # Remove from Cognito if the user has an email (they should)
-    if target.email:
+    # Remove from Cognito if the user has a linked Cognito account
+    if target.email and target.cognito_sub:
         from app.core.cognito import CognitoError, admin_delete_user
 
         try:
