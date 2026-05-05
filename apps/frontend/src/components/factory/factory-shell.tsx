@@ -23,7 +23,6 @@ import { useAuth } from "@/components/auth-provider";
 import { AuthGuard } from "@/components/auth-guard";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { HubSheet } from "@/components/factory/hub-sheet";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useScrollDirection } from "@/lib/use-scroll-direction";
 
@@ -87,6 +86,15 @@ export function FactoryShell({ actions, children, description, eyebrow, title }:
           })}
         </nav>
 
+        <a
+          href="/api/v1/docs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="factory-nav-item opacity-50 hover:opacity-80 text-xs mt-auto"
+        >
+          API docs
+        </a>
+
         <div className="factory-sidebar-footer">
           {isLoggedIn && user ? (
             <>
@@ -126,9 +134,6 @@ export function FactoryShell({ actions, children, description, eyebrow, title }:
           <div className="factory-actions">
             <ThemeToggle />
             {actions}
-            <Button asChild variant="glass">
-              <a href="http://127.0.0.1:8000/docs">API docs</a>
-            </Button>
           </div>
         </header>
 
