@@ -195,6 +195,9 @@ class Material(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     last_purchase_cost_npr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
     location: Mapped[str | None] = mapped_column(String(120))
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
+    reorder_point: Mapped[Decimal | None] = mapped_column(Numeric(14, 3))
+    reorder_quantity: Mapped[Decimal | None] = mapped_column(Numeric(14, 3))
+    lead_time_days: Mapped[int | None] = mapped_column(Integer, server_default="7")
 
 
 class BomVersion(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -640,3 +643,327 @@ class PartnerInquiry(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     partner_type: Mapped[str] = mapped_column(String(40), nullable=False, server_default="retail")
     message: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(24), nullable=False, server_default="new")
+
+
+# ══════════════════════════════════════════════════════════════════════
+# HIGH-IMPACT IMPROVEMENTS MODELS
+# ══════════════════════════════════════════════════════════════════════
+
+
+class MaterialPriceHistory(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "material_price_history"
+
+    material_id: Mapped[UUID] = mapped_column(ForeignKey("materials.id", ondelete="CASCADE"), nullable=False)
+    supplier_id: Mapped[UUID | None] = mapped_column(ForeignKey("suppliers.id"))
+    price_per_unit: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), nullable=False, server_default="NPR")
+    effective_from: Mapped[date] = mapped_column(Date, nullable=False)
+    effective_to: Mapped[date | None] = mapped_column(Date)
+    source: Mapped[str | None] = mapped_column(String(50))
+    created_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class WorkOrderCostSnapshot(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "work_order_cost_snapshots"
+
+    work_order_id: Mapped[UUID] = mapped_column(ForeignKey("work_orders.id", ondelete="CASCADE"), nullable=False)
+    bom_version_id: Mapped[UUID] = mapped_column(ForeignKey("bom_versions.id"), nullable=False)
+    estimated_material_cost_per_pair: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    estimated_labor_cost_per_pair: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    estimated_overhead_per_pair: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    estimated_total_per_pair: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    actual_material_cost_per_pair: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    actual_labor_cost_per_pair: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    actual_total_per_pair: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    variance_pct: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    snapshot_prices: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class MaterialReservation(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "material_reservations"
+    __table_args__ = (
+        CheckConstraint("status in ('reserved', 'partially_issued', 'fully_issued', 'cancelled')", name="ck_material_reservations_status"),
+    )
+
+    work_order_id: Mapped[UUID] = mapped_column(ForeignKey("work_orders.id", ondelete="CASCADE"), nullable=False)
+    material_id: Mapped[UUID] = mapped_column(ForeignKey("materials.id"), nullable=False)
+    quantity_reserved: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
+    quantity_issued: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False, server_default="0")
+    unit: Mapped[str] = mapped_column(String(20), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="reserved")
+    reserved_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    reserved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class PurchaseOrder(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "purchase_orders"
+    __table_args__ = (
+        CheckConstraint(
+            "status in ('draft', 'sent', 'confirmed', 'partially_received', 'received', 'cancelled')",
+            name="ck_purchase_orders_status",
+        ),
+    )
+
+    po_number: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
+    supplier_id: Mapped[UUID] = mapped_column(ForeignKey("suppliers.id"), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="draft")
+    order_date: Mapped[date | None] = mapped_column(Date)
+    expected_delivery_date: Mapped[date | None] = mapped_column(Date)
+    actual_delivery_date: Mapped[date | None] = mapped_column(Date)
+    subtotal_npr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    tax_npr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    total_npr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    approved_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"))
+    approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
+
+
+class PurchaseOrderItem(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "purchase_order_items"
+
+    purchase_order_id: Mapped[UUID] = mapped_column(ForeignKey("purchase_orders.id", ondelete="CASCADE"), nullable=False)
+    material_id: Mapped[UUID] = mapped_column(ForeignKey("materials.id"), nullable=False)
+    quantity_ordered: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
+    quantity_received: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False, server_default="0")
+    unit: Mapped[str] = mapped_column(String(20), nullable=False)
+    unit_price_npr: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    total_price_npr: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text)
+
+
+class SupplierPerformance(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "supplier_performance"
+    __table_args__ = (
+        UniqueConstraint("supplier_id", "period_start", "period_end", name="uq_supplier_performance_period"),
+    )
+
+    supplier_id: Mapped[UUID] = mapped_column(ForeignKey("suppliers.id"), nullable=False)
+    period_start: Mapped[date] = mapped_column(Date, nullable=False)
+    period_end: Mapped[date] = mapped_column(Date, nullable=False)
+    total_orders: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    on_time_deliveries: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    on_time_rate: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    avg_delivery_days: Mapped[int | None] = mapped_column(Integer)
+    total_spend_npr: Mapped[Decimal | None] = mapped_column(Numeric(14, 2))
+    quality_score: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    overall_score: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class StageTimeLog(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "stage_time_logs"
+
+    work_order_id: Mapped[UUID] = mapped_column(ForeignKey("work_orders.id", ondelete="CASCADE"), nullable=False)
+    stage: Mapped[str] = mapped_column(String(50), nullable=False)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    paused_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    total_pause_duration_minutes: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    worker_count: Mapped[int | None] = mapped_column(Integer)
+    pairs_input: Mapped[int | None] = mapped_column(Integer)
+    pairs_output: Mapped[int | None] = mapped_column(Integer)
+    pairs_defect: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class WorkerProductionLog(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "worker_production_log"
+
+    employee_id: Mapped[UUID] = mapped_column(ForeignKey("employees.id"), nullable=False)
+    production_date: Mapped[date] = mapped_column(Date, nullable=False)
+    stage: Mapped[str] = mapped_column(String(50), nullable=False)
+    work_order_id: Mapped[UUID | None] = mapped_column(ForeignKey("work_orders.id"))
+    pairs_completed: Mapped[int] = mapped_column(Integer, nullable=False)
+    hours_worked: Mapped[Decimal | None] = mapped_column(Numeric(4, 2))
+    quality_pass_rate: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class PieceRateConfig(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "piece_rate_config"
+
+    stage: Mapped[str] = mapped_column(String(50), nullable=False)
+    style_category: Mapped[str | None] = mapped_column(String(50))
+    rate_per_pair: Mapped[Decimal] = mapped_column(Numeric(8, 2), nullable=False)
+    effective_from: Mapped[date] = mapped_column(Date, nullable=False)
+    effective_to: Mapped[date | None] = mapped_column(Date)
+    created_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class Customer(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "customers"
+    __table_args__ = (
+        CheckConstraint("type in ('wholesale', 'retail', 'agent')", name="ck_customers_type"),
+    )
+
+    customer_code: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    type: Mapped[str] = mapped_column(String(20), nullable=False, server_default="wholesale")
+    phone: Mapped[str | None] = mapped_column(String(20))
+    email: Mapped[str | None] = mapped_column(String(200))
+    address: Mapped[str | None] = mapped_column(Text)
+    city: Mapped[str | None] = mapped_column(String(100))
+    credit_limit_npr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    payment_terms_days: Mapped[int | None] = mapped_column(Integer, server_default="30")
+    notes: Mapped[str | None] = mapped_column(Text)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
+
+
+class SalesOrder(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "sales_orders"
+    __table_args__ = (
+        CheckConstraint(
+            "status in ('pending', 'confirmed', 'partially_dispatched', 'dispatched', 'delivered', 'cancelled')",
+            name="ck_sales_orders_status",
+        ),
+    )
+
+    order_number: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
+    customer_id: Mapped[UUID] = mapped_column(ForeignKey("customers.id"), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="pending")
+    order_date: Mapped[date] = mapped_column(Date, nullable=False)
+    requested_delivery_date: Mapped[date | None] = mapped_column(Date)
+    promised_delivery_date: Mapped[date | None] = mapped_column(Date)
+    actual_dispatch_date: Mapped[date | None] = mapped_column(Date)
+    subtotal_npr: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    discount_npr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    tax_npr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    total_npr: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
+
+
+class SalesOrderItem(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "sales_order_items"
+
+    sales_order_id: Mapped[UUID] = mapped_column(ForeignKey("sales_orders.id", ondelete="CASCADE"), nullable=False)
+    style_id: Mapped[UUID] = mapped_column(ForeignKey("product_styles.id"), nullable=False)
+    color: Mapped[str | None] = mapped_column(String(50))
+    size: Mapped[str | None] = mapped_column(String(10))
+    quantity_ordered: Mapped[int] = mapped_column(Integer, nullable=False)
+    quantity_dispatched: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    unit_price_npr: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    total_price_npr: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+
+
+class DispatchRecord(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "dispatch_records"
+
+    dispatch_number: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
+    sales_order_id: Mapped[UUID] = mapped_column(ForeignKey("sales_orders.id"), nullable=False)
+    dispatched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    dispatched_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    transport_method: Mapped[str | None] = mapped_column(String(50))
+    tracking_number: Mapped[str | None] = mapped_column(String(100))
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class DispatchItem(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "dispatch_items"
+
+    dispatch_id: Mapped[UUID] = mapped_column(ForeignKey("dispatch_records.id", ondelete="CASCADE"), nullable=False)
+    sales_order_item_id: Mapped[UUID] = mapped_column(ForeignKey("sales_order_items.id"), nullable=False)
+    style_id: Mapped[UUID] = mapped_column(ForeignKey("product_styles.id"), nullable=False)
+    color: Mapped[str | None] = mapped_column(String(50))
+    size: Mapped[str | None] = mapped_column(String(10))
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class DailyProductionPlan(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "daily_production_plans"
+    __table_args__ = (
+        CheckConstraint("status in ('draft', 'confirmed', 'in_progress', 'completed')", name="ck_daily_production_plans_status"),
+    )
+
+    plan_date: Mapped[date] = mapped_column(Date, nullable=False, unique=True)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="draft")
+    target_pairs: Mapped[int] = mapped_column(Integer, nullable=False)
+    actual_pairs: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    confirmed_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"))
+    confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class DailyPlanItem(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "daily_plan_items"
+
+    plan_id: Mapped[UUID] = mapped_column(ForeignKey("daily_production_plans.id", ondelete="CASCADE"), nullable=False)
+    work_order_id: Mapped[UUID] = mapped_column(ForeignKey("work_orders.id"), nullable=False)
+    priority: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    target_pairs: Mapped[int] = mapped_column(Integer, nullable=False)
+    actual_pairs: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    materials_ready: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    notes: Mapped[str | None] = mapped_column(Text)
+    sort_order: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+
+
+class CycleCount(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "cycle_counts"
+    __table_args__ = (
+        CheckConstraint("status in ('in_progress', 'completed', 'approved')", name="ck_cycle_counts_status"),
+    )
+
+    count_number: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
+    count_date: Mapped[date] = mapped_column(Date, nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="in_progress")
+    count_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    category_filter: Mapped[str | None] = mapped_column(String(50))
+    counted_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    approved_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"))
+    approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    total_items_counted: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    discrepancies_found: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    total_variance_npr: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, server_default="0")
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class CycleCountItem(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "cycle_count_items"
+
+    cycle_count_id: Mapped[UUID] = mapped_column(ForeignKey("cycle_counts.id", ondelete="CASCADE"), nullable=False)
+    material_id: Mapped[UUID] = mapped_column(ForeignKey("materials.id"), nullable=False)
+    system_quantity: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
+    counted_quantity: Mapped[Decimal | None] = mapped_column(Numeric(12, 3))
+    unit_cost_npr: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
+    adjustment_approved: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    notes: Mapped[str | None] = mapped_column(Text)
+
+
+class InventoryAccuracyLog(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "inventory_accuracy_log"
+
+    measured_date: Mapped[date] = mapped_column(Date, nullable=False)
+    items_counted: Mapped[int] = mapped_column(Integer, nullable=False)
+    items_accurate: Mapped[int] = mapped_column(Integer, nullable=False)
+    accuracy_rate: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
+    total_variance_npr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class DefectAnalytics(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "defect_analytics"
+
+    period_start: Mapped[date] = mapped_column(Date, nullable=False)
+    period_end: Mapped[date] = mapped_column(Date, nullable=False)
+    style_id: Mapped[UUID | None] = mapped_column(ForeignKey("product_styles.id"))
+    stage: Mapped[str | None] = mapped_column(String(50))
+    defect_type: Mapped[str | None] = mapped_column(String(100))
+    root_cause_category: Mapped[str | None] = mapped_column(String(50))
+    total_defects: Mapped[int] = mapped_column(Integer, nullable=False)
+    total_rework_cost_npr: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    avg_rework_time_hours: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))
+    supplier_id: Mapped[UUID | None] = mapped_column(ForeignKey("suppliers.id"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
