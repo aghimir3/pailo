@@ -15,6 +15,7 @@ import { getDashboard } from "@pailo/api-client";
 
 import { FactoryShell } from "@/components/factory/factory-shell";
 import { CommandRibbon } from "@/components/factory/command-ribbon";
+import { OperationsSummary } from "@/components/dashboard/operations-summary";
 import { ThroughputChart } from "@/components/throughput-chart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -83,6 +84,8 @@ export default async function Home() {
             <GlassCard className="kpi-card"><EmptyState title="No metrics yet" description="Production data will appear here once work orders are running." /></GlassCard>
           )}
         </section>
+
+        <OperationsSummary />
 
         <section className="dashboard-grid">
           <GlassCard className="panel chart-panel">

@@ -23,6 +23,7 @@ from app.api.v1 import (
     suppliers,
     tasks,
     users,
+    whatsapp_reports,
     work_orders,
 )
 
@@ -50,3 +51,4 @@ api_router.include_router(production.router, prefix="/production", tags=["produc
 api_router.include_router(sales.router, prefix="/sales", tags=["sales"])
 api_router.include_router(cycle_counts.router, prefix="/inventory-ext", tags=["inventory-ext"])
 api_router.include_router(productivity.router, prefix="/productivity", tags=["productivity"])
+api_router.include_router(whatsapp_reports.router)
