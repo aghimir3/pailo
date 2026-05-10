@@ -679,6 +679,46 @@ async def get_material_requirements(
 # Materials & Inventory Movements
 # =============================================================================
 
+async def _get_consumption_rates(
+    session: AsyncSession, material_ids: list[UUID],
+) -> dict[UUID, Decimal]:
+    """Calculate avg daily consumption from issue+wastage movements over last 30 days."""
+    if not material_ids:
+        return {}
+    thirty_days_ago = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+    from datetime import timedelta
+    thirty_days_ago = thirty_days_ago - timedelta(days=30)
+
+    rows = (await session.execute(
+        select(
+            InventoryMovement.material_id,
+            func.abs(func.sum(InventoryMovement.quantity_delta)),
+            func.greatest(func.count(func.distinct(func.date(InventoryMovement.created_at))), 1),
+        )
+        .where(
+            InventoryMovement.material_id.in_(material_ids),
+            InventoryMovement.movement_type.in_(["issue", "wastage"]),
+            InventoryMovement.created_at >= thirty_days_ago,
+        )
+        .group_by(InventoryMovement.material_id)
+    )).all()
+
+    rates: dict[UUID, Decimal] = {}
+    for mat_id, total_used, distinct_days in rows:
+        # Spread consumption over full 30 days for smoothing
+        rates[mat_id] = Decimal(str(total_used)) / Decimal("30")
+    return rates
+
+
+async def _get_supplier_names(session: AsyncSession, supplier_ids: set[UUID]) -> dict[UUID, str]:
+    if not supplier_ids:
+        return {}
+    rows = (await session.execute(
+        select(Supplier.id, Supplier.name).where(Supplier.id.in_(supplier_ids))
+    )).all()
+    return {row[0]: row[1] for row in rows}
+
+
 async def list_materials(
     session: AsyncSession,
     page: int = 1,
@@ -694,6 +734,12 @@ async def list_materials(
     query = query.offset((page - 1) * page_size).limit(page_size)
     materials = list((await session.scalars(query)).all())
 
+    mat_ids = [m.id for m in materials]
+    consumption_rates = await _get_consumption_rates(session, mat_ids)
+
+    supplier_ids = {m.supplier_id for m in materials if m.supplier_id}
+    supplier_names = await _get_supplier_names(session, supplier_ids)
+
     results = []
     for mat in materials:
         stock_qty = await session.scalar(
@@ -701,11 +747,26 @@ async def list_materials(
                 InventoryStock.material_id == mat.id
             )
         ) or Decimal("0")
+
+        daily_rate = consumption_rates.get(mat.id)
+        days_stockout: Decimal | None = None
+        days_reorder: Decimal | None = None
+        if daily_rate and daily_rate > 0:
+            days_stockout = (stock_qty / daily_rate).quantize(Decimal("0.1"))
+            if mat.reorder_point is not None:
+                days_reorder = ((stock_qty - mat.reorder_point) / daily_rate).quantize(Decimal("0.1"))
+
+        # Risk calculation with depletion awareness
         risk = "ok"
         if stock_qty <= 0:
             risk = "critical"
+        elif days_stockout is not None and days_stockout <= Decimal("3"):
+            risk = "critical"
         elif stock_qty < mat.minimum_stock:
             risk = "low"
+        elif days_stockout is not None and days_stockout <= Decimal("7"):
+            risk = "low"
+
         results.append(MaterialResponse(
             id=mat.id,
             material_code=mat.material_code,
@@ -713,14 +774,25 @@ async def list_materials(
             category=mat.category,
             unit_of_measure=mat.unit_of_measure,
             supplier_id=mat.supplier_id,
+            supplier_name=supplier_names.get(mat.supplier_id) if mat.supplier_id else None,
             minimum_stock=mat.minimum_stock,
             current_stock=stock_qty,
             average_cost_npr=mat.average_cost_npr,
             last_purchase_cost_npr=mat.last_purchase_cost_npr,
             location=mat.location,
+            reorder_point=mat.reorder_point,
+            reorder_quantity=mat.reorder_quantity,
+            lead_time_days=mat.lead_time_days,
+            daily_consumption_rate=daily_rate,
+            days_until_stockout=days_stockout,
+            days_until_reorder=days_reorder,
             risk=risk,
             version=getattr(mat, "version", 1),
         ))
+
+    # Sort by risk: critical first, then low, then ok
+    risk_order = {"critical": 0, "low": 1, "ok": 2}
+    results.sort(key=lambda r: (risk_order.get(r.risk, 3), r.days_until_stockout or Decimal("9999")))
     return results
 
 
@@ -742,6 +814,9 @@ async def create_material(
         minimum_stock=data.minimum_stock,
         average_cost_npr=data.average_cost_npr,
         location=data.location,
+        reorder_point=data.reorder_point,
+        reorder_quantity=data.reorder_quantity,
+        lead_time_days=data.lead_time_days,
         active=True,
     )
     session.add(mat)
@@ -766,11 +841,18 @@ async def create_material(
         category=mat.category,
         unit_of_measure=mat.unit_of_measure,
         supplier_id=mat.supplier_id,
+        supplier_name=None,
         minimum_stock=mat.minimum_stock,
         current_stock=Decimal("0"),
         average_cost_npr=mat.average_cost_npr,
         last_purchase_cost_npr=None,
         location=mat.location,
+        reorder_point=mat.reorder_point,
+        reorder_quantity=mat.reorder_quantity,
+        lead_time_days=mat.lead_time_days,
+        daily_consumption_rate=None,
+        days_until_stockout=None,
+        days_until_reorder=None,
         risk="critical",
         version=1,
     )
@@ -799,6 +881,12 @@ async def update_material(
         mat.minimum_stock = data.minimum_stock
     if data.location is not None:
         mat.location = data.location
+    if data.reorder_point is not None:
+        mat.reorder_point = data.reorder_point
+    if data.reorder_quantity is not None:
+        mat.reorder_quantity = data.reorder_quantity
+    if data.lead_time_days is not None:
+        mat.lead_time_days = data.lead_time_days
     await session.flush()
     await write_audit(session, actor, "material.update", "material", mat.id)
 
@@ -820,11 +908,18 @@ async def update_material(
         category=mat.category,
         unit_of_measure=mat.unit_of_measure,
         supplier_id=mat.supplier_id,
+        supplier_name=None,
         minimum_stock=mat.minimum_stock,
         current_stock=stock_qty,
         average_cost_npr=mat.average_cost_npr,
         last_purchase_cost_npr=mat.last_purchase_cost_npr,
         location=mat.location,
+        reorder_point=mat.reorder_point,
+        reorder_quantity=mat.reorder_quantity,
+        lead_time_days=mat.lead_time_days,
+        daily_consumption_rate=None,
+        days_until_stockout=None,
+        days_until_reorder=None,
         risk=risk,
         version=getattr(mat, "version", 1),
     )
