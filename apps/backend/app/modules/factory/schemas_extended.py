@@ -191,6 +191,9 @@ class MaterialCreate(BaseModel):
     minimum_stock: Decimal = Field(ge=0, default=Decimal("0"))
     average_cost_npr: Decimal | None = None
     location: str | None = None
+    reorder_point: Decimal | None = Field(None, ge=0)
+    reorder_quantity: Decimal | None = Field(None, ge=0)
+    lead_time_days: int | None = Field(None, ge=1, le=365)
 
 
 class MaterialUpdate(BaseModel):
@@ -200,6 +203,10 @@ class MaterialUpdate(BaseModel):
     supplier_id: UUID | None = None
     minimum_stock: Decimal | None = None
     location: str | None = None
+    reorder_point: Decimal | None = None
+    reorder_quantity: Decimal | None = None
+    lead_time_days: int | None = None
+    version: int = Field(ge=1)
 
 
 class MaterialResponse(BaseModel):
@@ -209,11 +216,18 @@ class MaterialResponse(BaseModel):
     category: str
     unit_of_measure: str
     supplier_id: UUID | None = None
+    supplier_name: str | None = None
     minimum_stock: Decimal
     current_stock: Decimal
     average_cost_npr: Decimal | None = None
     last_purchase_cost_npr: Decimal | None = None
     location: str | None = None
+    reorder_point: Decimal | None = None
+    reorder_quantity: Decimal | None = None
+    lead_time_days: int | None = None
+    daily_consumption_rate: Decimal | None = None
+    days_until_stockout: Decimal | None = None
+    days_until_reorder: Decimal | None = None
     risk: str
     version: int
 
@@ -257,6 +271,65 @@ class MovementResponse(BaseModel):
     unit: str
     reason: str | None = None
     created_at: datetime
+
+
+# =============================================================================
+# Purchase Suggestions & Stock Alerts
+# =============================================================================
+
+class PurchaseSuggestionResponse(BaseModel):
+    material_id: UUID
+    material_name: str
+    material_code: str
+    category: str
+    unit: str
+    current_stock: Decimal
+    current_available: Decimal
+    reorder_point: Decimal
+    suggested_quantity: Decimal
+    estimated_cost_npr: Decimal | None = None
+    supplier_name: str | None = None
+    supplier_phone: str | None = None
+    lead_time_days: int | None = None
+    daily_consumption_rate: Decimal | None = None
+    days_until_stockout: Decimal | None = None
+    urgency: str  # critical | warning | info
+
+
+class StockAlertResponse(BaseModel):
+    id: UUID
+    material_id: UUID
+    material_name: str
+    material_code: str
+    alert_type: str
+    current_stock: Decimal
+    threshold: Decimal
+    unit: str
+    days_remaining: Decimal | None = None
+    supplier_name: str | None = None
+    acknowledged: bool
+    acknowledged_at: datetime | None = None
+    acknowledged_by: str | None = None
+    po_reference: str | None = None
+    created_at: datetime
+
+
+class AcknowledgeAlertInput(BaseModel):
+    po_reference: str | None = Field(None, max_length=100)
+    notes: str | None = Field(None, max_length=500)
+
+
+class InventoryHealthResponse(BaseModel):
+    total_materials: int
+    healthy_count: int
+    low_count: int
+    critical_count: int
+    no_movement_30d_count: int
+    total_inventory_value_npr: Decimal
+    risk_breakdown: list[dict]
+    fastest_depleting: list[dict]
+    dead_stock: list[dict]
+    consumption_trend: list[dict]
 
 
 # =============================================================================
