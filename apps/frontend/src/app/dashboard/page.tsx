@@ -205,7 +205,7 @@ export default async function Home() {
             </PanelHeader>
             <div className="inventory-list">
               {dashboard.inventory_alerts.length > 0 ? dashboard.inventory_alerts.map((item) => (
-                <div className="inventory-row" key={item.code}>
+                <Link className="inventory-row" href="/inventory" key={item.code} style={{ textDecoration: "none", color: "inherit" }}>
                   <div>
                     <strong>{item.material}</strong>
                     <span>{item.code}</span>
@@ -214,10 +214,15 @@ export default async function Home() {
                     <strong>{item.current}</strong>
                     <span>Min {item.minimum}</span>
                   </div>
-                  <p>{item.risk}</p>
-                </div>
+                  <Badge tone={item.risk === "critical" ? "red" : item.risk === "low" ? "amber" : "green"}>{item.risk}</Badge>
+                </Link>
               )) : (
                 <EmptyState icon={<Boxes size={28} />} title="No stock alerts" description="Inventory warnings will surface here when materials run low." />
+              )}
+              {dashboard.inventory_alerts.length > 0 && (
+                <Link href="/inventory/alerts" style={{ display: "block", textAlign: "center", padding: "0.5rem", fontSize: "0.8rem", opacity: 0.7 }}>
+                  View all alerts &rarr;
+                </Link>
               )}
             </div>
           </GlassCard>
