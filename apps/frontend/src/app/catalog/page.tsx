@@ -8,8 +8,25 @@ import { Button } from "@/components/ui/button";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Catalog | Pailo Shoes",
-  description: "Browse our collection of Nepal-made shoes — durable, comfortable, and built for daily life.",
+  title: "Catalog",
+  description:
+    "Browse the Pailo Shoes collection — durable, comfortable Nepal-made footwear for retail shops, supermarkets, schools, and direct buyers.",
+  alternates: {
+    canonical: "https://pailoshoes.com/catalog",
+  },
+  openGraph: {
+    title: "Catalog | Pailo Shoes",
+    description:
+      "Browse our collection of Nepal-made shoes — durable, comfortable, and built for daily life.",
+    url: "https://pailoshoes.com/catalog",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Catalog | Pailo Shoes",
+    description:
+      "Browse our collection of Nepal-made shoes — durable, comfortable, and built for daily life.",
+  },
 };
 
 interface CatalogItem {
@@ -42,8 +59,26 @@ export default async function CatalogPage() {
   const items = await getCatalogItems();
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Pailo Shoes Catalog",
+    description:
+      "Browse the Pailo Shoes collection — durable, comfortable Nepal-made footwear.",
+    url: "https://pailoshoes.com/catalog",
+    publisher: {
+      "@type": "Organization",
+      name: "Pailo Shoes",
+      url: "https://pailoshoes.com",
+    },
+  };
+
   return (
     <main className="catalog-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ─── Nav ─── */}
       <header className="catalog-nav">
         <Link aria-label="Back to home" className="catalog-back" href="/">

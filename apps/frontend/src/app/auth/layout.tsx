@@ -8,6 +8,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function PortalLayout({ children }: { children: ReactNode }) {
+export default function AuthLayout({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }

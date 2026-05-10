@@ -27,9 +27,25 @@ import { PartnerCTA } from "@/components/landing/partner-cta";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Pailo Shoes | Nepal-made footwear that lasts",
+  title: "Nepal-made footwear that lasts",
   description:
     "Pailo Shoes — durable, comfortable footwear made in Nepal. Built for daily life, school days, and shop shelves. Quality you can feel, supply you can count on.",
+  alternates: {
+    canonical: "https://pailoshoes.com",
+  },
+  openGraph: {
+    title: "Pailo Shoes | Nepal-made footwear that lasts",
+    description:
+      "Durable, comfortable footwear made in Nepal. Built for daily life, school days, and shop shelves. Quality you can feel, supply you can count on.",
+    url: "https://pailoshoes.com",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Pailo Shoes | Nepal-made footwear that lasts",
+    description:
+      "Durable, comfortable footwear made in Nepal. Built for daily life, school days, and shop shelves.",
+  },
 };
 
 /* ─── Icon registry ─── */
@@ -151,6 +167,38 @@ export default async function LandingPage() {
 
   return (
     <main className="lp">
+      {/* ─── JSON-LD Structured Data ─── */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "Pailo Shoes",
+            url: "https://pailoshoes.com",
+            logo: "https://pailoshoes.com/landing/pailo-factory-vision.png",
+            description:
+              "Durable, comfortable footwear made in Nepal. Built for daily life, school days, and shop shelves.",
+            address: {
+              "@type": "PostalAddress",
+              addressCountry: "NP",
+            },
+            telephone: `+977${cfg.contact_phone}`,
+            sameAs: [],
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "Pailo Shoes",
+            url: "https://pailoshoes.com",
+          }),
+        }}
+      />
       {/* ─── Nav ─── */}
       <header className="lp-nav">
         <Link aria-label="Pailo Shoes home" className="lp-brand" href="/">
