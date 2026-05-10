@@ -7,14 +7,26 @@ from app.modules.factory import service
 from app.modules.factory import service_extended as svc
 from app.modules.factory.schemas import InventoryAlert, MaterialStockRecord
 from app.modules.factory.schemas_extended import (
+    AcknowledgeAlertInput,
     AdjustStockInput,
+    InventoryHealthResponse,
     IssueStockInput,
     MaterialCreate,
     MaterialResponse,
     MaterialUpdate,
     MovementResponse,
+    PurchaseSuggestionResponse,
     ReceiveStockInput,
+    StockAlertResponse,
     WastageInput,
+)
+from app.modules.stock_alerts import (
+    acknowledge_alert,
+    generate_stock_alerts,
+    get_inventory_health,
+    get_purchase_suggestions,
+    get_unacknowledged_count,
+    list_stock_alerts,
 )
 
 router = APIRouter()
@@ -116,3 +128,61 @@ async def record_wastage(
     result = await svc.record_wastage(session, payload, current_user)
     await session.commit()
     return result
+
+
+# ── Purchase Suggestions ──────────────────────────────────────────────
+
+
+@router.get("/purchase-suggestions", response_model=list[PurchaseSuggestionResponse])
+async def list_purchase_suggestions(
+    session: DbSession,
+) -> list[PurchaseSuggestionResponse]:
+    return await get_purchase_suggestions(session)
+
+
+# ── Stock Alerts ──────────────────────────────────────────────────────
+
+
+@router.get("/alerts", response_model=list[StockAlertResponse])
+async def list_alerts(
+    session: DbSession,
+    acknowledged: bool | None = Query(None),
+) -> list[StockAlertResponse]:
+    return await list_stock_alerts(session, acknowledged)
+
+
+@router.get("/alerts/count")
+async def alert_count(session: DbSession) -> dict[str, int]:
+    count = await get_unacknowledged_count(session)
+    return {"unacknowledged": count}
+
+
+@router.post("/alerts/generate", response_model=list[StockAlertResponse])
+async def run_alert_generation(
+    session: DbSession,
+    current_user: CurrentUser,
+) -> list[StockAlertResponse]:
+    await generate_stock_alerts(session)
+    await session.commit()
+    # Return the full list of unacknowledged alerts
+    return await list_stock_alerts(session, acknowledged=False)
+
+
+@router.post("/alerts/{alert_id}/acknowledge", response_model=StockAlertResponse)
+async def acknowledge(
+    alert_id: UUID,
+    payload: AcknowledgeAlertInput,
+    session: DbSession,
+    current_user: CurrentUser,
+) -> StockAlertResponse:
+    result = await acknowledge_alert(session, alert_id, payload, current_user)
+    await session.commit()
+    return result
+
+
+# ── Inventory Health ──────────────────────────────────────────────────
+
+
+@router.get("/health", response_model=InventoryHealthResponse)
+async def inventory_health(session: DbSession) -> InventoryHealthResponse:
+    return await get_inventory_health(session)
