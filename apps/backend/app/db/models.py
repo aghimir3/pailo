@@ -967,3 +967,30 @@ class DefectAnalytics(UUIDPrimaryKeyMixin, Base):
     avg_rework_time_hours: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))
     supplier_id: Mapped[UUID | None] = mapped_column(ForeignKey("suppliers.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class StockAlert(UUIDPrimaryKeyMixin, Base):
+    """Tracks stock depletion alerts for materials that need reordering."""
+    __tablename__ = "stock_alerts"
+    __table_args__ = (
+        CheckConstraint(
+            "alert_type in ('below_reorder', 'below_minimum', 'stockout_imminent', 'stockout')",
+            name="ck_stock_alerts_type",
+        ),
+        Index("ix_stock_alerts_material_acknowledged", "material_id", "acknowledged"),
+        Index("ix_stock_alerts_created_at", "created_at"),
+    )
+
+    material_id: Mapped[UUID] = mapped_column(ForeignKey("materials.id", ondelete="CASCADE"), nullable=False)
+    alert_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    current_stock: Mapped[Decimal] = mapped_column(Numeric(14, 3), nullable=False)
+    threshold: Mapped[Decimal] = mapped_column(Numeric(14, 3), nullable=False)
+    unit: Mapped[str] = mapped_column(String(32), nullable=False)
+    days_remaining: Mapped[Decimal | None] = mapped_column(Numeric(8, 1))
+    daily_consumption_rate: Mapped[Decimal | None] = mapped_column(Numeric(14, 3))
+    acknowledged: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    acknowledged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    acknowledged_by_user_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    po_reference: Mapped[str | None] = mapped_column(String(100))
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
