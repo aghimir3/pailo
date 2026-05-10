@@ -109,6 +109,18 @@ async def resolve_current_user(
         sub_query = query.where(User.cognito_sub == cognito_sub)
         row = (await session.execute(sub_query)).first()
 
+        if row is not None:
+            from datetime import UTC, datetime
+
+            user_obj = row[0]
+            # Mark invite as accepted on first login after invitation
+            if user_obj.invite_status == "invited":
+                user_obj.invite_status = "accepted"
+                user_obj.accepted_invite_at = datetime.now(UTC)
+                user_obj.last_login_at = datetime.now(UTC)
+                await session.commit()
+                await session.refresh(user_obj)
+
         if row is None and user_email:
             # Try to find by email and link the cognito_sub
             email_query = query.where(User.email == user_email)
